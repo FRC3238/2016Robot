@@ -24,14 +24,18 @@ public class Robot extends IterativeRobot
     final String customAuto = "My Auto";
     String autoSelected;
     SendableChooser chooser;
-    RobotDrive robotDrive;
-    // DoubleSolenoid leftSolenoid, rightSolenoid;
-    CANTalon leftTalon, rightTalon;
-    Joystick stick;
+
     USBCamera cameraOne;
     Camera camera;
-
-    // Compressor compressor;
+    
+    Joystick joystickZero, joystickOne;
+    
+    RobotDrive robotDrive;
+    CANTalon leftDriveTalon,    rightDriveTalon,
+    		 leftBreacherTalon, rightBreacherTalon,
+    	   	 collectorTalon;
+    
+    
 
     /**
      * This function is run when the robot is first started up and should be
@@ -39,22 +43,34 @@ public class Robot extends IterativeRobot
      */
     public void robotInit()
     {
-        // compressor = new Compressor();
-        // compressor.setClosedLoopControl(true);
+        // SmartDashboard.putString("Test Statement",
+        // "This is a test of the SmartDashboard.");
+    	final int joystickZeroPort = 0,      joystickOnePort = 1;
+    	final int leftDriveTalonPort = 1,    rightDriveTalonPort = 2,
+    			  leftBreacherTalonPort = 3, rightBreacherTalonPort = 4,
+    			  collectorTalonPort = 5;
+    	
         chooser = new SendableChooser();
         chooser.addDefault("Default Auto", defaultAuto);
         chooser.addObject("My Auto", customAuto);
         SmartDashboard.putData("Auto choices", chooser);
-        // SmartDashboard.putString("Test Statement",
-        // "This is a test of the SmartDashboard.");
-        // leftSolenoid = new DoubleSolenoid(0,1);
-        // rightSolenoid = new DoubleSolenoid(2,3);
-        leftTalon = new CANTalon(1);
-        rightTalon = new CANTalon(2);
-        robotDrive = new RobotDrive(leftTalon, rightTalon);
-        stick = new Joystick(0);
+        
+
         camera = new Camera();
         camera.init();
+        
+        joystickZero = new Joystick(joystickZeroPort);
+        joystickOne = new Joystick(joystickOnePort);
+        
+        leftDriveTalon = new CANTalon(1);
+        rightDriveTalon = new CANTalon(2);
+        leftBreacherTalon = new CANTalon(leftBreacherTalonPort);
+        rightBreacherTalon = new CANTalon(rightBreacherTalonPort);
+        collectorTalon = new CANTalon(collectorTalonPort);
+        
+    	leftBreacherTalon.reverseSensor(true);
+    	
+        robotDrive = new RobotDrive(leftDriveTalon, rightDriveTalon);
     }
 
     /**
@@ -106,19 +122,32 @@ public class Robot extends IterativeRobot
      */
     public void teleopPeriodic()
     {
-        robotDrive.arcadeDrive(-stick.getY(), -stick.getTwist(), true);
-        // if(stick.getRawButton(1)){
-        // leftSolenoid.set(DoubleSolenoid.Value.kForward);
-        // rightSolenoid.set(DoubleSolenoid.Value.kForward);
-        // }
-        // if(stick.getRawButton(2)){
-        // leftSolenoid.set(DoubleSolenoid.Value.kReverse);
-        // rightSolenoid.set(DoubleSolenoid.Value.kReverse);
-        // }
-
-        if(stick.getRawButton(3))
+        double throttleZero = joystickZero.getThrottle() + .5;
+        double throttleOne = joystickOne.getThrottle() + .5;
+        
+        robotDrive.arcadeDrive(-joystickZero.getY(), -joystickZero.getTwist(), true);
+        
+        if(joystickZero.getRawButton(2)) 
             camera.changeCam();
         camera.idle();
+        
+        if (joystickZero.getRawButton(3)) {
+        	collectorTalon.set(throttleZero);
+        } else if (joystickZero.getRawButton(5)) {
+        	collectorTalon.set(-throttleZero);
+        } else {
+        	collectorTalon.set(0);
+        }
+        
+        if (joystickZero.getRawButton(4)) {
+        	leftBreacherTalon.set(throttleOne);
+        	rightBreacherTalon.set(throttleOne);
+        } else if (joystickZero.getRawButton(6)) {
+        	leftBreacherTalon.set(-throttleOne);
+        	rightBreacherTalon.set(-throttleOne);
+        } else {
+        	leftBreacherTalon.set(0);
+        }
     }
 
     public void disabledPeriodic()
