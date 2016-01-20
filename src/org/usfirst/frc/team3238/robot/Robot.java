@@ -3,8 +3,6 @@ package org.usfirst.frc.team3238.robot;
 import edu.wpi.first.wpilibj.IterativeRobot;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-import edu.wpi.first.wpilibj.RobotDrive;
-//import edu.wpi.first.wpilibj.DoubleSolenoid;
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.CANTalon;
 import edu.wpi.first.wpilibj.vision.USBCamera;
@@ -27,15 +25,13 @@ public class Robot extends IterativeRobot
 
     USBCamera cameraOne;
     Camera camera;
-    
+
+    Chassis chassis;
+
     Joystick joystickZero, joystickOne;
-    
-    RobotDrive robotDrive;
-    CANTalon leftDriveTalon,    rightDriveTalon,
-    		 leftBreacherTalon, rightBreacherTalon,
-    	   	 collectorTalon;
-    
-    
+
+    CANTalon leftDriveTalon, rightDriveTalon, leftBreacherTalon,
+            rightBreacherTalon, collectorTalon;
 
     /**
      * This function is run when the robot is first started up and should be
@@ -45,32 +41,33 @@ public class Robot extends IterativeRobot
     {
         // SmartDashboard.putString("Test Statement",
         // "This is a test of the SmartDashboard.");
-    	final int joystickZeroPort = 0,      joystickOnePort = 1;
-    	final int leftDriveTalonPort = 1,    rightDriveTalonPort = 2,
-    			  leftBreacherTalonPort = 3, rightBreacherTalonPort = 4,
-    			  collectorTalonPort = 5;
-    	
+        final int joystickZeroPort = 0, joystickOnePort = 1;
+        final int leftDriveTalonPort = 1;
+        final int rightDriveTalonPort = 2;
+        final int leftBreacherTalonPort = 3;
+        final int rightBreacherTalonPort = 4;
+        final int collectorTalonPort = 5;
+
+        leftDriveTalon = new CANTalon(leftDriveTalonPort);
+        rightDriveTalon = new CANTalon(rightDriveTalonPort);
+        leftBreacherTalon = new CANTalon(leftBreacherTalonPort);
+        rightBreacherTalon = new CANTalon(rightBreacherTalonPort);
+        collectorTalon = new CANTalon(collectorTalonPort);
+
         chooser = new SendableChooser();
         chooser.addDefault("Default Auto", defaultAuto);
         chooser.addObject("My Auto", customAuto);
         SmartDashboard.putData("Auto choices", chooser);
-        
+
+        chassis = new Chassis(leftDriveTalon, rightDriveTalon);
 
         camera = new Camera();
         camera.init();
-        
+
         joystickZero = new Joystick(joystickZeroPort);
         joystickOne = new Joystick(joystickOnePort);
-        
-        leftDriveTalon = new CANTalon(1);
-        rightDriveTalon = new CANTalon(2);
-        leftBreacherTalon = new CANTalon(leftBreacherTalonPort);
-        rightBreacherTalon = new CANTalon(rightBreacherTalonPort);
-        collectorTalon = new CANTalon(collectorTalonPort);
-        
-    	leftBreacherTalon.reverseSensor(true);
-    	
-        robotDrive = new RobotDrive(leftDriveTalon, rightDriveTalon);
+
+        leftBreacherTalon.reverseSensor(true);
     }
 
     /**
@@ -124,35 +121,42 @@ public class Robot extends IterativeRobot
     {
         double throttleZero = joystickZero.getThrottle() + .5;
         double throttleOne = joystickOne.getThrottle() + .5;
-        
-        robotDrive.arcadeDrive(-joystickZero.getY(), -joystickZero.getTwist(), true);
-        
-        if(joystickZero.getRawButton(2)) 
+
+        chassis.setJoystickData(joystickZero.getX(), joystickZero.getTwist());
+        chassis.idle();
+
+        if(joystickZero.getRawButton(2))
             camera.changeCam();
         camera.idle();
-        
-        if (joystickZero.getRawButton(3)) {
-        	collectorTalon.set(throttleZero);
-        } else if (joystickZero.getRawButton(5)) {
-        	collectorTalon.set(-throttleZero);
-        } else {
-        	collectorTalon.set(0);
+
+        if(joystickZero.getRawButton(3))
+        {
+            collectorTalon.set(throttleZero);
+        } else if(joystickZero.getRawButton(5))
+        {
+            collectorTalon.set(-throttleZero);
+        } else
+        {
+            collectorTalon.set(0);
         }
-        
-        if (joystickZero.getRawButton(4)) {
-        	leftBreacherTalon.set(throttleOne);
-        	rightBreacherTalon.set(throttleOne);
-        } else if (joystickZero.getRawButton(6)) {
-        	leftBreacherTalon.set(-throttleOne);
-        	rightBreacherTalon.set(-throttleOne);
-        } else {
-        	leftBreacherTalon.set(0);
+
+        if(joystickZero.getRawButton(4))
+        {
+            leftBreacherTalon.set(throttleOne);
+            rightBreacherTalon.set(throttleOne);
+        } else if(joystickZero.getRawButton(6))
+        {
+            leftBreacherTalon.set(-throttleOne);
+            rightBreacherTalon.set(-throttleOne);
+        } else
+        {
+            leftBreacherTalon.set(0);
         }
     }
 
     public void disabledPeriodic()
     {
-        // camera.idle();
+        camera.idle();
     }
 
     /**
