@@ -10323,3 +10323,6 @@ This warning can be switched off on the Team > Git > Confirmations and Warnings 
 
 !ENTRY org.eclipse.jdt.core 4 0 2016-01-20 13:18:33.124
 !MESSAGE Invalid ZIP archive: C:\Users\chenjon000\wpilib\java\current\lib\NetworkTables.jar
+
+!ENTRY org.eclipse.jdt.core 4 0 2016-01-20 16:15:50.305
+!MESSAGE Invalid ZIP archive: C:\Users\chenjon000\wpilib\java\current\lib\NetworkTables.jar
