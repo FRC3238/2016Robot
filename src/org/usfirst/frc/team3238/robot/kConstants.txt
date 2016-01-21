@@ -1,1 +1,42 @@
-
+---------------------------------------------
+            Port/initialization Data
+joystickZeroPort
+0
+joystickOnePort
+1
+leftDriveTalonPort
+1
+rightDriveTalonPort 
+2
+leftBreacherTalonPort
+3
+rightBreacherTalonPort
+4
+collectorTalonPort 
+5
+ballLimitSwitchPoint 
+0
+---------------------------------------------
+            Driver Configuration
+camChangeButton
+2
+breacherTalonForwardButton
+4
+breacherTalonReverseButton
+6
+collectorForwardButton
+3
+collectorReverseButton
+5
+collectorManualButton
+10
+---------------------------------------------
+            Camera Configuration
+CameraOne
+cam1
+CameraTwo
+cam2
+camQuality
+30
+camSize
+0
