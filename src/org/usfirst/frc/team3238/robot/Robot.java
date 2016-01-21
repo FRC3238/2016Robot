@@ -17,33 +17,42 @@ import edu.wpi.first.wpilibj.CANTalon;
  */
 public class Robot extends IterativeRobot
 {
-    final String defaultAuto = "Default";
+    /*final String defaultAuto = "Default";
     final String customAuto = "My Auto";
     String autoSelected;
-    SendableChooser chooser;
+    SendableChooser chooser;*/
     Camera camera;
     Chassis chassis;
     Collector collector;
     Joystick joystickZero, joystickOne;
     CANTalon leftDriveTalon, rightDriveTalon, leftBreacherTalon,
             rightBreacherTalon, collectorTalon;
-
+    ConstantInterpreter ci;
+    public int camChangeButton, breacherTalonForwardButton, breacherTalonReverseButton,
+               collectorForwardButton, collectorReverseButton, collectorManualButton;
     /**
      * This function is run when the robot is first started up and should be
      * used for any initialization code.
      */
     public void robotInit()
     {
+        ci = new ConstantInterpreter();
+        camChangeButton = ci.retrieveInt("camChangeButton");
+        breacherTalonForwardButton = ci.retrieveInt("breacherTalonForwardButton");
+        breacherTalonReverseButton = ci.retrieveInt("breacherTalonReverseButton");
+        collectorForwardButton = ci.retrieveInt("collectorForwardButton");
+        collectorReverseButton = ci.retrieveInt("collectorReverseButton");
+        collectorManualButton = ci.retrieveInt("collectorManualButton");
         // SmartDashboard.putString("Test Statement",
         // "This is a test of the SmartDashboard.");
-        final int joystickZeroPort = 0;
-        final int joystickOnePort = 1;
-        final int leftDriveTalonPort = 1;
-        final int rightDriveTalonPort = 2;
-        final int leftBreacherTalonPort = 3;
-        final int rightBreacherTalonPort = 4;
-        final int collectorTalonPort = 5;
-        final int ballLimitSwitchPort = 0;
+        final int joystickZeroPort = ci.retrieveInt("joystickZeroPort");
+        final int joystickOnePort = ci.retrieveInt("joystickOnePort");
+        final int leftDriveTalonPort = ci.retrieveInt("leftDriveTalonPort");
+        final int rightDriveTalonPort = ci.retrieveInt("rightDriveTalonPort");
+        final int leftBreacherTalonPort = ci.retrieveInt("leftBreacherTalonPort");
+        final int rightBreacherTalonPort = ci.retrieveInt("rightBreacherTalonPort");
+        final int collectorTalonPort = ci.retrieveInt("collectorTalonPort");
+        final int ballLimitSwitchPort = ci.retrieveInt("ballLimitSwitchPoint");
 
         leftDriveTalon = new CANTalon(leftDriveTalonPort);
         rightDriveTalon = new CANTalon(rightDriveTalonPort);
@@ -51,11 +60,11 @@ public class Robot extends IterativeRobot
         rightBreacherTalon = new CANTalon(rightBreacherTalonPort);
         collectorTalon = new CANTalon(collectorTalonPort);
 
-        chooser = new SendableChooser();
+        /*chooser = new SendableChooser();
         chooser.addDefault("Default Auto", defaultAuto);
         chooser.addObject("My Auto", customAuto);
-        SmartDashboard.putData("Auto choices", chooser);
-
+        SmartDashboard.putData("Auto choices", chooser);*/
+        
         chassis = new Chassis(leftDriveTalon, rightDriveTalon);
 
         collector = new Collector(collectorTalonPort, ballLimitSwitchPort);
@@ -82,10 +91,10 @@ public class Robot extends IterativeRobot
      */
     public void autonomousInit()
     {
-        autoSelected = (String) chooser.getSelected();
+        //autoSelected = (String) chooser.getSelected();
         // autoSelected = SmartDashboard.getString("Auto Selector",
         // defaultAuto);
-        System.out.println("Auto selected: " + autoSelected);
+        //System.out.println("Auto selected: " + autoSelected);
     }
 
     /**
@@ -93,7 +102,7 @@ public class Robot extends IterativeRobot
      */
     public void autonomousPeriodic()
     {
-        switch(autoSelected)
+        /*switch(autoSelected)
         {
             case customAuto:
                 // Put custom auto code here
@@ -102,7 +111,7 @@ public class Robot extends IterativeRobot
             default:
                 // Put default auto code here
                 break;
-        }
+        }*/
     }
 
     /**
@@ -110,7 +119,7 @@ public class Robot extends IterativeRobot
      */
     public void teleopInit()
     {
-
+      
     }
 
     /**
@@ -125,11 +134,11 @@ public class Robot extends IterativeRobot
         chassis.idle();
 
         collector.setJoystickData(joystickZero.getThrottle(),
-                joystickZero.getRawButton(3), joystickZero.getRawButton(5),
-                joystickZero.getRawButton(10));
+                joystickZero.getRawButton(collectorForwardButton), joystickZero.getRawButton(collectorReverseButton),
+                joystickZero.getRawButton(collectorManualButton));
         collector.idle();
 
-        if(joystickZero.getRawButton(2))
+        if(joystickZero.getRawButton(camChangeButton))
             camera.changeCam();
         camera.idle();
 
@@ -144,11 +153,11 @@ public class Robot extends IterativeRobot
         // collectorTalon.set(0);
         // }
 
-        if(joystickZero.getRawButton(4))
+        if(joystickZero.getRawButton(breacherTalonForwardButton))
         {
             leftBreacherTalon.set(throttleOne);
             rightBreacherTalon.set(throttleOne);
-        } else if(joystickZero.getRawButton(6))
+        } else if(joystickZero.getRawButton(breacherTalonReverseButton))
         {
             leftBreacherTalon.set(-throttleOne);
             rightBreacherTalon.set(-throttleOne);
