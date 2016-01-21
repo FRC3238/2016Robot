@@ -137,8 +137,8 @@ public class Robot extends IterativeRobot
         
         //buttons that trigger the collector subsystem
         if (joystickZero.getRawButton(3)) {
-        	//collects a ball continuously until limit switch is hit or kill switch through joystick
-        	while (!ballDetect.get() || !joystickZero.getRawButton(11)) {
+        	//collects a ball
+        	while (!ballDetect.get()) {
             	collectorTalon.set(throttleZero);
         	}
         } else if (joystickZero.getRawButton(5)) {
