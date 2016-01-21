@@ -4,10 +4,15 @@ import com.ni.vision.NIVision;
 import com.ni.vision.NIVision.Image;
 import com.ni.vision.NIVision.Point;
 import com.ni.vision.VisionException;
-
 import edu.wpi.first.wpilibj.CameraServer;
 import edu.wpi.first.wpilibj.DriverStation;
 
+/**
+ * Controls the two cameras, sends them to the Driver Station, and switches
+ * between the two.
+ * 
+ * @author Aaron Jenson
+ */
 public class Camera
 {
     private final int camOne;
@@ -27,11 +32,6 @@ public class Camera
                 NIVision.IMAQdxCameraControlMode.CameraControlModeController);
         activeCam = camTwo;
         frame = NIVision.imaqCreateImage(NIVision.ImageType.IMAGE_RGB, 0);
-        // framePrime = NIVision.imaqCreateImage(NIVision.ImageType.IMAGE_RGB,
-        // 0);
-        // framePrimeTwo =
-        // NIVision.imaqCreateImage(NIVision.ImageType.IMAGE_RGB,
-        // 0);
         startPointH = new Point(300, 240);
         endPointH = new Point(340, 240);
         startPointV = new Point(320, 220);
@@ -48,11 +48,18 @@ public class Camera
         CameraServer.getInstance().setSize(0);
     }
 
+    /**
+     * Initializes the first camera by running changeCam class.
+     */
     public void init()
     {
         changeCam();
     }
 
+    /**
+     * Switches between the two cameras using one toggle button on the joystick.
+     * Also closes the unused camera to save bandwidth.
+     */
     public void changeCam()
     {
         if(activeCam == camOne)
@@ -71,23 +78,25 @@ public class Camera
         activeCam = newID;
     }
 
+    /**
+     * Gets the camera feed, adds crosshairs to the image and sends the feed to
+     * the driver station.
+     */
     void idle()
     {
         try
         {
             NIVision.IMAQdxGrab(activeCam, frame, 1);
             NIVision.imaqDrawLineOnImage(frame, frame,
-                    NIVision.DrawMode.DRAW_INVERT, startPointH, endPointH,
-                    0.0f);
+                    NIVision.DrawMode.DRAW_INVERT, startPointH, endPointH, 0.0f);
             NIVision.imaqDrawLineOnImage(frame, frame,
-                    NIVision.DrawMode.DRAW_INVERT, startPointV, endPointV,
-                    0.0f);
+                    NIVision.DrawMode.DRAW_INVERT, startPointV, endPointV, 0.0f);
             NIVision.imaqDrawLineOnImage(frame, frame,
-                    NIVision.DrawMode.DRAW_INVERT, startPointHTwo, endPointHTwo,
-                    0.0f);
+                    NIVision.DrawMode.DRAW_INVERT, startPointHTwo,
+                    endPointHTwo, 0.0f);
             NIVision.imaqDrawLineOnImage(frame, frame,
-                    NIVision.DrawMode.DRAW_INVERT, startPointVTwo, endPointVTwo,
-                    0.0f);
+                    NIVision.DrawMode.DRAW_INVERT, startPointVTwo,
+                    endPointVTwo, 0.0f);
             NIVision.imaqDrawLineOnImage(frame, frame,
                     NIVision.DrawMode.DRAW_INVERT, startPointHThree,
                     endPointHThree, 0.0f);

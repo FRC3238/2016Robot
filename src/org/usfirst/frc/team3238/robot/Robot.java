@@ -5,7 +5,6 @@ import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.CANTalon;
-import edu.wpi.first.wpilibj.vision.USBCamera;
 
 //import edu.wpi.first.wpilibj.Compressor;
 
@@ -22,14 +21,10 @@ public class Robot extends IterativeRobot
     final String customAuto = "My Auto";
     String autoSelected;
     SendableChooser chooser;
-
-    USBCamera cameraOne;
     Camera camera;
-
     Chassis chassis;
-
+    Collector collector;
     Joystick joystickZero, joystickOne;
-
     CANTalon leftDriveTalon, rightDriveTalon, leftBreacherTalon,
             rightBreacherTalon, collectorTalon;
 
@@ -41,12 +36,14 @@ public class Robot extends IterativeRobot
     {
         // SmartDashboard.putString("Test Statement",
         // "This is a test of the SmartDashboard.");
-        final int joystickZeroPort = 0, joystickOnePort = 1;
+        final int joystickZeroPort = 0;
+        final int joystickOnePort = 1;
         final int leftDriveTalonPort = 1;
         final int rightDriveTalonPort = 2;
         final int leftBreacherTalonPort = 3;
         final int rightBreacherTalonPort = 4;
         final int collectorTalonPort = 5;
+        final int ballLimitSwitchPort = 0;
 
         leftDriveTalon = new CANTalon(leftDriveTalonPort);
         rightDriveTalon = new CANTalon(rightDriveTalonPort);
@@ -60,6 +57,8 @@ public class Robot extends IterativeRobot
         SmartDashboard.putData("Auto choices", chooser);
 
         chassis = new Chassis(leftDriveTalon, rightDriveTalon);
+
+        collector = new Collector(collectorTalonPort, ballLimitSwitchPort);
 
         camera = new Camera();
         camera.init();
@@ -111,7 +110,7 @@ public class Robot extends IterativeRobot
      */
     public void teleopInit()
     {
-        // SmartDashboard.putString("Test Statement", "Teleop is initialized.");
+
     }
 
     /**
@@ -119,26 +118,31 @@ public class Robot extends IterativeRobot
      */
     public void teleopPeriodic()
     {
-        double throttleZero = joystickZero.getThrottle() + .5;
+        // double throttleZero = joystickZero.getThrottle() + .5;
         double throttleOne = joystickOne.getThrottle() + .5;
 
         chassis.setJoystickData(joystickZero.getX(), joystickZero.getTwist());
         chassis.idle();
 
+        collector.setJoystickData(joystickZero.getThrottle(),
+                joystickZero.getRawButton(3), joystickZero.getRawButton(5),
+                joystickZero.getRawButton(10));
+        collector.idle();
+
         if(joystickZero.getRawButton(2))
             camera.changeCam();
         camera.idle();
 
-        if(joystickZero.getRawButton(3))
-        {
-            collectorTalon.set(throttleZero);
-        } else if(joystickZero.getRawButton(5))
-        {
-            collectorTalon.set(-throttleZero);
-        } else
-        {
-            collectorTalon.set(0);
-        }
+        // if(joystickZero.getRawButton(3))
+        // {
+        // collectorTalon.set(throttleZero);
+        // } else if(joystickZero.getRawButton(5))
+        // {
+        // collectorTalon.set(-throttleZero);
+        // } else
+        // {
+        // collectorTalon.set(0);
+        // }
 
         if(joystickZero.getRawButton(4))
         {
