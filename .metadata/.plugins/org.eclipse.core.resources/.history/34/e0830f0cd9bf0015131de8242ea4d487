@@ -7,7 +7,6 @@ import edu.wpi.first.wpilibj.vision.USBCamera;
 import edu.wpi.first.wpilibj.RobotDrive;
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.CANTalon;
-import edu.wpi.first.wpilibj.Talon;
 import edu.wpi.first.wpilibj.DigitalInput;
 
 //import edu.wpi.first.wpilibj.Compressor;
@@ -33,7 +32,7 @@ public class Robot extends IterativeRobot
     
     RobotDrive robotDrive;
     
-    Talon leftDriveTalon,    rightDriveTalon,
+    CANTalon leftDriveTalon,    rightDriveTalon,
     		 leftBreacherTalon, rightBreacherTalon,
     	   	 collectorTalon;
     
@@ -65,13 +64,13 @@ public class Robot extends IterativeRobot
         joystickZero = new Joystick(joystickZeroPort);
         joystickOne = new Joystick(joystickOnePort);
         
-        leftDriveTalon = new Talon(1);
-        rightDriveTalon = new Talon(2);
-        leftBreacherTalon = new Talon(leftBreacherTalonPort);
-        rightBreacherTalon = new Talon(rightBreacherTalonPort);
-        collectorTalon = new Talon(collectorTalonPort);
+        leftDriveTalon = new CANTalon(1);
+        rightDriveTalon = new CANTalon(2);
+        leftBreacherTalon = new CANTalon(leftBreacherTalonPort);
+        rightBreacherTalon = new CANTalon(rightBreacherTalonPort);
+        collectorTalon = new CANTalon(collectorTalonPort);
         
-    	//leftBreacherTalon.reverseSensor(true);
+    	leftBreacherTalon.reverseSensor(true);
     	
     	ballDetect = new DigitalInput(ballDetectChannel);
     	
@@ -153,16 +152,15 @@ public class Robot extends IterativeRobot
         //buttons that trigger the breacher subsystem
         if (joystickZero.getRawButton(4)) {
         	//pulls the arm upwards
-        	leftBreacherTalon.set(-throttleOne);
+        	leftBreacherTalon.set(throttleOne);
         	rightBreacherTalon.set(throttleOne);
         } else if (joystickZero.getRawButton(6)) {
         	//puts the arm down
-        	leftBreacherTalon.set(throttleOne);
+        	leftBreacherTalon.set(-throttleOne);
         	rightBreacherTalon.set(-throttleOne);
         } else {
         	//standby
         	leftBreacherTalon.set(0);
-        	rightBreacherTalon.set(0);
         }
     }
 

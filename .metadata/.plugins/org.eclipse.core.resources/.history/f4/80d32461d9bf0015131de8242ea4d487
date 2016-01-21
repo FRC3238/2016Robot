@@ -71,7 +71,7 @@ public class Robot extends IterativeRobot
         rightBreacherTalon = new Talon(rightBreacherTalonPort);
         collectorTalon = new Talon(collectorTalonPort);
         
-    	//leftBreacherTalon.reverseSensor(true);
+    	leftBreacherTalon.reverseSensor(true);
     	
     	ballDetect = new DigitalInput(ballDetectChannel);
     	
@@ -153,16 +153,15 @@ public class Robot extends IterativeRobot
         //buttons that trigger the breacher subsystem
         if (joystickZero.getRawButton(4)) {
         	//pulls the arm upwards
-        	leftBreacherTalon.set(-throttleOne);
+        	leftBreacherTalon.set(throttleOne);
         	rightBreacherTalon.set(throttleOne);
         } else if (joystickZero.getRawButton(6)) {
         	//puts the arm down
-        	leftBreacherTalon.set(throttleOne);
+        	leftBreacherTalon.set(-throttleOne);
         	rightBreacherTalon.set(-throttleOne);
         } else {
         	//standby
         	leftBreacherTalon.set(0);
-        	rightBreacherTalon.set(0);
         }
     }
 
