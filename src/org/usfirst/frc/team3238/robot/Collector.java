@@ -58,9 +58,9 @@ public class Collector
                 }
                 if(bReverse)
                 {
-                    collectorMode = "ejecting";
                     timer.reset();
                     timer.start();
+                    collectorMode = "ejecting";
                 }
                 break;
 

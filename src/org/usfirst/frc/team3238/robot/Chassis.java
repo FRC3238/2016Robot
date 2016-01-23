@@ -9,6 +9,8 @@ public class Chassis
 
     double xValue;
     double twistValue;
+    double mappedX;
+    double mappedTwist;
 
     Chassis(SpeedController leftMotorController,
             SpeedController rightMotorController)
@@ -24,9 +26,6 @@ public class Chassis
 
     void idle()
     {
-        double mappedX;
-        double mappedTwist;
-
         if(xValue < 0)
         {
             mappedX = -(xValue * xValue);
