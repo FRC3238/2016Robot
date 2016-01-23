@@ -16,12 +16,6 @@ collectorTalonPort
 5
 ballLimitSwitchPoint 
 0
-ballDetectChannel
-0
-armDetectTopChannel
-1
-armDetectBotChannel
-2
 ---------------------------------------------
             Driver Configuration
 camChangeButton

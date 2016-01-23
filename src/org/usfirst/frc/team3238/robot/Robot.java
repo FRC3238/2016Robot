@@ -1,8 +1,11 @@
 package org.usfirst.frc.team3238.robot;
 
+import java.io.FileNotFoundException;
+
 import edu.wpi.first.wpilibj.IterativeRobot;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.CANTalon;
 
@@ -25,6 +28,9 @@ public class Robot extends IterativeRobot
     Joystick joystickZero, joystickOne;
     CANTalon leftDriveTalon, rightDriveTalon, leftBreacherTalon,
             rightBreacherTalon, collectorTalon;
+    DigitalInput ballDetect;
+    DigitalInput armDetectTop, armDetectBot;
+    Breacher breacherArm;
     ConstantInterpreter ci;
     public int camChangeButton, breacherTalonForwardButton, breacherTalonReverseButton,
                collectorForwardButton, collectorReverseButton, collectorManualButton;
@@ -32,9 +38,17 @@ public class Robot extends IterativeRobot
      * This function is run when the robot is first started up and should be
      * used for any initialization code.
      */
-    public void robotInit()
+    public void defineConstants() throws java.io.FileNotFoundException{
+    	
+    	
+    }
+    public void robotInit() 
     {
-        ci = new ConstantInterpreter();
+        try {
+			ci = new ConstantInterpreter();
+		} catch (FileNotFoundException e) {		
+			e.printStackTrace();
+		}
         camChangeButton = ci.retrieveInt("camChangeButton");
         breacherTalonForwardButton = ci.retrieveInt("breacherTalonForwardButton");
         breacherTalonReverseButton = ci.retrieveInt("breacherTalonReverseButton");
@@ -51,18 +65,19 @@ public class Robot extends IterativeRobot
         final int rightBreacherTalonPort = ci.retrieveInt("rightBreacherTalonPort");
         final int collectorTalonPort = ci.retrieveInt("collectorTalonPort");
         final int ballLimitSwitchPort = ci.retrieveInt("ballLimitSwitchPoint");
-
+        final int ballDetectChannel = ci.retrieveInt("ballDetectChannel");
+        final int armDetectTopChannel = ci.retrieveInt("armDetectTopChannel");
+        final int armDetectBotChannel = ci.retrieveInt("armDetectBotChannel");
+        
+        
         leftDriveTalon = new CANTalon(leftDriveTalonPort);
         rightDriveTalon = new CANTalon(rightDriveTalonPort);
         leftBreacherTalon = new CANTalon(leftBreacherTalonPort);
         rightBreacherTalon = new CANTalon(rightBreacherTalonPort);
         collectorTalon = new CANTalon(collectorTalonPort);
 
-        /*chooser = new SendableChooser();
-        chooser.addDefault("Default Auto", defaultAuto);
-        chooser.addObject("My Auto", customAuto);
-        SmartDashboard.putData("Auto choices", chooser);*/
-        
+        breacherArm = new Breacher(leftBreacherTalon, rightBreacherTalon,
+                                    armDetectTop, armDetectBot);
         chassis = new Chassis(leftDriveTalon, rightDriveTalon);
 
         collector = new Collector(collectorTalonPort, ballLimitSwitchPort);
@@ -125,7 +140,7 @@ public class Robot extends IterativeRobot
      */
     public void teleopPeriodic()
     {
-        // double throttleZero = joystickZero.getThrottle() + .5;
+        double throttleZero = joystickZero.getThrottle() + .5;
         double throttleOne = joystickOne.getThrottle() + .5;
 
         chassis.setJoystickData(joystickZero.getX(), joystickZero.getTwist());
@@ -150,21 +165,38 @@ public class Robot extends IterativeRobot
         // {
         // collectorTalon.set(0);
         // }
+        collectorCommands(throttleZero);
+        breacherCommands(throttleOne);
+    }
 
-        if(joystickZero.getRawButton(breacherTalonForwardButton))
-        {
-            leftBreacherTalon.set(throttleOne);
-            rightBreacherTalon.set(throttleOne);
-        } else if(joystickZero.getRawButton(breacherTalonReverseButton))
-        {
-            leftBreacherTalon.set(-throttleOne);
-            rightBreacherTalon.set(-throttleOne);
-        } else
-        {
-            leftBreacherTalon.set(0);
+    private void breacherCommands(double throttleOne) {
+        if (joystickZero.getRawButton(breacherTalonForwardButton)) {
+            //pulls the arm upwards
+            breacherArm.raiseArm();
+        } else if (joystickZero.getRawButton(breacherTalonReverseButton)) {
+            //puts the arm down
+            //leftBreacherTalon.set(-throttleOne);
+            breacherArm.lowerArm();
+        } else {
+            //standby
+            breacherArm.standby();
         }
     }
 
+    private void collectorCommands(double throttleZero) {
+        if (joystickZero.getRawButton(collectorForwardButton)) {
+            //collects a ball continuously until limit switch is hit or kill switch through joystick
+            while (!ballDetect.get() || !joystickZero.getRawButton(11)) {
+                collectorTalon.set(throttleZero);
+            }
+        } else if (joystickZero.getRawButton(collectorReverseButton)) {
+            //spits out the ball
+            collectorTalon.set(-throttleZero);
+        } else {
+            //standby
+            collectorTalon.set(0);
+        }
+    }
     public void disabledPeriodic()
     {
         camera.idle();
