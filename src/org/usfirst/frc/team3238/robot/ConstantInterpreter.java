@@ -1,4 +1,4 @@
-
+package org.usfirst.frc.team3238.robot;
 import java.util.Scanner;
 import java.io.File;
 import java.text.NumberFormat;
@@ -9,14 +9,14 @@ import java.text.NumberFormat;
  * @author (your name)
  * @version (a version number or a date)
  */
-public class constantInterpreter
+public class ConstantInterpreter
 {
     public static final File kConstant = new File("kConstants.txt");
     public static Scanner kConstantReader;
     public static String[][] constantData;
     public static int globalArraySize;
 
-    public constantInterpreter() throws java.io.FileNotFoundException
+    public ConstantInterpreter() throws java.io.FileNotFoundException
     {
         kConstantReader = new Scanner(kConstant);
         initializeArray();
