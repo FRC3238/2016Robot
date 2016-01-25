@@ -3,8 +3,8 @@ package org.usfirst.frc.team3238.robot;
 import java.io.FileNotFoundException;
 
 import edu.wpi.first.wpilibj.IterativeRobot;
-import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+//import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
+//import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.CANTalon;
 
@@ -17,10 +17,10 @@ import edu.wpi.first.wpilibj.CANTalon;
  */
 public class Robot extends IterativeRobot
 {
-    /*final String defaultAuto = "Default";
-    final String customAuto = "My Auto";
-    String autoSelected;
-    SendableChooser chooser;*/
+    /*
+     * final String defaultAuto = "Default"; final String customAuto =
+     * "My Auto"; String autoSelected; SendableChooser chooser;
+     */
     Camera camera;
     Chassis chassis;
     Collector collector;
@@ -28,25 +28,29 @@ public class Robot extends IterativeRobot
     CANTalon leftDriveTalon, rightDriveTalon, leftBreacherTalon,
             rightBreacherTalon, collectorTalon;
     ConstantInterpreter ci;
-    public int camChangeButton, breacherTalonForwardButton, breacherTalonReverseButton,
-               collectorForwardButton, collectorReverseButton, collectorManualButton;
+    public int camChangeButton, breacherTalonForwardButton,
+            breacherTalonReverseButton, collectorForwardButton,
+            collectorReverseButton, collectorManualButton;
+
     /**
      * This function is run when the robot is first started up and should be
      * used for any initialization code.
      */
     public void robotInit()
     {
-            try
-            {
-                ci = new ConstantInterpreter("kConstants.txt");
-            } catch(FileNotFoundException e)
-            {
-                // TODO Auto-generated catch block
-                e.printStackTrace();
-            }
+        try
+        {
+            ci = new ConstantInterpreter("kConstants.txt");
+        } catch(FileNotFoundException e)
+        {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
         camChangeButton = ci.retrieveInt("camChangeButton");
-        breacherTalonForwardButton = ci.retrieveInt("breacherTalonForwardButton");
-        breacherTalonReverseButton = ci.retrieveInt("breacherTalonReverseButton");
+        breacherTalonForwardButton = ci
+                .retrieveInt("breacherTalonForwardButton");
+        breacherTalonReverseButton = ci
+                .retrieveInt("breacherTalonReverseButton");
         collectorForwardButton = ci.retrieveInt("collectorForwardButton");
         collectorReverseButton = ci.retrieveInt("collectorReverseButton");
         collectorManualButton = ci.retrieveInt("collectorManualButton");
@@ -54,8 +58,10 @@ public class Robot extends IterativeRobot
         final int joystickOnePort = ci.retrieveInt("joystickOnePort");
         final int leftDriveTalonPort = ci.retrieveInt("leftDriveTalonPort");
         final int rightDriveTalonPort = ci.retrieveInt("rightDriveTalonPort");
-        final int leftBreacherTalonPort = ci.retrieveInt("leftBreacherTalonPort");
-        final int rightBreacherTalonPort = ci.retrieveInt("rightBreacherTalonPort");
+        final int leftBreacherTalonPort = ci
+                .retrieveInt("leftBreacherTalonPort");
+        final int rightBreacherTalonPort = ci
+                .retrieveInt("rightBreacherTalonPort");
         final int collectorTalonPort = ci.retrieveInt("collectorTalonPort");
         final int ballLimitSwitchPort = ci.retrieveInt("ballLimitSwitchPoint");
 
@@ -65,11 +71,12 @@ public class Robot extends IterativeRobot
         rightBreacherTalon = new CANTalon(rightBreacherTalonPort);
         collectorTalon = new CANTalon(collectorTalonPort);
 
-        /*chooser = new SendableChooser();
-        chooser.addDefault("Default Auto", defaultAuto);
-        chooser.addObject("My Auto", customAuto);
-        SmartDashboard.putData("Auto choices", chooser);*/
-        
+        /*
+         * chooser = new SendableChooser(); chooser.addDefault("Default Auto",
+         * defaultAuto); chooser.addObject("My Auto", customAuto);
+         * SmartDashboard.putData("Auto choices", chooser);
+         */
+
         chassis = new Chassis(leftDriveTalon, rightDriveTalon);
 
         collector = new Collector(collectorTalonPort, ballLimitSwitchPort);
@@ -96,10 +103,10 @@ public class Robot extends IterativeRobot
      */
     public void autonomousInit()
     {
-        //autoSelected = (String) chooser.getSelected();
+        // autoSelected = (String) chooser.getSelected();
         // autoSelected = SmartDashboard.getString("Auto Selector",
         // defaultAuto);
-        //System.out.println("Auto selected: " + autoSelected);
+        // System.out.println("Auto selected: " + autoSelected);
     }
 
     /**
@@ -107,16 +114,11 @@ public class Robot extends IterativeRobot
      */
     public void autonomousPeriodic()
     {
-        /*switch(autoSelected)
-        {
-            case customAuto:
-                // Put custom auto code here
-                break;
-            case defaultAuto:
-            default:
-                // Put default auto code here
-                break;
-        }*/
+        /*
+         * switch(autoSelected) { case customAuto: // Put custom auto code here
+         * break; case defaultAuto: default: // Put default auto code here
+         * break; }
+         */
     }
 
     /**
@@ -124,7 +126,7 @@ public class Robot extends IterativeRobot
      */
     public void teleopInit()
     {
-      
+
     }
 
     /**
@@ -139,7 +141,8 @@ public class Robot extends IterativeRobot
         chassis.idle();
 
         collector.setJoystickData(joystickZero.getThrottle(),
-                joystickZero.getRawButton(collectorForwardButton), joystickZero.getRawButton(collectorReverseButton),
+                joystickZero.getRawButton(collectorForwardButton),
+                joystickZero.getRawButton(collectorReverseButton),
                 joystickZero.getRawButton(collectorManualButton));
         collector.idle();
 
