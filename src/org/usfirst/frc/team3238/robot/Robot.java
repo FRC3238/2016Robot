@@ -1,5 +1,7 @@
 package org.usfirst.frc.team3238.robot;
 
+import java.io.FileNotFoundException;
+
 import edu.wpi.first.wpilibj.IterativeRobot;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -34,15 +36,20 @@ public class Robot extends IterativeRobot
      */
     public void robotInit()
     {
-        ci = new ConstantInterpreter();
+            try
+            {
+                ci = new ConstantInterpreter("kConstants.txt");
+            } catch(FileNotFoundException e)
+            {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            }
         camChangeButton = ci.retrieveInt("camChangeButton");
         breacherTalonForwardButton = ci.retrieveInt("breacherTalonForwardButton");
         breacherTalonReverseButton = ci.retrieveInt("breacherTalonReverseButton");
         collectorForwardButton = ci.retrieveInt("collectorForwardButton");
         collectorReverseButton = ci.retrieveInt("collectorReverseButton");
         collectorManualButton = ci.retrieveInt("collectorManualButton");
-        // SmartDashboard.putString("Test Statement",
-        // "This is a test of the SmartDashboard.");
         final int joystickZeroPort = ci.retrieveInt("joystickZeroPort");
         final int joystickOnePort = ci.retrieveInt("joystickOnePort");
         final int leftDriveTalonPort = ci.retrieveInt("leftDriveTalonPort");
