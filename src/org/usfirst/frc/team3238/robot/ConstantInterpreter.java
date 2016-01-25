@@ -1,7 +1,6 @@
 package org.usfirst.frc.team3238.robot;
+
 import java.util.Scanner;
-import java.io.File;
-import java.text.NumberFormat;
 
 /**
  * Write a description of class ConstantInterpreter here.
@@ -11,38 +10,44 @@ import java.text.NumberFormat;
  */
 public class ConstantInterpreter
 {
-    public static final File kConstant = new File("kConstants.txt");
     public static Scanner kConstantReader;
     public static String[][] constantData;
     public static int globalArraySize;
+    static String fileName;
 
-    public ConstantInterpreter() throws java.io.FileNotFoundException
+    public ConstantInterpreter(String kConstantFileName)
+            throws java.io.FileNotFoundException
     {
-        kConstantReader = new Scanner(kConstant);
+        fileName = kConstantFileName;
+        kConstantReader = new Scanner(fileName);
         initializeArray();
     }
 
     public static void initializeArray() throws java.io.FileNotFoundException
     {
         int iteratorSum = 0;
-        Scanner iterator = new Scanner(kConstant);
+        Scanner iterator = new Scanner(fileName);
         while(iterator.hasNextLine())
         {
             iteratorSum++;
             iterator.nextLine();
         }
+        iterator.close();
         constantData = new String[iteratorSum][2];
         globalArraySize = iteratorSum;
         iteratorSum = 0;
         while(kConstantReader.hasNextLine())
         {
-            constantData[iteratorSum / 2][(iteratorSum + 2) % 2] = kConstantReader.nextLine();
-            System.out.println("Added to " + iteratorSum + ", " + (iteratorSum + 2) % 2 + " with " + constantData[iteratorSum][(iteratorSum + 2) % 2]);
+            constantData[iteratorSum / 2][(iteratorSum + 2) % 2] = kConstantReader
+                    .nextLine();
+            System.out.println("Added to " + iteratorSum + ", "
+                    + (iteratorSum + 2) % 2 + " with "
+                    + constantData[iteratorSum][(iteratorSum + 2) % 2]);
             iteratorSum++;
         }
     }
 
-    public static int retrieveInt(String retriever)
+    public int retrieveInt(String retriever)
     {
         for(int i = 0; i < globalArraySize; i++)
         {
@@ -54,7 +59,8 @@ public class ConstantInterpreter
         return -1;
     }
 
-    public static double retrieveDouble(String retriever) throws java.text.ParseException
+    public double retrieveDouble(String retriever)
+            throws java.text.ParseException
     {
         for(int i = 0; i < globalArraySize; i++)
         {
@@ -66,7 +72,7 @@ public class ConstantInterpreter
         return -1.0;
     }
 
-    public static float retrieveFloat(String retriever)
+    public float retrieveFloat(String retriever)
     {
         for(int i = 0; i < globalArraySize; i++)
         {
@@ -78,7 +84,7 @@ public class ConstantInterpreter
         return -1.0f;
     }
 
-    public static String retrieveString(String retriever)
+    public String retrieveString(String retriever)
     {
         for(int i = 0; i < globalArraySize; i++)
         {
