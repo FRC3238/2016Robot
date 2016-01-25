@@ -1,6 +1,5 @@
 package org.usfirst.frc.team3238.robot;
 
-import java.io.File;
 import java.util.Scanner;
 
 /**

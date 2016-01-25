@@ -5,6 +5,7 @@ import java.io.FileNotFoundException;
 import edu.wpi.first.wpilibj.IterativeRobot;
 //import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 //import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.CANTalon;
 
@@ -27,6 +28,9 @@ public class Robot extends IterativeRobot
     Joystick joystickZero, joystickOne;
     CANTalon leftDriveTalon, rightDriveTalon, leftBreacherTalon,
             rightBreacherTalon, collectorTalon;
+    DigitalInput ballDetect;
+    DigitalInput armDetectTop, armDetectBot;
+    Breacher breacherArm;
     ConstantInterpreter ci;
     public int camChangeButton, breacherTalonForwardButton,
             breacherTalonReverseButton, collectorForwardButton,
@@ -36,6 +40,11 @@ public class Robot extends IterativeRobot
      * This function is run when the robot is first started up and should be
      * used for any initialization code.
      */
+    public void defineConstants() throws java.io.FileNotFoundException
+    {
+
+    }
+
     public void robotInit()
     {
         try
@@ -43,7 +52,6 @@ public class Robot extends IterativeRobot
             ci = new ConstantInterpreter("kConstants.txt");
         } catch(FileNotFoundException e)
         {
-            // TODO Auto-generated catch block
             e.printStackTrace();
         }
         camChangeButton = ci.retrieveInt("camChangeButton");
@@ -64,6 +72,9 @@ public class Robot extends IterativeRobot
                 .retrieveInt("rightBreacherTalonPort");
         final int collectorTalonPort = ci.retrieveInt("collectorTalonPort");
         final int ballLimitSwitchPort = ci.retrieveInt("ballLimitSwitchPoint");
+        final int ballDetectChannel = ci.retrieveInt("ballDetectChannel");
+        final int armDetectTopChannel = ci.retrieveInt("armDetectTopChannel");
+        final int armDetectBotChannel = ci.retrieveInt("armDetectBotChannel");
 
         leftDriveTalon = new CANTalon(leftDriveTalonPort);
         rightDriveTalon = new CANTalon(rightDriveTalonPort);
@@ -77,6 +88,8 @@ public class Robot extends IterativeRobot
          * SmartDashboard.putData("Auto choices", chooser);
          */
 
+        breacherArm = new Breacher(leftBreacherTalon, rightBreacherTalon,
+                armDetectTop, armDetectBot);
         chassis = new Chassis(leftDriveTalon, rightDriveTalon);
 
         collector = new Collector(collectorTalonPort, ballLimitSwitchPort);
@@ -134,7 +147,7 @@ public class Robot extends IterativeRobot
      */
     public void teleopPeriodic()
     {
-        // double throttleZero = joystickZero.getThrottle() + .5;
+        double throttleZero = joystickZero.getThrottle() + .5;
         double throttleOne = joystickOne.getThrottle() + .5;
 
         chassis.setJoystickData(joystickZero.getX(), joystickZero.getTwist());
@@ -160,18 +173,46 @@ public class Robot extends IterativeRobot
         // {
         // collectorTalon.set(0);
         // }
+        collectorCommands(throttleZero);
+        breacherCommands(throttleOne);
+    }
 
+    private void breacherCommands(double throttleOne)
+    {
         if(joystickZero.getRawButton(breacherTalonForwardButton))
         {
-            leftBreacherTalon.set(throttleOne);
-            rightBreacherTalon.set(throttleOne);
+            // pulls the arm upwards
+            breacherArm.raiseArm();
         } else if(joystickZero.getRawButton(breacherTalonReverseButton))
         {
-            leftBreacherTalon.set(-throttleOne);
-            rightBreacherTalon.set(-throttleOne);
+            // puts the arm down
+            // leftBreacherTalon.set(-throttleOne);
+            breacherArm.lowerArm();
         } else
         {
-            leftBreacherTalon.set(0);
+            // standby
+            breacherArm.standby();
+        }
+    }
+
+    private void collectorCommands(double throttleZero)
+    {
+        if(joystickZero.getRawButton(collectorForwardButton))
+        {
+            // collects a ball continuously until limit switch is hit or kill
+            // switch through joystick
+            while(!ballDetect.get() || !joystickZero.getRawButton(11))
+            {
+                collectorTalon.set(throttleZero);
+            }
+        } else if(joystickZero.getRawButton(collectorReverseButton))
+        {
+            // spits out the ball
+            collectorTalon.set(-throttleZero);
+        } else
+        {
+            // standby
+            collectorTalon.set(0);
         }
     }
 
