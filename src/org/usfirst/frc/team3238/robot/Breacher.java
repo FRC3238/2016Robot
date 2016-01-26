@@ -5,7 +5,7 @@ import edu.wpi.first.wpilibj.DigitalInput;
 
 public class Breacher
 {
-    CANTalon leftBreacherTalon, rightBreacherTalon;
+    CANTalon m_breacherTalon;
     DigitalInput armDetectTop, armDetectBot;
 
     boolean m_armDetectTop;
@@ -15,9 +15,9 @@ public class Breacher
     double leftTalonPower;
     double rightTalonPower;
 
-    Breacher(CANTalon leftBreacherTalon, CANTalon rightBreacherTalon,
-            DigitalInput armDetectTop, DigitalInput armDetectBot)
+    Breacher(CANTalon breacherTalon, DigitalInput armDetectTop, DigitalInput armDetectBot)
     {
+        m_breacherTalon = breacherTalon;
         leftBreacherTalon.reverseOutput(true);
         rightBreacherTalon.reverseOutput(false);
     }
