@@ -34,24 +34,26 @@ public class Breacher
 
     void raiseArm()
     {
-        while(!m_armDetectTop)
+        if(!m_armDetectTop)
         {
             leftTalonPower = m_joystickOneThrottle;
             rightTalonPower = m_joystickOneThrottle;
             execute();
-        }
+        } else {
         standby();
+        }
     }
 
     void lowerArm()
     {
-        while(!m_armDetectBot)
+        if(!m_armDetectBot)
         {
             leftTalonPower = -m_joystickOneThrottle;
             rightTalonPower = -m_joystickOneThrottle;
             execute();
-        }
+        } else {
         standby();
+        }
     }
 
     void standby()
