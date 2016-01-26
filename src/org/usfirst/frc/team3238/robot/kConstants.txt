@@ -42,6 +42,8 @@ collectorKillSwitchButton
 11
 squaredZone
 0.75
+throttleRangeAdjuster
+0.5
 ---------------------------------------------
             Camera Configuration
 CameraOne
