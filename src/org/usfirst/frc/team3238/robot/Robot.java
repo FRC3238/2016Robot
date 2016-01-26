@@ -117,7 +117,7 @@ public class Robot extends IterativeRobot
     
     private void chassisCommands() {
         chassis.setJoystickData(joystickZero.getX(), joystickZero.getTwist());
-        chassis.idle();
+        chassis.run();
     }
     
     private void cameraCommands() {
