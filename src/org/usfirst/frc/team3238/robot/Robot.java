@@ -30,7 +30,7 @@ public class Robot extends IterativeRobot
             collectorReverseButton, collectorManualButton,
             shootToggleButton;
     public double throttleRangeAdjuster;
-
+    public static boolean camBoolean0;
     public void defineConstants() throws java.io.FileNotFoundException
     {
     }
@@ -44,6 +44,7 @@ public class Robot extends IterativeRobot
         {
             e.printStackTrace();
         }
+        camChangeBoolean0 = true;
         throttleRangeAdjuster = ci.retrieveDouble("throttleRangeAdjuster");
         camChangeButton = ci.retrieveInt("camChangeButton");
         breacherTalonForwardButton = ci.retrieveInt("breacherTalonForwardButton");
@@ -98,14 +99,13 @@ public class Robot extends IterativeRobot
     {
         double throttleZero = joystickZero.getThrottle() + throttleRangeAdjuster;
         double throttleOne = joystickOne.getThrottle() + throttleRangeAdjuster;
-
-        chassis.setJoystickData(joystickZero.getX(), joystickZero.getTwist());
-        chassis.idle();
-
-        if(joystickZero.getRawButton(camChangeButton)) {
-            camera.changeCam();
-        }
-        camera.idle();
+        chassisCommands();
+        cameraCommands();
+        collectOrShootDivisor(throttleZero);
+        breacherCommands(throttleOne);
+    }
+    
+    private void collectOrShootDivisor(double throttleZero) {
         if(joystickZero.getRawButton(!shootToggleButton)) {
         	shooter.disable();
         	collectorCommands(throttleZero);
@@ -113,9 +113,23 @@ public class Robot extends IterativeRobot
         	collector.disable();
         	shooter.enable(throttleZero);
         }
-        breacherCommands(throttleOne);
     }
-
+    
+    private void chassisCommands() {
+        chassis.setJoystickData(joystickZero.getX(), joystickZero.getTwist());
+        chassis.idle();
+    }
+    
+    private void cameraCommands() {
+        if(joystickZero.getRawButton(camChangeButton) && camChangeBoolean0) {
+            camChangeBoolean0 = false;
+            camera.changeCam();
+        } else if(!joystickZero.getRawButton(camChangeButton)){
+            camChangeBoolean0 = true;
+        }
+        camera.idle();
+    }
+    
     private void breacherCommands(double throttleOne)
     {
         if(joystickZero.getRawButton(breacherTalonForwardButton))
@@ -126,7 +140,6 @@ public class Robot extends IterativeRobot
             breacherArm.lowerArm();
         } else
         {
-            // standby
             breacherArm.standby();
         }
     }
