@@ -3,8 +3,6 @@ package org.usfirst.frc.team3238.robot;
 import java.io.FileNotFoundException;
 
 import edu.wpi.first.wpilibj.IterativeRobot;
-//import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
-//import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.CANTalon;
