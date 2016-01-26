@@ -8,12 +8,10 @@ leftDriveTalonPort
 1
 rightDriveTalonPort 
 2
-leftBreacherTalonPort
+breacherTalonPort
 3
-rightBreacherTalonPort
-4
 collectorTalonPort 
-5
+4
 ballLimitSwitchPoint 
 0
 ballDetectChannel
