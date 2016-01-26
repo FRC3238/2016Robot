@@ -31,6 +31,7 @@ public class Robot extends IterativeRobot
             breacherTalonReverseButton, collectorForwardButton,
             collectorReverseButton, collectorManualButton,
             shootToggleButton;
+    public double throttleRangeAdjuster;
 
     public void defineConstants() throws java.io.FileNotFoundException
     {
@@ -45,6 +46,7 @@ public class Robot extends IterativeRobot
         {
             e.printStackTrace();
         }
+        throttleRangeAdjuster = ci.retrieveDouble("throttleRangeAdjuster");
         camChangeButton = ci.retrieveInt("camChangeButton");
         breacherTalonForwardButton = ci
                 .retrieveInt("breacherTalonForwardButton");
