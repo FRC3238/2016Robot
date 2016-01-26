@@ -18,8 +18,7 @@ public class Robot extends IterativeRobot
     Chassis chassis;
     Collector collector;
     Joystick joystickZero, joystickOne;
-    CANTalon leftDriveTalon, rightDriveTalon, leftBreacherTalon,
-            rightBreacherTalon, collectorTalon;
+    CANTalon leftDriveTalon, rightDriveTalon, breacherTalon, collectorTalon;
     DigitalInput ballDetect;
     DigitalInput armDetectTop, armDetectBot;
     Breacher breacherArm;
@@ -58,8 +57,7 @@ public class Robot extends IterativeRobot
         final int joystickOnePort = ci.retrieveInt("joystickOnePort");
         final int leftDriveTalonPort = ci.retrieveInt("leftDriveTalonPort");
         final int rightDriveTalonPort = ci.retrieveInt("rightDriveTalonPort");
-        final int leftBreacherTalonPort = ci.retrieveInt("leftBreacherTalonPort");
-        final int rightBreacherTalonPort = ci.retrieveInt("rightBreacherTalonPort");
+        final int breacherTalonPort = ci.retrieveInt("breacherTalonPort");
         final int collectorKillSwitchButton = ci.retrieveInt("collectorKillSwitchButton");
         final int collectorTalonPort = ci.retrieveInt("collectorTalonPort");
         final int ballLimitSwitchPort = ci.retrieveInt("ballLimitSwitchPoint");
@@ -69,11 +67,12 @@ public class Robot extends IterativeRobot
 
         leftDriveTalon = new CANTalon(leftDriveTalonPort);
         rightDriveTalon = new CANTalon(rightDriveTalonPort);
-        leftBreacherTalon = new CANTalon(leftBreacherTalonPort);
-        rightBreacherTalon = new CANTalon(rightBreacherTalonPort);
+
+        breacherTalon = new CANTalon(breacherTalonPort);
+        
         collectorTalon = new CANTalon(collectorTalonPort);
 
-        breacherArm = new Breacher(leftBreacherTalon, rightBreacherTalon, armDetectTop, armDetectBot);
+        breacherArm = new Breacher(breacherTalon, armDetectTop, armDetectBot);
         chassis = new Chassis(leftDriveTalon, rightDriveTalon);
 
         collector = new Collector(collectorTalonPort, ballLimitSwitchPort);
