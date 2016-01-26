@@ -90,7 +90,7 @@ public class Camera
     void setSize(int size) {
         CameraServer.getInstance().setSize(size);
     }
-    void idle()
+    void stream()
     {
         imposeCrosshairs(noscope);
     }
