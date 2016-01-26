@@ -104,7 +104,6 @@ public class Robot extends IterativeRobot
 
     public void teleopPeriodic()
     {
-    	double throttleRangeAdjuster = 0.5;
         double throttleZero = joystickZero.getThrottle() + throttleRangeAdjuster;
         double throttleOne = joystickOne.getThrottle() + throttleRangeAdjuster;
 
