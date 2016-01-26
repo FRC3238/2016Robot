@@ -24,6 +24,8 @@ armDetectBotChannel
 2
 ---------------------------------------------
             Driver Configuration
+shootToggleButton
+1
 camChangeButton
 2
 breacherTalonForwardButton
@@ -36,6 +38,10 @@ collectorReverseButton
 5
 collectorManualButton
 10
+collectorKillSwitchButton
+11
+squaredZone
+0.75
 ---------------------------------------------
             Camera Configuration
 CameraOne

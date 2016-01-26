@@ -32,8 +32,11 @@ public class Collector
         bForward = buttonForward;
         bReverse = buttonReverse;
         bManual = buttonManualMode;
+        idle();
     }
-
+    void disable() {
+    	collectorTalon.set(0.0);
+    }
     void idle()
     {
         switch(collectorMode)
@@ -91,6 +94,7 @@ public class Collector
                 {
                     collectorMode = "collecting";
                 }
+                break;
         }
     }
 }

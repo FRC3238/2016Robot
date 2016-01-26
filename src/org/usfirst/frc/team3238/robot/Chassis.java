@@ -11,13 +11,18 @@ public class Chassis
     double twistValue;
     double mappedX;
     double mappedTwist;
-
+    double nullZone, monoZone, squaredZone, cubedZone;
+    
     Chassis(SpeedController leftMotorController,
             SpeedController rightMotorController)
     {
+    	
         driveTrain = new RobotDrive(leftMotorController, rightMotorController);
+        squaredZone = 0.75;
     }
-
+    void setSquaredZone(double sq) {
+    	squaredZone = sq;
+    }
     void setJoystickData(double x, double twist)
     {
         xValue = x;
@@ -26,33 +31,13 @@ public class Chassis
 
     void idle()
     {
-        if(xValue < 0)
-        {
-            mappedX = -(xValue * xValue);
-        } else
-        {
-            mappedX = xValue * xValue;
-        }
-
-        if(twistValue < 0)
-        {
-            if(twistValue > -0.75)
-            {
-                mappedTwist = 0.3333 * twistValue;
-            } else
-            {
-                mappedTwist = -0.4444 * (twistValue * twistValue);
-            }
-        } else
-        {
-            if(twistValue < 0.75)
-            {
-                mappedTwist = 0.3333 * twistValue;
-            } else
-            {
-                mappedTwist = 0.4444 * (twistValue * twistValue);
-            }
-        }
+    	mappedX = Math.abs(xValue) * xValue;  
+    	
+    	if(Math.abs(twistValue) < squaredZone) {
+    		mappedTwist = 0.3333 * twistValue;
+    	} else {
+    		mappedTwist = 0.4444 * (Math.abs(twistValue) * twistValue);
+    	}        
 
         driveTrain.arcadeDrive(mappedX, mappedTwist);
     }

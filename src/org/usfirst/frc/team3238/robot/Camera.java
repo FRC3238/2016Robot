@@ -12,23 +12,31 @@ import edu.wpi.first.wpilibj.DriverStation;
  * between the two.
  * 
  * @author Aaron Jenson
+ * @coauthor John Lenin
+ * @coauthor Karl Marx
  */
 public class Camera
 {
     private final int camOne;
     private final int camTwo;
+    private final int noscope = 360;
+    private final int hitmarkers = 1;
     private int activeCam;
     private Image frame;
     private Point startPointH, endPointH, startPointV, endPointV,
             startPointHTwo, endPointHTwo, startPointVTwo, endPointVTwo,
             startPointHThree, endPointHThree, startPointVThree, endPointVThree;
     private int newID;
+    ConstantInterpreter ci; 
 
     Camera()
     {
-        camOne = NIVision.IMAQdxOpenCamera("cam1",
+    	ci = new ConstantInterpreter();
+    	String m_camOne = ci.getString("CameraOne");
+    	String m_camTwo = ci.getString("CameraTwo");
+        camOne = NIVision.IMAQdxOpenCamera(m_camOne,
                 NIVision.IMAQdxCameraControlMode.CameraControlModeController);
-        camTwo = NIVision.IMAQdxOpenCamera("cam2",
+        camTwo = NIVision.IMAQdxOpenCamera(m_camTwo,
                 NIVision.IMAQdxCameraControlMode.CameraControlModeController);
         activeCam = camTwo;
         frame = NIVision.imaqCreateImage(NIVision.ImageType.IMAGE_RGB, 0);
@@ -48,18 +56,12 @@ public class Camera
         CameraServer.getInstance().setSize(0);
     }
 
-    /**
-     * Initializes the first camera by running changeCam class.
-     */
+
     public void init()
     {
         changeCam();
     }
 
-    /**
-     * Switches between the two cameras using one toggle button on the joystick.
-     * Also closes the unused camera to save bandwidth.
-     */
     public void changeCam()
     {
         if(activeCam == camOne)
@@ -82,9 +84,20 @@ public class Camera
      * Gets the camera feed, adds crosshairs to the image and sends the feed to
      * the driver station.
      */
+    void setQuality(int quality) {
+    	CameraServer.getInstance().setQuality(quality);
+    }
+    void setSize(int size) {
+        CameraServer.getInstance().setSize(size);
+    }
     void idle()
     {
-        try
+        imposeCrosshairs(noscope);
+    }
+    void imposeCrosshairs(int config) {
+    	switch(config) {
+    	case 360:
+    	try
         {
             NIVision.IMAQdxGrab(activeCam, frame, 1);
             NIVision.imaqDrawLineOnImage(frame, frame,
@@ -109,5 +122,9 @@ public class Camera
             DriverStation.reportError("Vision exception!:" + exc.getMessage(),
                     true);
         }
+    	break;
+    	default:
+    		break;
+    	}
     }
 }
