@@ -127,7 +127,7 @@ public class Robot extends IterativeRobot
         } else if(!joystickZero.getRawButton(camChangeButton)){
             camChangeBoolean0 = true;
         }
-        camera.idle();
+        camera.stream();
     }
     
     private void breacherCommands(double throttleOne)
@@ -152,7 +152,7 @@ public class Robot extends IterativeRobot
 
     public void disabledPeriodic()
     {
-        camera.idle();
+        camera.stream();
     }
     public void testPeriodic()
     {
