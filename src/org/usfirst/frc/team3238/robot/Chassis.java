@@ -29,7 +29,7 @@ public class Chassis
         twistValue = twist;
     }
 
-    void idle()
+    void run()
     {
     	mappedX = Math.abs(xValue) * xValue;  
     	
