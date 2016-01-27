@@ -29,11 +29,11 @@ public class Camera
     private int newID;
     ConstantInterpreter ci; 
 
-    Camera()
+    Camera() throws java.io.FileNotFoundException
     {
-    	ci = new ConstantInterpreter();
-    	String m_camOne = ci.getString("CameraOne");
-    	String m_camTwo = ci.getString("CameraTwo");
+    	ci = new ConstantInterpreter("kConstants.txt");
+    	String m_camOne = ci.retrieveString("CameraOne");
+    	String m_camTwo = ci.retrieveString("CameraTwo");
         camOne = NIVision.IMAQdxOpenCamera(m_camOne,
                 NIVision.IMAQdxCameraControlMode.CameraControlModeController);
         camTwo = NIVision.IMAQdxOpenCamera(m_camTwo,

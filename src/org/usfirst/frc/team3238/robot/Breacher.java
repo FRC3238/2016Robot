@@ -5,21 +5,19 @@ import edu.wpi.first.wpilibj.DigitalInput;
 
 public class Breacher
 {
-    CANTalon m_breacherTalon;
+    CANTalon breacherTalon;
     DigitalInput armDetectTop, armDetectBot;
 
     boolean m_armDetectTop;
     boolean m_armDetectBot;
     double m_joystickZeroThrottle;
     double m_joystickOneThrottle;
-    double leftTalonPower;
-    double rightTalonPower;
+    double talonPower;
 
     Breacher(CANTalon breacherTalon, DigitalInput armDetectTop, DigitalInput armDetectBot)
     {
-        m_breacherTalon = breacherTalon;
-        leftBreacherTalon.reverseOutput(true);
-        rightBreacherTalon.reverseOutput(false);
+        this.breacherTalon = breacherTalon;
+        
     }
 
     void setData(boolean armDetectTop, boolean armDetectBot,
@@ -36,8 +34,7 @@ public class Breacher
     {
         if(!m_armDetectTop)
         {
-            leftTalonPower = m_joystickOneThrottle;
-            rightTalonPower = m_joystickOneThrottle;
+            talonPower = m_joystickOneThrottle;
             execute();
         } else {
         standby();
@@ -48,8 +45,7 @@ public class Breacher
     {
         if(!m_armDetectBot)
         {
-            leftTalonPower = -m_joystickOneThrottle;
-            rightTalonPower = -m_joystickOneThrottle;
+            talonPower = -m_joystickOneThrottle;
             execute();
         } else {
         standby();
@@ -58,17 +54,14 @@ public class Breacher
 
     void standby()
     {
-        leftTalonPower = 0;
-        rightTalonPower = 0;
-        leftBreacherTalon.set(leftTalonPower);
-        rightBreacherTalon.set(rightTalonPower);
+        talonPower = 0;
+        breacherTalon.set(talonPower);
     }
 
     void execute()
     {
 
-        leftBreacherTalon.set(leftTalonPower);
-        rightBreacherTalon.set(rightTalonPower);
+        breacherTalon.set(talonPower);
 
     }
 

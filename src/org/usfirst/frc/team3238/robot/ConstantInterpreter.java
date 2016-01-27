@@ -10,9 +10,9 @@ import java.util.Scanner;
  */
 public class ConstantInterpreter
 {
-    public static Scanner kConstantReader;
-    public static String[][] constantData;
-    public static int globalArraySize;
+    public Scanner kConstantReader;
+    public String[][] constantData;
+    public int globalArraySize;
     static String fileName;
 
     public ConstantInterpreter(String kConstantFileName)
@@ -23,7 +23,7 @@ public class ConstantInterpreter
         initializeArray();
     }
 
-    public static void initializeArray() throws java.io.FileNotFoundException
+    public void initializeArray() throws java.io.FileNotFoundException
     {
         int iteratorSum = 0;
         Scanner iterator = new Scanner(fileName);

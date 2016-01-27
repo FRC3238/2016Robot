@@ -11,12 +11,14 @@ public class Chassis
     double twistValue;
     double mappedX;
     double mappedTwist;
-    double nullZone, monoZone, squaredZone, cubedZone;
-    
+    double nullZone, monoZone, squaredZone, cubedZone, deadZone = 0.15;
+    SpeedController leftMotorController, rightMotorController;
     Chassis(SpeedController leftMotorController,
             SpeedController rightMotorController)
     {
-    	
+    	this.leftMotorController = leftMotorController;
+    	this.rightMotorController = rightMotorController;
+    	this.leftMotorController.setInverted(true);
         driveTrain = new RobotDrive(leftMotorController, rightMotorController);
         squaredZone = 0.75;
     }
@@ -28,8 +30,19 @@ public class Chassis
         xValue = x;
         twistValue = twist;
     }
-
-    void run()
+    void ezDrive(double x, double y) {
+    	if(Math.abs(x) < deadZone) {
+    	leftMotorController.set(y);
+    	rightMotorController.set(y);
+    	} else {
+    	leftMotorController.set(y*x);
+    	rightMotorController.set(y*-x);
+    	}
+    }
+    void proDrive() {
+    	
+    }
+    void scrubDrive()
     {
     	mappedX = Math.abs(xValue) * xValue;  
     	

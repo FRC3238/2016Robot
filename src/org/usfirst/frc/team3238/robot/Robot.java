@@ -1,6 +1,7 @@
 package org.usfirst.frc.team3238.robot;
 
 import java.io.FileNotFoundException;
+import java.text.ParseException;
 
 import edu.wpi.first.wpilibj.IterativeRobot;
 import edu.wpi.first.wpilibj.DigitalInput;
@@ -29,7 +30,7 @@ public class Robot extends IterativeRobot
             collectorReverseButton, collectorManualButton,
             shootToggleButton;
     public double throttleRangeAdjuster;
-    public static boolean camBoolean0;
+    public static boolean camChangeBoolean0;
     public void defineConstants() throws java.io.FileNotFoundException
     {
     }
@@ -43,6 +44,7 @@ public class Robot extends IterativeRobot
         {
             e.printStackTrace();
         }
+        try {
         camChangeBoolean0 = true;
         throttleRangeAdjuster = ci.retrieveDouble("throttleRangeAdjuster");
         camChangeButton = ci.retrieveInt("camChangeButton");
@@ -82,11 +84,15 @@ public class Robot extends IterativeRobot
 
         joystickZero = new Joystick(joystickZeroPort);
         joystickOne = new Joystick(joystickOnePort);
+        }catch(Exception e) {
+        	e.printStackTrace();
+        	System.exit(0);
+        }
     }
     
-    void autonomousInit()
-    {
-    }
+	    //void autonomousInit()
+	    //{
+	    //}
     public void autonomousPeriodic()
     {
     }
@@ -105,7 +111,7 @@ public class Robot extends IterativeRobot
     }
     
     private void collectOrShootDivisor(double throttleZero) {
-        if(joystickZero.getRawButton(!shootToggleButton)) {
+        if(!joystickZero.getRawButton(shootToggleButton)) {
         	shooter.disable();
         	collectorCommands(throttleZero);
         } else {
@@ -115,9 +121,11 @@ public class Robot extends IterativeRobot
     }
     
     private void chassisCommands() {
-        chassis.setJoystickData(joystickZero.getX(), joystickZero.getTwist());
-        chassis.run();
+        //chassis.setJoystickData(joystickZero.getX(), joystickZero.getTwist());
+        //chassis.scrubDrive();
+    	chassis.ezDrive(joystickZero.getX(), joystickZero.getY());
     }
+    
     
     private void cameraCommands() {
         if(joystickZero.getRawButton(camChangeButton) && camChangeBoolean0) {
