@@ -11,7 +11,8 @@ public class Chassis
     double twistValue;
     double mappedX;
     double mappedTwist;
-    double nullZone, monoZone, squaredZone, cubedZone, deadZone = 0.15;
+    public static double deadZone = 0.15, monoZone, squaredZone, cubedZone,
+    		twistMultiplier = 0.5;
     SpeedController leftMotorController, rightMotorController;
     Chassis(SpeedController leftMotorController,
             SpeedController rightMotorController)
@@ -30,7 +31,8 @@ public class Chassis
         xValue = x;
         twistValue = twist;
     }
-    void ezDrive(double x, double y) {
+    void ezDrive(double x, double y) { //still better than scrubdrive!
+    	config(0);
     	if(Math.abs(x) < deadZone) {
     	leftMotorController.set(y);
     	rightMotorController.set(y);
@@ -39,11 +41,57 @@ public class Chassis
     	rightMotorController.set(y*-x);
     	}
     }
-    void proDrive() {
+    void proDrive(double x, double y, double twist) {
+    	config(1); //Drivers choose whether they want x axis after testing
+    	double tY = Math.abs(y);
+    	String driveStatement;
+    	if(twist <= deadZone) { 
+    		twist = 0;
+    	} else {
+    		twist = twist*twistMultiplier;
+    	}
+    	if(tY <= monoZone && tY > squaredZone) { // in monoZone
+    		driveStatement = "mono";
+    			leftMotorController.set(y+twist);
+    			rightMotorController.set(y-twist); 	
+    	} else if(tY <= squaredZone && tY > cubedZone) { //squared
+    		driveStatement = "squared";
+    			leftMotorController.set(tY*y+twist);
+    			rightMotorController.set(tY*y-twist);
+    	} else if(tY <= cubedZone && tY > deadZone) { //cubed
+    		driveStatement = "cubed";		
+    			leftMotorController.set(tY*tY*y+twist);
+    			rightMotorController.set(tY*tY*y-twist);
+    	} else { //RIP
+    		driveStatement = "dead";
+    		leftMotorController.set(twist);
+    		rightMotorController.set(-twist);
+    	}
+
+    }
+    void setZones(double mZ, double sZ, double cZ, double dZ) {
+    	
+    	deadZone = dZ;
+    	monoZone = mZ;
+    	squaredZone = sZ;
+    	cubedZone = cZ;
     	
     }
-    void scrubDrive()
+    //Configures zones for drive multipliers
+    void config(int config) {
+    	switch(config) {
+    	case 0: //scrubDrive config
+    		setZones(monoZone, 0.75, cubedZone, 0.15);
+    	break;
+    	case 1: //proDrive config
+    		setZones(1.0, 0.66, 0.36, 0.12);
+    	default: 
+    		break;
+    	}
+    }
+    void scrubDrive() 
     {
+    	config(0);
     	mappedX = Math.abs(xValue) * xValue;  
     	
     	if(Math.abs(twistValue) < squaredZone) {
@@ -53,5 +101,9 @@ public class Chassis
     	}        
 
         driveTrain.arcadeDrive(mappedX, mappedTwist);
+    }
+    void disable() {
+    	leftMotorController.set(0);
+    	rightMotorController.set(0);
     }
 }

@@ -10,14 +10,13 @@ public class Collector
     DigitalInput ballSwitch;
     Timer timer;
 
-    double throttleValue;
-    boolean bForward;
-    boolean bReverse;
-    boolean bManual;
+    double throttleValue, deadZone = 0.1;
+    boolean bForward, bReverse, bManual, rotate = true, manual = true;
     String collectorMode;
 
     Collector(int collectorTalonID, int ballSwitchPort)
     {
+    	rotate = true;
         collectorTalon = new CANTalon(collectorTalonID);
         ballSwitch = new DigitalInput(ballSwitchPort);
         timer = new Timer();
@@ -32,12 +31,42 @@ public class Collector
         bForward = buttonForward;
         bReverse = buttonReverse;
         bManual = buttonManualMode;
-        idle();
+        run();
+    }
+    void proCollector(double throttle, boolean buttonForward, boolean buttonReverse, boolean buttonManual) {
+    	if(buttonManual && rotate) {
+    		manual = !manual;
+    		rotate = !rotate;
+    	} else if(!buttonManual && !rotate){
+    		rotate = !rotate;
+    	}
+    	if(manual) {
+    		if(buttonReverse && ballSwitch.get())
+            {
+                collectorTalon.set(-throttleValue);
+            } else if(buttonForward)
+            {
+                collectorTalon.set(throttleValue);
+            } else
+            {
+                collectorTalon.set(0.0);
+            }
+    	} else {
+    		if(buttonForward || !ballSwitch.get())
+    		{
+    			collectorTalon.set(throttleValue);
+    		} else if(buttonReverse) {
+    			collectorTalon.set(-throttleValue);
+    		} else {
+    			collectorTalon.set(0.0);
+    		}
+    	} 	
+    	
     }
     void disable() {
     	collectorTalon.set(0.0);
     }
-    void idle()
+    void run()
     {
         switch(collectorMode)
         {
