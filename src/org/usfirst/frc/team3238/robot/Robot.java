@@ -68,10 +68,8 @@ public class Robot extends IterativeRobot {
 		try {
 			throttleRangeAdjuster = ci.retrieveDouble("throttleRangeAdjuster");
 			camChangeButton = ci.retrieveInt("camChangeButton");
-			breacherTalonForwardButton = ci
-					.retrieveInt("breacherTalonForwardButton");
-			breacherTalonReverseButton = ci
-					.retrieveInt("breacherTalonReverseButton");
+			breacherTalonForwardButton = ci.retrieveInt("breacherTalonForwardButton");
+			breacherTalonReverseButton = ci.retrieveInt("breacherTalonReverseButton");
 			shootToggleButton = ci.retrieveInt("shootToggleButton");
 			collectorForwardButton = ci.retrieveInt("collectorForwardButton");
 			collectorReverseButton = ci.retrieveInt("collectorReverseButton");

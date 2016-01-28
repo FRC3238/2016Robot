@@ -25,7 +25,7 @@ public class Camera
     private Image frame;
     private Point startPointH, endPointH, startPointV, endPointV,
             startPointHTwo, endPointHTwo, startPointVTwo, endPointVTwo,
-            startPointHThree, endPointHThree, startPointVThree, endPointVThree;
+            startPointHThree, endPointHThree, startPointVThree, endPointVThree, birdman64;
     private int newID;
     ConstantInterpreter ci; 
 
@@ -52,6 +52,7 @@ public class Camera
         endPointHThree = new Point(340, 239);
         startPointVThree = new Point(319, 220);
         endPointVThree = new Point(319, 260);
+        birdman64 = new Point(320, 240);
         CameraServer.getInstance().setQuality(30);
         CameraServer.getInstance().setSize(0);
     }
@@ -92,12 +93,12 @@ public class Camera
     }
     void stream()
     {
-        imposeCrosshairs(noscope);
+        imposeCrosshairs(0);
     }
     void imposeCrosshairs(int config) {
     	switch(config) {
-    	case 360:
-    	try
+    	case 0:
+    	try //NIVision.imaqDrawLineOnImage(frame, frame, NIVision.DrawMode.DRAW_INVERT, new Point(3, 3), new Point(4, 4), 0.0f);
         {
             NIVision.IMAQdxGrab(activeCam, frame, 1);
             NIVision.imaqDrawLineOnImage(frame, frame,
@@ -123,8 +124,38 @@ public class Camera
                     true);
         }
     	break;
+    	case 420:
+    		drawCrosshair(birdman64, 20, 4, 20);
+    		break;
     	default:
     		break;
+    	}
+    }
+    void drawCrosshair(Point center, int xDisplace, int yDisplace, int length) {
+    	drawRectangle(new Point((center.x + xDisplace), (center.y - yDisplace)), 
+    				new Point((center.x + xDisplace + length), (center.y + yDisplace)));
+    	drawRectangle(new Point((center.x - yDisplace), (center.y + xDisplace)), 
+					new Point((center.x + yDisplace), (center.y + xDisplace + length)));
+    	drawRectangle(new Point((center.x - yDisplace), (center.y - xDisplace)), 
+					new Point((center.x + yDisplace), (center.y - xDisplace - length)));
+    	drawRectangle(new Point((center.x - xDisplace), (center.y - yDisplace)), 
+					new Point((center.x - xDisplace - length), (center.y + yDisplace)));
+    }
+	/*void trumpOrDump() {
+	    Country Mexico = new Country();
+	    Drugs cocaine = new Drugs(police.retrieveCocaine());
+	    police.throwOver(Mexico.Wall, cocaine);
+		Illegals mexicans = new Illegals(police.pollIllegals("Mexicans"));
+		mexicans.goTo(mexicans.baitWith(cocaine));
+		police.buildWall(police.getMoney(Mexico));
+	}*/
+    void drawRectangle(Point start, Point end) {
+    	NIVision.IMAQdxGrab(activeCam,  frame,  1);
+    	
+    	for(int i = 0; i < Math.abs(start.y - end.y); i++) {
+    		
+    		NIVision.imaqDrawLineOnImage(frame,  frame,  NIVision.DrawMode.DRAW_INVERT,  new Point(start.x, start.y + i*end.y/Math.abs(end.y)), 
+    				new Point(end.x, start.y + i*end.y/Math.abs(end.y)), 0.0f);
     	}
     }
 }
