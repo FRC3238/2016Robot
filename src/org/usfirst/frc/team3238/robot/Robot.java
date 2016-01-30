@@ -14,7 +14,7 @@ public class Robot extends IterativeRobot
     Chassis chassis;
     Collector collector;
     Joystick joystickZero, joystickOne;
-    CANTalon leftDriveTalon, rightDriveTalon, breacherTalon, collectorTalon;
+    CANTalon leftDriveTalonA, leftDriveTalonB, rightDriveTalonA, rightDriveTalonB, breacherTalon, collectorTalon, shooterTalonA, shooterTalonB;
     DigitalInput ballDetect;
     DigitalInput armDetectTop, armDetectBot;
     Breacher breacherArm;
@@ -33,44 +33,32 @@ public class Robot extends IterativeRobot
         try
         {
             ci = new ConstantInterpreter("kConstants.txt");
-            final int cameraQuality = ci.retrieveInt("cameraQuality");
-            final int cameraSize = ci.retrieveInt("cameraSize");
-            final int cameraCrosshairCenterX = ci
-                    .retrieveInt("cameraCrosshairCenterX");
-            final int cameraCrosshairCenterY = ci
-                    .retrieveInt("cameraCrosshairCenterY");
-            final int armDetectTopChannel = ci
-                    .retrieveInt("armDetectTopChannel");
-            final int armDetectBotChannel = ci
-                    .retrieveInt("armDetectBotChannel");
-            final int leftDriveTalonPort = ci.retrieveInt("leftDriveTalonPort");
-            final int rightDriveTalonPort = ci
-                    .retrieveInt("rightDriveTalonPort");
-            final int breacherTalonPort = ci.retrieveInt("breacherTalonPort");
-            final int collectorTalonPort = ci.retrieveInt("collectorTalonPort");
-            final int ballDetectPort = ci.retrieveInt("ballDetectPort");
-            final String frontCameraName = ci.retrieveString("frontCameraName");
-            final String rearCameraName = ci.retrieveString("rearCameraName");
+        
+           ballDetect = new DigitalInput(ci.retrieveInt("ballDetectPort"));
+           
+            
+            armDetectTop = new DigitalInput(ci.retrieveInt("armDetectTopPort"));
+            armDetectBot = new DigitalInput(ci.retrieveInt("armDetectBotPort"));
+            leftDriveTalonA = new CANTalon(ci.retrieveInt("DriveLeftTalonAPort"));
+            leftDriveTalonB = new CANTalon(ci.retrieveInt("DriveLeftTalonBPort"));
+            rightDriveTalonA = new CANTalon(ci.retrieveInt("DriveRightTalonAPort"));
+            rightDriveTalonB = new CANTalon(ci.retrieveInt("DriveRightTalonBPort"));
 
-            armDetectTop = new DigitalInput(armDetectTopChannel);
-            armDetectBot = new DigitalInput(armDetectBotChannel);
-            leftDriveTalon = new CANTalon(leftDriveTalonPort);
-            rightDriveTalon = new CANTalon(rightDriveTalonPort);
+            breacherTalon = new CANTalon(ci.retrieveInt("breacherTalonPort"));
 
-            breacherTalon = new CANTalon(breacherTalonPort);
-
-            collectorTalon = new CANTalon(collectorTalonPort);
+            collectorTalon = new CANTalon(ci.retrieveInt("collectorTalonPort"));
 
             breacherArm = new Breacher(breacherTalon, armDetectTop,
                     armDetectBot);
-            chassis = new Chassis(leftDriveTalon, rightDriveTalon);
+            chassis = new Chassis(leftDriveTalonA, leftDriveTalonB, rightDriveTalonA, rightDriveTalonB); 
 
-            collector = new Collector(ci.retrieveInt("collectorTalonPort"),
-                    ballDetectPort);
-
-            camera = new Camera(frontCameraName, rearCameraName,
-                    cameraCrosshairCenterX, cameraCrosshairCenterY);
-            camera.init(cameraQuality, cameraSize);
+            collector = new Collector(collectorTalon, ballDetect);
+            shooterTalonA = new CANTalon(ci.retrieveInt("ShooterLeftTalonPort"));
+            shooterTalonB = new CANTalon(ci.retrieveInt("ShooterRightTalonPort"));
+            shooter = new Shooter(shooterTalonA, shooterTalonB, ballDetect);
+            camera = new Camera(ci.retrieveString("frontCameraName"), ci.retrieveString("rearCameraName"),
+            		ci.retrieveInt("crosshairCenterX"), ci.retrieveInt("crosshairCenterY"));
+            camera.init(ci.retrieveInt("cameraQuality"), ci.retrieveInt("cameraSize"));
         } catch(Exception e)
         {
             e.printStackTrace();
@@ -155,18 +143,16 @@ public class Robot extends IterativeRobot
         {
             camChanging = true;
         }
-        camera.idle();
+        camera.stream();
     }
 
     // breacher stuff
     private void breacherCommands(double throttleOne)
     {
-        if(joystickZero.getRawButton(ci
-                .retrieveInt("breacherTalonForwardButton")))
+        if(joystickZero.getRawButton(ci.retrieveInt("breacherTalonForwardButton")))
         {
             breacherArm.raiseArm();
-        } else if(joystickZero.getRawButton(ci
-                .retrieveInt("breacherTalonReverseButton")))
+        } else if(joystickZero.getRawButton(ci.retrieveInt("breacherTalonReverseButton")))
         {
             breacherArm.lowerArm();
         } else
@@ -188,7 +174,7 @@ public class Robot extends IterativeRobot
 
     public void disabledPeriodic()
     {
-        camera.idle();
+        camera.stream();
     }
 
     public void testPeriodic()

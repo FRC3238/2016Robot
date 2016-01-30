@@ -14,11 +14,11 @@ public class Collector
     boolean bForward, bReverse, bManual, rotate = true, manual = true;
     String collectorMode;
 
-    Collector(int collectorTalonID, int ballSwitchPort)
+    Collector(CANTalon collectTalon, DigitalInput bSwitch)
     {
     	rotate = true;
-        collectorTalon = new CANTalon(collectorTalonID);
-        ballSwitch = new DigitalInput(ballSwitchPort);
+        collectorTalon = collectTalon;
+        ballSwitch = bSwitch;
         timer = new Timer();
         timer.start();
         collectorMode = "manual";

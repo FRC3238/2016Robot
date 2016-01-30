@@ -13,14 +13,20 @@ public class Chassis
     double mappedTwist;
     public static double deadZone = 0.15, monoZone, squaredZone, cubedZone,
     		twistMultiplier = 0.5;
-    SpeedController leftMotorController, rightMotorController;
-    Chassis(SpeedController leftMotorController,
-            SpeedController rightMotorController)
+    SpeedController leftMotorControllerA, rightMotorControllerA,
+    				leftMotorControllerB, rightMotorControllerB;
+    Chassis(SpeedController leftMotorControllerA,
+            SpeedController rightMotorControllerA, 
+            SpeedController leftMotorControllerB,
+            SpeedController rightMotorControllerB)
     {
-    	this.leftMotorController = leftMotorController;
-    	this.rightMotorController = rightMotorController;
-    	this.leftMotorController.setInverted(true);
-        driveTrain = new RobotDrive(leftMotorController, rightMotorController);
+    	this.leftMotorControllerA = leftMotorControllerA;
+    	this.rightMotorControllerA = rightMotorControllerA;
+    	this.leftMotorControllerB = leftMotorControllerB;
+    	this.rightMotorControllerB = rightMotorControllerB;
+    	this.leftMotorControllerA.setInverted(true);
+    	this.leftMotorControllerB.setInverted(true);
+        
         squaredZone = 0.75;
     }
     void setSquaredZone(double sq) {
@@ -34,11 +40,9 @@ public class Chassis
     void ezDrive(double x, double y) { //still better than scrubdrive!
     	config(0);
     	if(Math.abs(x) < deadZone) {
-    	leftMotorController.set(y);
-    	rightMotorController.set(y);
+    	setInvertVariable(y, 0);
     	} else {
-    	leftMotorController.set(y*x);
-    	rightMotorController.set(y*-x);
+    	disable();
     	}
     }
     void proDrive(double x, double y, double twist) {
@@ -52,22 +56,24 @@ public class Chassis
     	}
     	if(tY <= monoZone && tY > squaredZone) { // in monoZone
     		driveStatement = "mono";
-    			leftMotorController.set(y+twist);
-    			rightMotorController.set(y-twist); 	
+    		setInvertVariable(y, twist);		
     	} else if(tY <= squaredZone && tY > cubedZone) { //squared
     		driveStatement = "squared";
-    			leftMotorController.set(tY*y+twist);
-    			rightMotorController.set(tY*y-twist);
+    		setInvertVariable(tY*y, twist);
     	} else if(tY <= cubedZone && tY > deadZone) { //cubed
     		driveStatement = "cubed";		
-    			leftMotorController.set(tY*tY*y+twist);
-    			rightMotorController.set(tY*tY*y-twist);
+    		setInvertVariable(tY*tY*y, twist);
     	} else { //RIP
     		driveStatement = "dead";
-    		leftMotorController.set(twist);
-    		rightMotorController.set(-twist);
+    		setInvertVariable(0, twist);
     	}
 
+    }
+    void setInvertVariable(double prime, double vert) {
+    	leftMotorControllerA.set(prime + vert);
+    	leftMotorControllerB.set(prime + vert);
+    	rightMotorControllerA.set(prime - vert);
+    	rightMotorControllerB.set(prime - vert);
     }
     void setZones(double mZ, double sZ, double cZ, double dZ) {
     	
@@ -89,21 +95,12 @@ public class Chassis
     		break;
     	}
     }
-    void scrubDrive() 
-    {
-    	config(0);
-    	mappedX = Math.abs(xValue) * xValue;  
-    	
-    	if(Math.abs(twistValue) < squaredZone) {
-    		mappedTwist = 0.3333 * twistValue;
-    	} else {
-    		mappedTwist = 0.4444 * (Math.abs(twistValue) * twistValue);
-    	}        
-
-        driveTrain.arcadeDrive(mappedX, mappedTwist);
-    }
+    
     void disable() {
-    	leftMotorController.set(0);
-    	rightMotorController.set(0);
+    	leftMotorControllerA.set(0);
+    	leftMotorControllerB.set(0);
+    	rightMotorControllerA.set(0);
+    	rightMotorControllerB.set(0);
     }
 }
+

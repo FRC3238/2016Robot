@@ -17,6 +17,8 @@ public class Breacher
     Breacher(CANTalon breacherTalon, DigitalInput armDetectTop, DigitalInput armDetectBot)
     {
         this.breacherTalon = breacherTalon;
+        this.armDetectTop = armDetectTop;
+        this.armDetectBot = armDetectBot;
         
     }
 
@@ -54,8 +56,7 @@ public class Breacher
 
     void standby()
     {
-        talonPower = 0;
-        breacherTalon.set(talonPower);
+    	breacherTalon.set(0);
     }
 
     void execute()
