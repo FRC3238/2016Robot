@@ -56,3 +56,21 @@ crosshairCenterX
 320
 crosshairCenterY
 240
+-----------------------------------------
+                 New Talons
+DriveLeft1
+1
+DriveLeft2
+2
+DriveRight1
+3
+DriveRight2
+4
+ShooterLeft
+7
+ShooterRight
+8
+Collector
+6
+Breacher
+5
