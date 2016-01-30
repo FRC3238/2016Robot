@@ -12,7 +12,7 @@ breacherTalonPort
 3
 collectorTalonPort 
 4
-ballLimitSwitchPoint 
+ballDetectPort 
 0
 ballDetectChannel
 0
@@ -44,11 +44,15 @@ throttleRangeAdjuster
 0.5
 ---------------------------------------------
             Camera Configuration
-CameraOne
+frontCameraName
 cam1
-CameraTwo
+rearCameraName
 cam2
 camQuality
 30
 camSize
 0
+crosshairCenterX
+320
+crosshairCenterY
+240

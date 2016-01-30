@@ -12,68 +12,76 @@ import edu.wpi.first.wpilibj.DriverStation;
  * between the two.
  * 
  * @author Aaron Jenson
- * @coauthor John Lenin
- * @coauthor Karl Marx
+ * 
+ * @version 2.0
  */
 public class Camera
 {
-    private final int camOne;
-    private final int camTwo;
-    private final int noscope = 360;
-    private final int hitmarkers = 1;
+    private final int frontCam;
+    private final int backCam;
     private int activeCam;
     private Image frame;
-    private Point startPointH, endPointH, startPointV, endPointV,
+    private Point centerPoint, startPointH, endPointH, startPointV, endPointV,
             startPointHTwo, endPointHTwo, startPointVTwo, endPointVTwo,
-            startPointHThree, endPointHThree, startPointVThree, endPointVThree, birdman64;
+            startPointHThree, endPointHThree, startPointVThree, endPointVThree;
     private int newID;
-    ConstantInterpreter ci; 
 
-    Camera() throws java.io.FileNotFoundException
+    /**
+     * 
+     * @param frontCameraName
+     *            name of the camera for the front of the robot
+     * @param backCameraName
+     *            name of the camera for the back of the robot
+     * @param crosshairCenterX
+     *            x value to the center point for the crosshairs
+     * @param crosshairCenterY
+     *            y value to the center point for the crosshairs
+     */
+    Camera(String frontCameraName, String backCameraName, int crosshairCenterX,
+            int crosshairCenterY)
     {
-    	ci = new ConstantInterpreter("kConstants.txt");
-    	String m_camOne = ci.retrieveString("CameraOne");
-    	String m_camTwo = ci.retrieveString("CameraTwo");
-        camOne = NIVision.IMAQdxOpenCamera(m_camOne,
+        frontCam = NIVision.IMAQdxOpenCamera(frontCameraName,
                 NIVision.IMAQdxCameraControlMode.CameraControlModeController);
-        camTwo = NIVision.IMAQdxOpenCamera(m_camTwo,
+        backCam = NIVision.IMAQdxOpenCamera(backCameraName,
                 NIVision.IMAQdxCameraControlMode.CameraControlModeController);
-        activeCam = camTwo;
+        activeCam = backCam;
         frame = NIVision.imaqCreateImage(NIVision.ImageType.IMAGE_RGB, 0);
-        startPointH = new Point(300, 240);
-        endPointH = new Point(340, 240);
-        startPointV = new Point(320, 220);
-        endPointV = new Point(320, 260);
-        startPointHTwo = new Point(300, 241);
-        endPointHTwo = new Point(340, 241);
-        startPointVTwo = new Point(321, 220);
-        endPointVTwo = new Point(321, 260);
-        startPointHThree = new Point(300, 239);
-        endPointHThree = new Point(340, 239);
-        startPointVThree = new Point(319, 220);
-        endPointVThree = new Point(319, 260);
-        birdman64 = new Point(320, 240);
-        CameraServer.getInstance().setQuality(30);
-        CameraServer.getInstance().setSize(0);
+        centerPoint = new Point(crosshairCenterX, crosshairCenterY);
     }
 
-
-    public void init()
+    /**
+     * Initializes the Camera class with crosshair location, quality, and size
+     * 
+     * @param quality
+     *            the amount of compression for the camera image
+     * @param size
+     *            the size of the image, either 0, 1, or 2, with 0 being the
+     *            largest
+     */
+    public void init(int quality, int size)
     {
+        CameraServer.getInstance().setQuality(quality);
+        CameraServer.getInstance().setSize(size);
+        setPoints(centerPoint, 20);
         changeCam();
     }
 
+    /**
+     * Closes the feed for the currently active camera and opens the image for
+     * the other camera
+     */
     public void changeCam()
     {
-        if(activeCam == camOne)
+        if(activeCam == frontCam)
         {
-            newID = camTwo;
-        } else if(activeCam == camTwo)
+            newID = backCam;
+        } else if(activeCam == backCam)
         {
-            newID = camOne;
+            newID = frontCam;
         } else
         {
             DriverStation.reportError("No camera is active!", false);
+            newID = frontCam;
         }
         NIVision.IMAQdxStopAcquisition(activeCam);
         NIVision.IMAQdxConfigureGrab(newID);
@@ -82,80 +90,67 @@ public class Camera
     }
 
     /**
-     * Gets the camera feed, adds crosshairs to the image and sends the feed to
-     * the driver station.
+     * Runs the main camera feed and sends it to the driver station
+     * 
+     * @throws VisionException
+     *             If no camera can be found
      */
-    void setQuality(int quality) {
-    	CameraServer.getInstance().setQuality(quality);
-    }
-    void setSize(int size) {
-        CameraServer.getInstance().setSize(size);
-    }
-    void stream()
+    public void idle() throws VisionException
     {
-        imposeCrosshairs(0);
+        NIVision.IMAQdxGrab(activeCam, frame, 1);
+        imposeCrosshairs();
+        CameraServer.getInstance().setImage(frame);
     }
-    void imposeCrosshairs(int config) {
-    	switch(config) {
-    	case 0:
-    	try //NIVision.imaqDrawLineOnImage(frame, frame, NIVision.DrawMode.DRAW_INVERT, new Point(3, 3), new Point(4, 4), 0.0f);
-        {
-            NIVision.IMAQdxGrab(activeCam, frame, 1);
-            NIVision.imaqDrawLineOnImage(frame, frame,
-                    NIVision.DrawMode.DRAW_INVERT, startPointH, endPointH, 0.0f);
-            NIVision.imaqDrawLineOnImage(frame, frame,
-                    NIVision.DrawMode.DRAW_INVERT, startPointV, endPointV, 0.0f);
-            NIVision.imaqDrawLineOnImage(frame, frame,
-                    NIVision.DrawMode.DRAW_INVERT, startPointHTwo,
-                    endPointHTwo, 0.0f);
-            NIVision.imaqDrawLineOnImage(frame, frame,
-                    NIVision.DrawMode.DRAW_INVERT, startPointVTwo,
-                    endPointVTwo, 0.0f);
-            NIVision.imaqDrawLineOnImage(frame, frame,
-                    NIVision.DrawMode.DRAW_INVERT, startPointHThree,
-                    endPointHThree, 0.0f);
-            NIVision.imaqDrawLineOnImage(frame, frame,
-                    NIVision.DrawMode.DRAW_INVERT, startPointVThree,
-                    endPointVThree, 0.0f);
-            CameraServer.getInstance().setImage(frame);
-        } catch(VisionException exc)
-        {
-            DriverStation.reportError("Vision exception!:" + exc.getMessage(),
-                    true);
-        }
-    	break;
-    	case 420:
-    		drawCrosshair(birdman64, 20, 4, 20);
-    		break;
-    	default:
-    		break;
-    	}
+
+    /**
+     * Sets the constant points for the crosshair lines
+     * 
+     * @param center
+     *            the center point of the crosshairs
+     * @param length
+     *            the length of each hair from the center
+     */
+    private void setPoints(Point center, int length)
+    {
+        startPointH = new Point(center.x - length, center.y);
+        endPointH = new Point(center.x + length, center.y);
+        startPointV = new Point(center.x, center.y - length);
+        endPointV = new Point(center.x, center.y + length);
+        startPointHTwo = new Point(center.x - length, center.y + 1);
+        endPointHTwo = new Point(center.x + length, center.y + 1);
+        startPointVTwo = new Point(center.x + 1, 220);
+        endPointVTwo = new Point(center.x + 1, 260);
+        startPointHThree = new Point(center.x - length, center.y - 1);
+        endPointHThree = new Point(center.x + length, center.y - 1);
+        startPointVThree = new Point(center.x - 1, center.y - length);
+        endPointVThree = new Point(center.x - 1, center.y + length);
     }
-    void drawCrosshair(Point center, int xDisplace, int yDisplace, int length) {
-    	drawRectangle(new Point((center.x + xDisplace), (center.y - yDisplace)), 
-    				new Point((center.x + xDisplace + length), (center.y + yDisplace)));
-    	drawRectangle(new Point((center.x - yDisplace), (center.y + xDisplace)), 
-					new Point((center.x + yDisplace), (center.y + xDisplace + length)));
-    	drawRectangle(new Point((center.x - yDisplace), (center.y - xDisplace)), 
-					new Point((center.x + yDisplace), (center.y - xDisplace - length)));
-    	drawRectangle(new Point((center.x - xDisplace), (center.y - yDisplace)), 
-					new Point((center.x - xDisplace - length), (center.y + yDisplace)));
-    }
-	/*void trumpOrDump() {
-	    Country Mexico = new Country();
-	    Drugs cocaine = new Drugs(police.retrieveCocaine());
-	    police.throwOver(Mexico.Wall, cocaine);
-		Illegals mexicans = new Illegals(police.pollIllegals("Mexicans"));
-		mexicans.goTo(mexicans.baitWith(cocaine));
-		police.buildWall(police.getMoney(Mexico));
-	}*/
-    void drawRectangle(Point start, Point end) {
-    	NIVision.IMAQdxGrab(activeCam,  frame,  1);
-    	
-    	for(int i = 0; i < Math.abs(start.y - end.y); i++) {
-    		
-    		NIVision.imaqDrawLineOnImage(frame,  frame,  NIVision.DrawMode.DRAW_INVERT,  new Point(start.x, start.y + i*end.y/Math.abs(end.y)), 
-    				new Point(end.x, start.y + i*end.y/Math.abs(end.y)), 0.0f);
-    	}
+
+    /**
+     * Places crosshairs on the camera feed, placed by the points in the
+     * setPoints method
+     * 
+     * @throws VisionException
+     *             If the camera feed is not available or the draw mode is
+     *             invalid
+     */
+    private void imposeCrosshairs() throws VisionException
+    {
+        NIVision.imaqDrawLineOnImage(frame, frame,
+                NIVision.DrawMode.DRAW_INVERT, startPointH, endPointH, 0.0f);
+        NIVision.imaqDrawLineOnImage(frame, frame,
+                NIVision.DrawMode.DRAW_INVERT, startPointV, endPointV, 0.0f);
+        NIVision.imaqDrawLineOnImage(frame, frame,
+                NIVision.DrawMode.DRAW_INVERT, startPointHTwo, endPointHTwo,
+                0.0f);
+        NIVision.imaqDrawLineOnImage(frame, frame,
+                NIVision.DrawMode.DRAW_INVERT, startPointVTwo, endPointVTwo,
+                0.0f);
+        NIVision.imaqDrawLineOnImage(frame, frame,
+                NIVision.DrawMode.DRAW_INVERT, startPointHThree,
+                endPointHThree, 0.0f);
+        NIVision.imaqDrawLineOnImage(frame, frame,
+                NIVision.DrawMode.DRAW_INVERT, startPointVThree,
+                endPointVThree, 0.0f);
     }
 }
