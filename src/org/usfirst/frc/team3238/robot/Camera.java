@@ -95,15 +95,24 @@ public class Camera
      * @throws VisionException
      *             If no camera can be found
      */
-    public void stream() throws VisionException
+    public void idle() throws VisionException
     {
         NIVision.IMAQdxGrab(activeCam, frame, 1);
         imposeCrosshairs();
         CameraServer.getInstance().setImage(frame);
     }
-    public void idle() throws VisionException {
-    	NIVision.IMAQdxStopAcquisition(activeCam);
+
+    /**
+     * Stops the camera stream
+     * 
+     * @throws VisionException
+     *             If something goes wrong
+     */
+    public void stop() throws VisionException
+    {
+        NIVision.IMAQdxStopAcquisition(activeCam);
     }
+
     /**
      * Sets the constant points for the crosshair lines
      * 

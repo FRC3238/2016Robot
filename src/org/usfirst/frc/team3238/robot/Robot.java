@@ -14,7 +14,9 @@ public class Robot extends IterativeRobot
     Chassis chassis;
     Collector collector;
     Joystick joystickZero, joystickOne;
-    CANTalon leftDriveTalonA, leftDriveTalonB, rightDriveTalonA, rightDriveTalonB, breacherTalon, collectorTalon, shooterTalonA, shooterTalonB;
+    CANTalon leftDriveTalonA, leftDriveTalonB, rightDriveTalonA,
+            rightDriveTalonB, breacherTalon, collectorTalon, shooterTalonA,
+            shooterTalonB;
     DigitalInput ballDetect;
     DigitalInput armDetectTop, armDetectBot;
     Breacher breacherArm;
@@ -33,16 +35,19 @@ public class Robot extends IterativeRobot
         try
         {
             ci = new ConstantInterpreter("kConstants.txt");
-        
-           ballDetect = new DigitalInput(ci.retrieveInt("ballDetectPort"));
-           
-            
+
+            ballDetect = new DigitalInput(ci.retrieveInt("ballDetectPort"));
+
             armDetectTop = new DigitalInput(ci.retrieveInt("armDetectTopPort"));
             armDetectBot = new DigitalInput(ci.retrieveInt("armDetectBotPort"));
-            leftDriveTalonA = new CANTalon(ci.retrieveInt("DriveLeftTalonAPort"));
-            leftDriveTalonB = new CANTalon(ci.retrieveInt("DriveLeftTalonBPort"));
-            rightDriveTalonA = new CANTalon(ci.retrieveInt("DriveRightTalonAPort"));
-            rightDriveTalonB = new CANTalon(ci.retrieveInt("DriveRightTalonBPort"));
+            leftDriveTalonA = new CANTalon(
+                    ci.retrieveInt("DriveLeftTalonAPort"));
+            leftDriveTalonB = new CANTalon(
+                    ci.retrieveInt("DriveLeftTalonBPort"));
+            rightDriveTalonA = new CANTalon(
+                    ci.retrieveInt("DriveRightTalonAPort"));
+            rightDriveTalonB = new CANTalon(
+                    ci.retrieveInt("DriveRightTalonBPort"));
 
             breacherTalon = new CANTalon(ci.retrieveInt("breacherTalonPort"));
 
@@ -50,15 +55,20 @@ public class Robot extends IterativeRobot
 
             breacherArm = new Breacher(breacherTalon, armDetectTop,
                     armDetectBot);
-            chassis = new Chassis(leftDriveTalonA, leftDriveTalonB, rightDriveTalonA, rightDriveTalonB); 
+            chassis = new Chassis(leftDriveTalonA, leftDriveTalonB,
+                    rightDriveTalonA, rightDriveTalonB);
 
             collector = new Collector(collectorTalon, ballDetect);
             shooterTalonA = new CANTalon(ci.retrieveInt("ShooterLeftTalonPort"));
-            shooterTalonB = new CANTalon(ci.retrieveInt("ShooterRightTalonPort"));
+            shooterTalonB = new CANTalon(
+                    ci.retrieveInt("ShooterRightTalonPort"));
             shooter = new Shooter(shooterTalonA, shooterTalonB, ballDetect);
-            camera = new Camera(ci.retrieveString("frontCameraName"), ci.retrieveString("rearCameraName"),
-            		ci.retrieveInt("crosshairCenterX"), ci.retrieveInt("crosshairCenterY"));
-            camera.init(ci.retrieveInt("cameraQuality"), ci.retrieveInt("cameraSize"));
+            camera = new Camera(ci.retrieveString("frontCameraName"),
+                    ci.retrieveString("rearCameraName"),
+                    ci.retrieveInt("crosshairCenterX"),
+                    ci.retrieveInt("crosshairCenterY"));
+            camera.init(ci.retrieveInt("cameraQuality"),
+                    ci.retrieveInt("cameraSize"));
         } catch(Exception e)
         {
             e.printStackTrace();
@@ -143,22 +153,25 @@ public class Robot extends IterativeRobot
         {
             camChanging = true;
         }
-        camera.stream();
+        camera.idle();
     }
 
     // breacher stuff
     private void breacherCommands(double throttleOne)
     {
-        if(joystickZero.getRawButton(ci.retrieveInt("breacherTalonForwardButton")))
+        if(joystickZero.getRawButton(ci
+                .retrieveInt("breacherTalonForwardButton")))
         {
             breacherArm.raiseArm();
-        } else if(joystickZero.getRawButton(ci.retrieveInt("breacherTalonReverseButton")))
+        } else if(joystickZero.getRawButton(ci
+                .retrieveInt("breacherTalonReverseButton")))
         {
             breacherArm.lowerArm();
         } else
         {
             breacherArm.standby();
         }
+
     }
 
     // solely collector stuff
@@ -174,7 +187,7 @@ public class Robot extends IterativeRobot
 
     public void disabledPeriodic()
     {
-        camera.stream();
+        camera.idle();
     }
 
     public void testPeriodic()
