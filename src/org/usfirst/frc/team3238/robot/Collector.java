@@ -13,7 +13,12 @@ public class Collector
     double throttleValue, deadZone = 0.1;
     boolean bForward, bReverse, bManual, rotate = true, manual = true;
     String collectorMode;
-
+    Collector(CANTalon collectTalon) {
+        this.collectorTalon = collectTalon;
+        timer = new Timer();
+        timer.start();
+        collectorMode = "manual";
+    }
     Collector(CANTalon collectTalon, DigitalInput bSwitch)
     {
     	rotate = true;
@@ -32,6 +37,15 @@ public class Collector
         bReverse = buttonReverse;
         bManual = buttonManualMode;
         run();
+    }
+    void fullControlCollector(double throttle, boolean buttonForward, boolean buttonReverse) {
+        if(buttonForward) {
+            collectorTalon.set(throttleValue);
+        } else if(buttonReverse) {
+            collectorTalon.set(-throttleValue);
+        } else {
+            disable();
+        }
     }
     void proCollector(double throttle, boolean buttonForward, boolean buttonReverse, boolean buttonManual) {
     	if(buttonManual && rotate) {
