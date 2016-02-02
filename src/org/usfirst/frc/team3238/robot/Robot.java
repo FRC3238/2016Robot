@@ -48,11 +48,10 @@ public class Robot extends IterativeRobot
 
             collectorTalon = new CANTalon(ci.retrieveInt("collectorTalonPort"));
 
-            breacherArm = new Breacher(breacherTalon, armDetectTop,
-                    armDetectBot);
+            breacherArm = new Breacher(breacherTalon);
             chassis = new Chassis(leftDriveTalonA, leftDriveTalonB, rightDriveTalonA, rightDriveTalonB); 
 
-            collector = new Collector(collectorTalon, ballDetect);
+            collector = new Collector(collectorTalon);
             shooterTalonA = new CANTalon(ci.retrieveInt("ShooterLeftTalonPort"));
             shooterTalonB = new CANTalon(ci.retrieveInt("ShooterRightTalonPort"));
             shooter = new Shooter(shooterTalonA, shooterTalonB, ballDetect);
@@ -62,7 +61,7 @@ public class Robot extends IterativeRobot
         } catch(Exception e)
         {
             e.printStackTrace();
-            System.exit(0);
+            
         }
 
     }
@@ -151,10 +150,10 @@ public class Robot extends IterativeRobot
     {
         if(joystickZero.getRawButton(ci.retrieveInt("breacherTalonForwardButton")))
         {
-            breacherArm.raiseArm();
+            breacherArm.raiseArmWO();
         } else if(joystickZero.getRawButton(ci.retrieveInt("breacherTalonReverseButton")))
         {
-            breacherArm.lowerArm();
+            breacherArm.lowerArmWO();
         } else
         {
             breacherArm.standby();
@@ -166,10 +165,9 @@ public class Robot extends IterativeRobot
             int collectorForwardButton, int collectorReverseButton,
             int collectorManualButton)
     {
-        collector.proCollector(throttleZero,
+        collector.fullControlCollector(throttleZero,
                 joystickZero.getRawButton(collectorForwardButton),
-                joystickZero.getRawButton(collectorReverseButton),
-                joystickZero.getRawButton(collectorManualButton));
+                joystickZero.getRawButton(collectorReverseButton);
     }
 
     public void disabledPeriodic()
