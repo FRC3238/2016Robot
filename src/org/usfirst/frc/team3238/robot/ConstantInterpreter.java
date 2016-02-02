@@ -1,5 +1,5 @@
-package org.usfirst.frc.team3238.robot;
-
+ 
+import java.io.File;
 import java.util.Scanner;
 
 /**
@@ -14,19 +14,20 @@ public class ConstantInterpreter
     public String[][] constantData;
     public int globalArraySize;
     static String fileName;
-
+    public File in;
     public ConstantInterpreter(String kConstantFileName)
             throws java.io.FileNotFoundException
     {
         fileName = kConstantFileName;
-        kConstantReader = new Scanner(fileName);
+        in = new File(kConstantFileName);
+        kConstantReader = new Scanner(in);
         initializeArray();
     }
 
     public void initializeArray() throws java.io.FileNotFoundException
     {
         int iteratorSum = 0;
-        Scanner iterator = new Scanner(fileName);
+        Scanner iterator = new Scanner(in);
         while(iterator.hasNextLine())
         {
             iteratorSum++;
@@ -49,8 +50,8 @@ public class ConstantInterpreter
 
     public int retrieveInt(String retriever)
     {
-        for(int i = 0; i < globalArraySize; i++)
-        {
+        for(int i = 0; i < globalArraySize/2; i++)
+        {  
             if(constantData[i][0].equals(retriever))
             {
                 return Integer.parseInt(constantData[i][1]);
@@ -62,7 +63,7 @@ public class ConstantInterpreter
     public double retrieveDouble(String retriever)
             throws java.text.ParseException
     {
-        for(int i = 0; i < globalArraySize; i++)
+        for(int i = 0; i < globalArraySize/2; i++)
         {
             if(constantData[i][0].equals(retriever))
             {
@@ -74,7 +75,7 @@ public class ConstantInterpreter
 
     public float retrieveFloat(String retriever)
     {
-        for(int i = 0; i < globalArraySize; i++)
+        for(int i = 0; i < globalArraySize/2; i++)
         {
             if(constantData[i][0].equals(retriever))
             {
@@ -86,7 +87,7 @@ public class ConstantInterpreter
 
     public String retrieveString(String retriever)
     {
-        for(int i = 0; i < globalArraySize; i++)
+        for(int i = 0; i < globalArraySize/2; i++)
         {
             if(constantData[i][0].equals(retriever))
             {
