@@ -11,8 +11,9 @@ public class Chassis
     double twistValue;
     double mappedX;
     double mappedTwist;
-    public static double deadZone = 0.15, monoZone, squaredZone, cubedZone,
-    		twistMultiplier = 0.5;
+    public static double[] zoneArray;
+    public int deadZone = 0, monoZone = 3, squaredZone = 2, cubedZone = 1;
+    public double	twistMultiplier = 0.5;
     SpeedController leftMotorControllerA, rightMotorControllerA,
     				leftMotorControllerB, rightMotorControllerB;
     Chassis(SpeedController leftMotorControllerA,
@@ -20,6 +21,7 @@ public class Chassis
             SpeedController leftMotorControllerB,
             SpeedController rightMotorControllerB)
     {
+    	zoneArray = new zoneArray[4];
     	this.leftMotorControllerA = leftMotorControllerA;
     	this.rightMotorControllerA = rightMotorControllerA;
     	this.leftMotorControllerB = leftMotorControllerB;
@@ -27,11 +29,11 @@ public class Chassis
     	this.leftMotorControllerA.setInverted(true);
     	this.leftMotorControllerB.setInverted(true);
         
-        squaredZone = 0.75;
+        
     }
-    void setSquaredZone(double sq) {
+    /*void setSquaredZone(double sq) {
     	squaredZone = sq;
-    }
+    }*/
     void setJoystickData(double x, double twist)
     {
         xValue = x;
@@ -54,19 +56,14 @@ public class Chassis
     	} else {
     		twist = twist*twistMultiplier;
     	}
-    	if(tY <= monoZone && tY > squaredZone) { // in monoZone
-    		driveStatement = "mono";
-    		setInvertVariable(y, twist);		
-    	} else if(tY <= squaredZone && tY > cubedZone) { //squared
-    		driveStatement = "squared";
-    		setInvertVariable(tY*y, twist);
-    	} else if(tY <= cubedZone && tY > deadZone) { //cubed
-    		driveStatement = "cubed";		
-    		setInvertVariable(tY*tY*y, twist);
-    	} else { //RIP
-    		driveStatement = "dead";
-    		setInvertVariable(0, twist);
-    	}
+    	
+    	for(int i = 2; i >= 0; i--) {
+    		if(tY <= zoneArray[i+1] && tY > zoneArray[i]) {
+    			setInvertVariable(Math.pow(tY, 3-i)*y/tY, twist);
+    		} else {
+    			disable();
+    		}
+    	}	
 
     }
     void setInvertVariable(double prime, double vert) {
@@ -77,10 +74,10 @@ public class Chassis
     }
     void setZones(double mZ, double sZ, double cZ, double dZ) {
     	
-    	deadZone = dZ;
-    	monoZone = mZ;
-    	squaredZone = sZ;
-    	cubedZone = cZ;
+    	zoneArray[deadZone] = dZ;
+    	zoneArray[monoZone] = mZ;
+    	zoneArray[squaredZone] = sZ;
+    	zoneArray[cubedZone] = cZ;
     	
     }
     //Configures zones for drive multipliers
