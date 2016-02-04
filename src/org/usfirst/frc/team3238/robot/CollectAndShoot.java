@@ -45,6 +45,7 @@ public class CollectAndShoot
         stick = new Joystick(stickPort);
 
         state = State.WAITING;
+        shooterSubState = ShooterSubState.DISABLED;
 
         timer.start();
     }
@@ -54,18 +55,29 @@ public class CollectAndShoot
         switch(state)
         {
             case WAITING:
+                if(stick.getRawButton(11))
+                    state = State.DISABLED;
                 collectorTalon.set(1.0);
                 if(collectSwitch.get())
                     state = State.CENTERING;
                 break;
             case CENTERING:
+                if(stick.getRawButton(11))
+                    state = State.DISABLED;
                 collectorTalon.set(0.8);
                 if(centerSwitch.get())
                     state = State.HOLDING;
                 break;
             case DISABLED:
+                if(stick.getRawButton(11))
+                    state = State.WAITING;
+                collectorTalon.set(0.0);
+                shooterTalonOne.set(0.0);
+                shooterTalonTwo.set(0.0);
                 break;
             case HOLDING:
+                if(stick.getRawButton(11))
+                    state = State.DISABLED;
                 if(collectSwitch.get() && !holdPosSwitch.get()
                         && !centerSwitch.get())
                     collectorTalon.set(0.5);
@@ -91,10 +103,35 @@ public class CollectAndShoot
                 }
                 break;
             case SHOOTING:
-                if(stick.getRawButton(1))
+                if(stick.getRawButton(11))
+                    state = State.DISABLED;
+                switch(shooterSubState)
                 {
-                    shooterTalonOne.set(0.85);
-                    shooterTalonTwo.set(-0.85);
+                    case DISABLED:
+                        shooterTalonOne.set(0.0);
+                        shooterTalonTwo.set(0.0);
+                        break;
+                    case SHOOTING:
+                        collectorTalon.set(0.85);
+                        if(timer.get() >= 2.0)
+                        {
+                            timer.stop();
+                            shooterSubState = ShooterSubState.DISABLED;
+                            state = State.WAITING;
+                        }
+                        break;
+                    case WARMINGUP:
+                        if(!stick.getRawButton(1))
+                        {
+                            timer.reset();
+                            timer.start();
+                            shooterSubState = ShooterSubState.SHOOTING;
+                        }
+                        shooterTalonOne.set(0.9);
+                        shooterTalonTwo.set(0.9);
+                        break;
+                    default:
+                        break;
                 }
                 break;
             default:
