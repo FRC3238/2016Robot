@@ -6,16 +6,27 @@ import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.DriverStation;
 
+/**
+ * Enumeration to control the main switch statement
+ */
 enum State
 {
     WAITING, CENTERING, HOLDING, SHOOTING, DISABLED
 }
 
+/**
+ * Enumeration to control the shooters substate switch statement
+ */
 enum ShooterSubState
 {
     WARMINGUP, SHOOTING, DISABLED
 }
 
+/**
+ * This is the class for the combined shooter and collector.
+ * 
+ * @author Aaron Jenson
+ */
 public class CollectAndShoot
 {
     State state;
@@ -30,6 +41,25 @@ public class CollectAndShoot
     Joystick stick;
     Timer timer;
 
+    /**
+     * 
+     * @param collectorTalonID
+     *            id of the single collector talon
+     * @param shooterTalonOneID
+     *            id of the shooter talon to shoot spinning forwards
+     * @param shooterTalonTwoID
+     *            id of the shooter talon to be reversed
+     * @param collectSwitchChannel
+     *            channel of the limit switch to detect a collected ball
+     * @param centerSwitchChannel
+     *            channel of the limit switch to detect a centered ball
+     * @param holdPosSwitchChannel
+     *            channel of the limit switch to detect the perfect held ball
+     *            position
+     * @param stickPort
+     *            port of the joystick to control the shooter, using only button
+     *            one and eleven
+     */
     public CollectAndShoot(int collectorTalonID, int shooterTalonOneID,
             int shooterTalonTwoID, int collectSwitchChannel,
             int centerSwitchChannel, int holdPosSwitchChannel, int stickPort)
@@ -37,6 +67,7 @@ public class CollectAndShoot
         collectorTalon = new CANTalon(collectorTalonID);
         shooterTalonOne = new CANTalon(shooterTalonOneID);
         shooterTalonTwo = new CANTalon(shooterTalonTwoID);
+        shooterTalonTwo.setInverted(true);
 
         collectSwitch = new DigitalInput(collectSwitchChannel);
         centerSwitch = new DigitalInput(centerSwitchChannel);
@@ -55,6 +86,8 @@ public class CollectAndShoot
         switch(state)
         {
             case WAITING:
+                shooterTalonOne.set(0.0);
+                shooterTalonTwo.set(0.0);
                 if(stick.getRawButton(11))
                     state = State.DISABLED;
                 collectorTalon.set(1.0);
@@ -62,6 +95,8 @@ public class CollectAndShoot
                     state = State.CENTERING;
                 break;
             case CENTERING:
+                shooterTalonOne.set(0.0);
+                shooterTalonTwo.set(0.0);
                 if(stick.getRawButton(11))
                     state = State.DISABLED;
                 collectorTalon.set(0.8);
@@ -76,6 +111,8 @@ public class CollectAndShoot
                 shooterTalonTwo.set(0.0);
                 break;
             case HOLDING:
+                shooterTalonOne.set(0.0);
+                shooterTalonTwo.set(0.0);
                 if(stick.getRawButton(11))
                     state = State.DISABLED;
                 if(collectSwitch.get() && !holdPosSwitch.get()
@@ -97,9 +134,8 @@ public class CollectAndShoot
 
                 if(stick.getRawButton(1))
                 {
+                    shooterSubState = ShooterSubState.WARMINGUP;
                     state = State.SHOOTING;
-                    timer.reset();
-                    timer.start();
                 }
                 break;
             case SHOOTING:
@@ -131,12 +167,22 @@ public class CollectAndShoot
                         shooterTalonTwo.set(0.9);
                         break;
                     default:
+                        shooterTalonOne.set(0.0);
+                        shooterTalonTwo.set(0.0);
+                        DriverStation.reportError(
+                                "Shooter is in default state!", false);
                         break;
                 }
                 break;
             default:
+                shooterTalonOne.set(0.0);
+                shooterTalonTwo.set(0.0);
+                collectorTalon.set(0.0);
+                if(stick.getRawButton(11))
+                    state = State.DISABLED;
+                DriverStation.reportError(
+                        "Collecter/Shooter is in default state!", false);
                 break;
-
         }
     }
 }
