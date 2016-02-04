@@ -12,6 +12,7 @@ public class Robot extends IterativeRobot
 {
     Camera camera;
     Chassis chassis;
+    CollectAndShoot ballControl;
     Joystick joystickZero, joystickOne;
     CANTalon leftDriveTalonA, leftDriveTalonB, rightDriveTalonA,
             rightDriveTalonB, breacherTalon, collectorTalon, shooterTalonA,
@@ -64,6 +65,10 @@ public class Robot extends IterativeRobot
                     ci.retrieveInt("crosshairCenterY"));
             camera.init(ci.retrieveInt("cameraQuality"),
                     ci.retrieveInt("cameraSize"));
+            ballControl = new CollectAndShoot(
+                    ci.retrieveInt("collectorTalonPort"),
+                    ci.retrieveInt("ShooterLeftTalonPort"),
+                    ci.retrieveInt("ShooterRightTalonPort"), 0, 1, 2, 0);
         } catch(Exception e)
         {
             e.printStackTrace();
