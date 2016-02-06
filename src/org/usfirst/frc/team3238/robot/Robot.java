@@ -1,8 +1,5 @@
 package org.usfirst.frc.team3238.robot;
 
-import java.io.FileNotFoundException;
-import java.text.ParseException;
-
 import edu.wpi.first.wpilibj.IterativeRobot;
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.Joystick;
@@ -15,12 +12,10 @@ public class Robot extends IterativeRobot
     CollectAndShoot ballControl;
     Joystick joystickZero, joystickOne;
     CANTalon leftDriveTalonA, leftDriveTalonB, rightDriveTalonA,
-            rightDriveTalonB, breacherTalon, collectorTalon, shooterTalonA,
-            shooterTalonB;
-    DigitalInput ballDetect;
+            rightDriveTalonB, breacherTalon, collectorTalon, shooterTalonLeft,
+            shooterTalonRight;
     DigitalInput armDetectTop, armDetectBot;
     Breacher breacherArm;
-    ConstantInterpreter ci;
     public double throttleRangeAdjuster;
     public static boolean camChanging;
 
@@ -33,48 +28,45 @@ public class Robot extends IterativeRobot
     {
         try
         {
-            ci = new ConstantInterpreter("kConstants.txt");
+            armDetectTop = new DigitalInput(Constants.Breacher.armDetectTopPort);
+            armDetectBot = new DigitalInput(Constants.Breacher.armDetectBotPort);
 
-            ballDetect = new DigitalInput(ci.retrieveInt("ballDetectPort"));
+            leftDriveTalonA = new CANTalon(Constants.Chassis.leftMotorOneID);
+            leftDriveTalonB = new CANTalon(Constants.Chassis.leftMotorTwoID);
+            rightDriveTalonA = new CANTalon(Constants.Chassis.rightMotorOneID);
+            rightDriveTalonB = new CANTalon(Constants.Chassis.rightMotorTwoID);
 
-            armDetectTop = new DigitalInput(ci.retrieveInt("armDetectTopPort"));
-            armDetectBot = new DigitalInput(ci.retrieveInt("armDetectBotPort"));
-            leftDriveTalonA = new CANTalon(
-                    ci.retrieveInt("DriveLeftTalonAPort"));
-            leftDriveTalonB = new CANTalon(
-                    ci.retrieveInt("DriveLeftTalonBPort"));
-            rightDriveTalonA = new CANTalon(
-                    ci.retrieveInt("DriveRightTalonAPort"));
-            rightDriveTalonB = new CANTalon(
-                    ci.retrieveInt("DriveRightTalonBPort"));
-
-            breacherTalon = new CANTalon(ci.retrieveInt("breacherTalonPort"));
-
-            collectorTalon = new CANTalon(ci.retrieveInt("collectorTalonPort"));
+            breacherTalon = new CANTalon(Constants.Breacher.breacherTalonPort);
 
             breacherArm = new Breacher(breacherTalon, armDetectTop,
                     armDetectBot);
             chassis = new Chassis(leftDriveTalonA, leftDriveTalonB,
                     rightDriveTalonA, rightDriveTalonB);
+
             breacherArm = new Breacher(breacherTalon);
 
-            shooterTalonA = new CANTalon(ci.retrieveInt("ShooterLeftTalonPort"));
-            shooterTalonB = new CANTalon(
-                    ci.retrieveInt("ShooterRightTalonPort"));
-            camera = new Camera(ci.retrieveString("frontCameraName"),
-                    ci.retrieveString("rearCameraName"),
-                    ci.retrieveInt("crosshairCenterX"),
-                    ci.retrieveInt("crosshairCenterY"));
-            camera.init(ci.retrieveInt("cameraQuality"),
-                    ci.retrieveInt("cameraSize"));
+            camera = new Camera(Constants.Camera.frontCamName,
+                    Constants.Camera.rearCamName,
+                    Constants.Camera.crosshairCenterX,
+                    Constants.Camera.crosshairCenterY);
+            camera.init(Constants.Camera.camQuality, Constants.Camera.camSize);
+
             ballControl = new CollectAndShoot(
-                    ci.retrieveInt("collectorTalonPort"),
-                    ci.retrieveInt("ShooterLeftTalonPort"),
-                    ci.retrieveInt("ShooterRightTalonPort"), 0, 1, 2, 0);
+                    Constants.CollectAndShoot.collectorTalonPort,
+                    Constants.CollectAndShoot.shooterLeftTalonPort,
+                    Constants.CollectAndShoot.shooterRightTalonPort,
+                    Constants.CollectAndShoot.ballDetectChannel,
+                    Constants.CollectAndShoot.centerDetectChannel,
+                    Constants.CollectAndShoot.holdPosDetectChannel,
+                    Constants.Robot.joystickZeroPort);
+
+            throttleRangeAdjuster = Constants.Robot.throttleRangeAdjuster;
+
+            joystickZero = new Joystick(Constants.Robot.joystickZeroPort);
+            joystickOne = new Joystick(Constants.Robot.joystickOnePort);
         } catch(Exception e)
         {
             e.printStackTrace();
-
         }
 
     }
@@ -91,15 +83,6 @@ public class Robot extends IterativeRobot
 
     public void teleopInit()
     {
-        try
-        {
-            throttleRangeAdjuster = ci.retrieveDouble("throttleRangeAdjuster");
-            joystickZero = new Joystick(ci.retrieveInt("joystickZeroPort"));
-            joystickOne = new Joystick(ci.retrieveInt("joystickOnePort"));
-        } catch(Exception e)
-        {
-            e.printStackTrace();
-        }
         camChanging = true;
     }
 
@@ -112,6 +95,7 @@ public class Robot extends IterativeRobot
         chassisCommands();
         cameraCommands();
         // breacherCommands(throttleOne);
+        ballControl.idle();
     }
 
     // Drive system
@@ -124,12 +108,12 @@ public class Robot extends IterativeRobot
     // Camera stuff
     private void cameraCommands()
     {
-        if(joystickZero.getRawButton(ci.retrieveInt("camChangeButton"))
+        if(joystickZero.getRawButton(Constants.Camera.camChangeButton)
                 && camChanging)
         {
             camChanging = false;
             camera.changeCam();
-        } else if(!joystickZero.getRawButton(ci.retrieveInt("camChangeButton")))
+        } else if(!joystickZero.getRawButton(Constants.Camera.camChangeButton))
         {
             camChanging = true;
         }
@@ -139,17 +123,16 @@ public class Robot extends IterativeRobot
     // breacher stuff
     private void breacherCommands(double throttleOne)
     {
-        if(joystickZero.getRawButton(ci
-                .retrieveInt("breacherTalonForwardButton")))
+        if(joystickZero.getRawButton(Constants.Breacher.breacherUpButton))
         {
 
             breacherArm.raiseArm();
-        } else if(joystickZero.getRawButton(ci
-                .retrieveInt("breacherTalonReverseButton")))
+        } else if(joystickZero
+                .getRawButton(Constants.Breacher.breacherDownButton))
         {
             breacherArm.raiseArmWO(throttleOne);
-        } else if(joystickZero.getRawButton(ci
-                .retrieveInt("breacherTalonReverseButton")))
+        } else if(joystickZero
+                .getRawButton(Constants.Breacher.breacherDownButton))
         {
             breacherArm.lowerArmWO(-throttleOne);
         } else

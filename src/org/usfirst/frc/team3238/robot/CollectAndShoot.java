@@ -42,7 +42,6 @@ public class CollectAndShoot
     Timer timer;
 
     /**
-     * 
      * @param collectorTalonID
      *            id of the single collector talon
      * @param shooterTalonOneID
@@ -81,6 +80,9 @@ public class CollectAndShoot
         timer.start();
     }
 
+    /**
+     * 
+     */
     public void idle()
     {
         switch(state)
