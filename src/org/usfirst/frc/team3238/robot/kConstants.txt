@@ -4,7 +4,7 @@ joystickZeroPort
 0
 joystickOnePort
 1
-ballDetectPort 
+ballDetectPort
 0
 armDetectTopPort
 1
