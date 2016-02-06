@@ -13,7 +13,9 @@ public class Breacher
     double m_joystickZeroThrottle;
     double m_joystickOneThrottle;
     double talonPower;
-
+    Breacher(CANTalon breacherTalon) {
+        this.breacherTalon = breacherTalon;
+    }
     Breacher(CANTalon breacherTalon, DigitalInput armDetectTop, DigitalInput armDetectBot)
     {
         this.breacherTalon = breacherTalon;
@@ -53,7 +55,15 @@ public class Breacher
         standby();
         }
     }
-
+    void lowerArmWO(double jsOneThrottle) {
+        
+        talonPower = -jsOneThrottle;
+        execute();
+    }
+    void raiseArmWO(double jsOneThrottle) {
+        talonPower = jsOneThrottle;
+        execute();
+    }
     void standby()
     {
     	breacherTalon.set(0);

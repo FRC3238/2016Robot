@@ -57,8 +57,9 @@ public class Robot extends IterativeRobot
                     armDetectBot);
             chassis = new Chassis(leftDriveTalonA, leftDriveTalonB,
                     rightDriveTalonA, rightDriveTalonB);
+            breacherArm = new Breacher(breacherTalon);
 
-            collector = new Collector(collectorTalon, ballDetect);
+            collector = new Collector(collectorTalon);
             shooterTalonA = new CANTalon(ci.retrieveInt("ShooterLeftTalonPort"));
             shooterTalonB = new CANTalon(
                     ci.retrieveInt("ShooterRightTalonPort"));
@@ -72,7 +73,7 @@ public class Robot extends IterativeRobot
         } catch(Exception e)
         {
             e.printStackTrace();
-            System.exit(0);
+
         }
 
     }
@@ -162,11 +163,16 @@ public class Robot extends IterativeRobot
         if(joystickZero.getRawButton(ci
                 .retrieveInt("breacherTalonForwardButton")))
         {
+
             breacherArm.raiseArm();
         } else if(joystickZero.getRawButton(ci
                 .retrieveInt("breacherTalonReverseButton")))
         {
-            breacherArm.lowerArm();
+            breacherArm.raiseArmWO(throttleOne);
+        } else if(joystickZero.getRawButton(ci
+                .retrieveInt("breacherTalonReverseButton")))
+        {
+            breacherArm.lowerArmWO(-throttleOne);
         } else
         {
             breacherArm.standby();
@@ -179,10 +185,9 @@ public class Robot extends IterativeRobot
             int collectorForwardButton, int collectorReverseButton,
             int collectorManualButton)
     {
-        collector.proCollector(throttleZero,
+        collector.fullControlCollector(throttleZero,
                 joystickZero.getRawButton(collectorForwardButton),
-                joystickZero.getRawButton(collectorReverseButton),
-                joystickZero.getRawButton(collectorManualButton));
+                joystickZero.getRawButton(collectorReverseButton));
     }
 
     public void disabledPeriodic()
