@@ -12,7 +12,7 @@ public class Robot extends IterativeRobot
 {
     Camera camera;
     Chassis chassis;
-    Collector collector;
+    CollectAndShoot ballControl;
     Joystick joystickZero, joystickOne;
     CANTalon leftDriveTalonA, leftDriveTalonB, rightDriveTalonA,
             rightDriveTalonB, breacherTalon, collectorTalon, shooterTalonA,
@@ -21,7 +21,6 @@ public class Robot extends IterativeRobot
     DigitalInput armDetectTop, armDetectBot;
     Breacher breacherArm;
     ConstantInterpreter ci;
-    Shooter shooter;
     public double throttleRangeAdjuster;
     public static boolean camChanging;
 
@@ -59,17 +58,19 @@ public class Robot extends IterativeRobot
                     rightDriveTalonA, rightDriveTalonB);
             breacherArm = new Breacher(breacherTalon);
 
-            collector = new Collector(collectorTalon);
             shooterTalonA = new CANTalon(ci.retrieveInt("ShooterLeftTalonPort"));
             shooterTalonB = new CANTalon(
                     ci.retrieveInt("ShooterRightTalonPort"));
-            shooter = new Shooter(shooterTalonA, shooterTalonB, ballDetect);
             camera = new Camera(ci.retrieveString("frontCameraName"),
                     ci.retrieveString("rearCameraName"),
                     ci.retrieveInt("crosshairCenterX"),
                     ci.retrieveInt("crosshairCenterY"));
             camera.init(ci.retrieveInt("cameraQuality"),
                     ci.retrieveInt("cameraSize"));
+            ballControl = new CollectAndShoot(
+                    ci.retrieveInt("collectorTalonPort"),
+                    ci.retrieveInt("ShooterLeftTalonPort"),
+                    ci.retrieveInt("ShooterRightTalonPort"), 0, 1, 2, 0);
         } catch(Exception e)
         {
             e.printStackTrace();
@@ -110,29 +111,7 @@ public class Robot extends IterativeRobot
         // throttleRangeAdjuster;
         chassisCommands();
         cameraCommands();
-        // collectOrShootDivisor(throttleZero);
-        collectorCommands(throttleZero,
-                ci.retrieveInt("collectorForwardButton"),
-                ci.retrieveInt("collectorReverseButton"),
-                ci.retrieveInt("collectorManualButton"));
         // breacherCommands(throttleOne);
-    }
-
-    // Toggles b/w collector and shooter
-    private void collectOrShootDivisor(double throttleZero)
-    {
-        if(!joystickZero.getRawButton(ci.retrieveInt("shootToggleButton")))
-        {
-            shooter.disable();
-            collectorCommands(throttleZero,
-                    ci.retrieveInt("collectorForwardButton"),
-                    ci.retrieveInt("collectorReverseButton"),
-                    ci.retrieveInt("collectorManualButton"));
-        } else
-        {
-            collector.disable();
-            shooter.enable(throttleZero);
-        }
     }
 
     // Drive system
@@ -178,16 +157,6 @@ public class Robot extends IterativeRobot
             breacherArm.standby();
         }
 
-    }
-
-    // solely collector stuff
-    private void collectorCommands(double throttleZero,
-            int collectorForwardButton, int collectorReverseButton,
-            int collectorManualButton)
-    {
-        collector.fullControlCollector(throttleZero,
-                joystickZero.getRawButton(collectorForwardButton),
-                joystickZero.getRawButton(collectorReverseButton));
     }
 
     public void disabledPeriodic()
