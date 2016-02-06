@@ -18,6 +18,7 @@ public class Robot extends IterativeRobot
     Breacher breacherArm;
     public double throttleRangeAdjuster;
     public static boolean camChanging;
+    public static boolean camDead;
 
     public void defineConstants() throws java.io.FileNotFoundException
     {
@@ -50,6 +51,7 @@ public class Robot extends IterativeRobot
                     Constants.Camera.crosshairCenterX,
                     Constants.Camera.crosshairCenterY);
             camera.init(Constants.Camera.camQuality, Constants.Camera.camSize);
+            camDead = false;
 
             ballControl = new CollectAndShoot(
                     Constants.CollectAndShoot.collectorTalonPort,
@@ -94,7 +96,7 @@ public class Robot extends IterativeRobot
         // throttleRangeAdjuster;
         chassisCommands();
         cameraCommands();
-        // breacherCommands(throttleOne);
+        breacherCommands(throttleZero);
         ballControl.idle();
     }
 
@@ -117,7 +119,15 @@ public class Robot extends IterativeRobot
         {
             camChanging = true;
         }
-        camera.idle();
+
+        if(camDead)
+            camera.idle();
+
+        if(joystickZero.getRawButton(Constants.Camera.camKillSwitch) && camDead)
+            camDead = false;
+        else if(joystickZero.getRawButton(Constants.Camera.camKillSwitch)
+                && !camDead)
+            camDead = true;
     }
 
     // breacher stuff
@@ -125,7 +135,6 @@ public class Robot extends IterativeRobot
     {
         if(joystickZero.getRawButton(Constants.Breacher.breacherUpButton))
         {
-
             breacherArm.raiseArm();
         } else if(joystickZero
                 .getRawButton(Constants.Breacher.breacherDownButton))
@@ -134,7 +143,7 @@ public class Robot extends IterativeRobot
         } else if(joystickZero
                 .getRawButton(Constants.Breacher.breacherDownButton))
         {
-            breacherArm.lowerArmWO(-throttleOne);
+            breacherArm.lowerArmWO(throttleOne);
         } else
         {
             breacherArm.standby();

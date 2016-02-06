@@ -24,6 +24,7 @@ public class Constants
         public static final int crosshairCenterY = 240;
         
         public static final int camChangeButton = 2;
+        public static final int camKillSwitch = 8;
     }
 
     public class Chassis
