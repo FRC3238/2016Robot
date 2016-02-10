@@ -80,14 +80,18 @@ public class CollectAndShoot
 
         timer.start();
     }
+    
+    public void disable() {
+        shooterTalonOne.set(0.0);
+        shooterTalonTwo.set(0.0);
+    }
 
     public void idle()
     {
         switch(state)
         {
             case WAITING:
-                shooterTalonOne.set(0.0);
-                shooterTalonTwo.set(0.0);
+                disable();
                 if(stick.getRawButton(11))
                     state = State.DISABLED;
                 collectorTalon.set(1.0);
@@ -95,8 +99,7 @@ public class CollectAndShoot
                     state = State.CENTERING;
                 break;
             case CENTERING:
-                shooterTalonOne.set(0.0);
-                shooterTalonTwo.set(0.0);
+                disable();
                 if(stick.getRawButton(11))
                     state = State.DISABLED;
                 collectorTalon.set(0.8);
@@ -107,12 +110,10 @@ public class CollectAndShoot
                 if(stick.getRawButton(11))
                     state = State.WAITING;
                 collectorTalon.set(0.0);
-                shooterTalonOne.set(0.0);
-                shooterTalonTwo.set(0.0);
+                disable();
                 break;
             case HOLDING:
-                shooterTalonOne.set(0.0);
-                shooterTalonTwo.set(0.0);
+                disable();
                 if(stick.getRawButton(11))
                     state = State.DISABLED;
                 if(collectSwitch.get() && !holdPosSwitch.get()
@@ -144,8 +145,7 @@ public class CollectAndShoot
                 switch(shooterSubState)
                 {
                     case DISABLED:
-                        shooterTalonOne.set(0.0);
-                        shooterTalonTwo.set(0.0);
+                        disable();
                         break;
                     case SHOOTING:
                         collectorTalon.set(0.85);
@@ -167,16 +167,14 @@ public class CollectAndShoot
                         shooterTalonTwo.set(0.9);
                         break;
                     default:
-                        shooterTalonOne.set(0.0);
-                        shooterTalonTwo.set(0.0);
+                        disable();
                         DriverStation.reportError(
                                 "Shooter is in default state!", false);
                         break;
                 }
                 break;
             default:
-                shooterTalonOne.set(0.0);
-                shooterTalonTwo.set(0.0);
+                disable();
                 collectorTalon.set(0.0);
                 if(stick.getRawButton(11))
                     state = State.DISABLED;
