@@ -41,39 +41,20 @@ public class CollectAndShoot
     Joystick stick;
     Timer timer;
 
-    /**
-     * 
-     * @param collectorTalonID
-     *            id of the single collector talon
-     * @param shooterTalonOneID
-     *            id of the shooter talon to shoot spinning forwards
-     * @param shooterTalonTwoID
-     *            id of the shooter talon to be reversed
-     * @param collectSwitchChannel
-     *            channel of the limit switch to detect a collected ball
-     * @param centerSwitchChannel
-     *            channel of the limit switch to detect a centered ball
-     * @param holdPosSwitchChannel
-     *            channel of the limit switch to detect the perfect held ball
-     *            position
-     * @param stickPort
-     *            port of the joystick to control the shooter, using only button
-     *            one and eleven
-     */
-    public CollectAndShoot(int collectorTalonID, int shooterTalonOneID,
-            int shooterTalonTwoID, int collectSwitchChannel,
-            int centerSwitchChannel, int holdPosSwitchChannel, int stickPort)
+    public CollectAndShoot(CANTalon collectorTalon, CANTalon shooterTalonOne,
+            CANTalon shooterTalonTwo, DigitalInput collectSwitch,
+            DigitalInput centerSwitch, DigitalInput holdPosSwitch,
+            Joystick stick)
     {
-        collectorTalon = new CANTalon(collectorTalonID);
-        shooterTalonOne = new CANTalon(shooterTalonOneID);
-        shooterTalonTwo = new CANTalon(shooterTalonTwoID);
-        shooterTalonTwo.setInverted(true);
+        this.collectorTalon = collectorTalon;
+        this.shooterTalonOne = shooterTalonOne;
+        this.shooterTalonTwo = shooterTalonTwo;
 
-        collectSwitch = new DigitalInput(collectSwitchChannel);
-        centerSwitch = new DigitalInput(centerSwitchChannel);
-        holdPosSwitch = new DigitalInput(holdPosSwitchChannel);
+        this.collectSwitch = collectSwitch;
+        this.centerSwitch = centerSwitch;
+        this.holdPosSwitch = holdPosSwitch;
 
-        stick = new Joystick(stickPort);
+        this.stick = stick;
 
         state = State.WAITING;
         shooterSubState = ShooterSubState.DISABLED;
@@ -86,6 +67,10 @@ public class CollectAndShoot
         shooterTalonTwo.set(0.0);
     }
 
+    /**
+     * The main method that controls the collector and shooter. This must be
+     * called in teleop periodic to function correctly.
+     */
     public void idle()
     {
         switch(state)
