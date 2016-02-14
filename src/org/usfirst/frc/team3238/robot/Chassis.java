@@ -12,7 +12,7 @@ public class Chassis
     boolean motorInversion;
 
     double xValueZero, yValueZero, twistValueZero, xValueOne, yValueOne, twistValueOne, mappedX, mappedTwist, multiplier;
-
+    double mult = 0.78;
     
     public double	twistMultiplier = 0.5, deadZone = 0.15;
     Joystick joystickOne;
@@ -75,7 +75,7 @@ public class Chassis
     void arcadeDrive(Joystick joystickZero) {
         double tw = joystickZero.getTwist();
         
-        driveTrain.arcadeDrive(joystickOne.getY() * multiplier, -(tw*0.78), false);
+        driveTrain.arcadeDrive(joystickOne.getY() * multiplier, -(tw*mult), false);
     }
     
     
