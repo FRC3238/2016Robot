@@ -85,7 +85,7 @@ public class Robot extends IterativeRobot
     public void autonomousPeriodic()
     {
     	if(allah)
-    	auto.bruteAutonomous();
+    	    auto.bruteAutonomous();
     	allah = false;
     }
 
