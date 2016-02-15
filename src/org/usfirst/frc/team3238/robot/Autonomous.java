@@ -5,7 +5,7 @@ import edu.wpi.first.wpilibj.CANTalon;
 public class Autonomous {
 	private static String[] defenses;
 	private static CANTalon[] talons;
-	private static final double encoderValues = 0.0;
+	//private static final double encoderValues = 0.0;
 	private final double bruteTime = 2.0, bruteForce = 0.82;
 	private Timer t;
 	public Autonomous(String[] z, CANTalon[] cans) {
