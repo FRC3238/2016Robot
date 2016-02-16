@@ -74,7 +74,7 @@ public class Constants
     {
         public static final double defaultPower = 1.0;
         public static final double centerPower = 0.8;
-        
+
         public static final int ballDetectChannel = 2;
         public static final int collectorTalonPort = 6;
     }
@@ -83,7 +83,7 @@ public class Constants
     {
         public static final int shooterLeftTalonPort = 7;
         public static final int shooterRightTalonPort = 8;
-        
+
         public static final double presetPowerOne = 0.6;
         public static final double presetPowerTwo = 0.69;
         public static final double presetPowerThree = 0.8;
