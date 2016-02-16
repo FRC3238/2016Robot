@@ -10,8 +10,7 @@ public class Breacher
 
     boolean m_armDetectTop;
     boolean m_armDetectBot;
-    double m_joystickZeroThrottle;
-    double m_joystickOneThrottle;
+    double m_assistantDriverThrottle;
     double talonPower;
     Breacher(CANTalon breacherTalon) {
         this.breacherTalon = breacherTalon;
@@ -24,32 +23,47 @@ public class Breacher
         
     }
 
-    void setData(boolean armDetectTop, boolean armDetectBot,
-            double joystickZeroThrottle, double joystickOneThrottle)
+    void setData(boolean armDetectTop, boolean armDetectBot, double assistantDriverThrottle)
     {
         m_armDetectTop = armDetectTop;
         m_armDetectBot = armDetectBot;
-        m_joystickZeroThrottle = joystickZeroThrottle;
-        m_joystickOneThrottle = joystickOneThrottle;
+        m_assistantDriverThrottle = assistantDriverThrottle;
 
+    }
+    
+    void idle(Joystick assistantDriver) {
+    	if(assistantDriver.getRawButton(Constants.AssistantDriver.breacherUp))
+        {
+            raiseArmWO(1.0);
+        } else if(assistantDriver
+                .getRawButton(Constants.AssistantDriver.breacherDown))
+        {
+            lowerArmWO(1.0);
+        } else if(Math.abs((assistantDriver.getY())) > 0.1)
+        {
+            raiseArmWO(assistantDriver.getY());
+        } else
+        {
+            standby();
+        }
     }
 
     void raiseArm()
     {
         if(!m_armDetectTop)
         {
-            talonPower = m_joystickOneThrottle;
+            talonPower = m_assistantDriverThrottle;
             execute();
         } else {
         standby();
         }
     }
-
+    
     void lowerArm()
     {
         if(!m_armDetectBot)
         {
-            talonPower = -m_joystickOneThrottle;
+            talonPower = -m_assistantDriverThrottle;
             execute();
         } else {
         standby();

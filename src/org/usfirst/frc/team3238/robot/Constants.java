@@ -68,6 +68,8 @@ public class Constants
         public static final int leftMotorTwoID = 2;
         public static final int rightMotorOneID = 3;
         public static final int rightMotorTwoID = 4;
+        public static final double yMultiplier = 0.90;
+        public static final double twistMultiplier = 0.78;
     }
 
     public class Collector
