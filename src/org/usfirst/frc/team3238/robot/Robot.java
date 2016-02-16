@@ -16,7 +16,7 @@ public class Robot extends IterativeRobot
     Chassis chassis;
     Collector collector;
     Shooter shooter;
-    Joystick joystickZero, joystickOne, launchPad;
+    Joystick assistantJoystick, mainJoystick, launchPad;
     CANTalon leftDriveTalonA, leftDriveTalonB, rightDriveTalonA,
             rightDriveTalonB;
     CANTalon breacherTalon;
@@ -31,52 +31,57 @@ public class Robot extends IterativeRobot
 
     public void robotInit()
     {
-        joystickZero = new Joystick(Constants.Robot.joystickZeroPort);
-        joystickOne = new Joystick(Constants.Robot.joystickOnePort);
-        launchPad = new Joystick(Constants.Robot.launchpadPort);
-
-        armDetectTop = new DigitalInput(Constants.Breacher.armDetectTopPort);
-        armDetectBot = new DigitalInput(Constants.Breacher.armDetectBotPort);
-        ballDetectSwitch = new DigitalInput(
-                Constants.CollectAndShoot.ballDetectChannel);
-
-        leftDriveTalonA = new CANTalon(Constants.Chassis.leftMotorOneID);
-        leftDriveTalonB = new CANTalon(Constants.Chassis.leftMotorTwoID);
-        rightDriveTalonA = new CANTalon(Constants.Chassis.rightMotorOneID);
-        rightDriveTalonB = new CANTalon(Constants.Chassis.rightMotorTwoID);
-        rightDriveTalonA.setInverted(true);
-        rightDriveTalonB.setInverted(true);
-        breacherTalon = new CANTalon(Constants.Breacher.breacherTalonPort);
-        collectorTalon = new CANTalon(
-                Constants.CollectAndShoot.collectorTalonPort);
-        shooterTalonLeft = new CANTalon(
-                Constants.CollectAndShoot.shooterLeftTalonPort);
-        shooterTalonRight = new CANTalon(
-                Constants.CollectAndShoot.shooterRightTalonPort);
-
-        breacherArm = new Breacher(breacherTalon);
         try
         {
-            camera = new Camera(Constants.Camera.frontCamName,
-                    Constants.Camera.rearCamName,
-                    Constants.Camera.crosshairCenterX,
-                    Constants.Camera.crosshairCenterY, joystickOne);
-            camera.init(Constants.Camera.camQuality, Constants.Camera.camSize);
-            camDead = false;
+            assistantJoystick = new Joystick(Constants.Robot.joystickZeroPort);
+            mainJoystick = new Joystick(Constants.Robot.joystickOnePort);
+            launchPad = new Joystick(Constants.Robot.launchpadPort);
+
+            armDetectTop = new DigitalInput(Constants.Breacher.armDetectTopPort);
+            armDetectBot = new DigitalInput(Constants.Breacher.armDetectBotPort);
+            ballDetectSwitch = new DigitalInput(
+                    Constants.CollectAndShoot.ballDetectChannel);
+
+            leftDriveTalonA = new CANTalon(Constants.Chassis.leftMotorOneID);
+            leftDriveTalonB = new CANTalon(Constants.Chassis.leftMotorTwoID);
+            rightDriveTalonA = new CANTalon(Constants.Chassis.rightMotorOneID);
+            rightDriveTalonB = new CANTalon(Constants.Chassis.rightMotorTwoID);
+            rightDriveTalonA.setInverted(true);
+            rightDriveTalonB.setInverted(true);
+            breacherTalon = new CANTalon(Constants.Breacher.breacherTalonPort);
+            collectorTalon = new CANTalon(
+                    Constants.CollectAndShoot.collectorTalonPort);
+            shooterTalonLeft = new CANTalon(
+                    Constants.CollectAndShoot.shooterLeftTalonPort);
+            shooterTalonRight = new CANTalon(
+                    Constants.CollectAndShoot.shooterRightTalonPort);
+
+            breacherArm = new Breacher(breacherTalon);
+            try
+            {
+                camera = new Camera(Constants.Camera.frontCamName,
+                        Constants.Camera.rearCamName,
+                        Constants.Camera.crosshairCenterX,
+                        Constants.Camera.crosshairCenterY, mainJoystick);
+                camera.init(Constants.Camera.camQuality, Constants.Camera.camSize);
+                camDead = false;
+            } catch(Exception e)
+            {
+                DriverStation.reportError("Camera error: ", true);
+                camDead = true;
+            }
+            chassis = new Chassis(leftDriveTalonA, leftDriveTalonB,
+                    rightDriveTalonA, rightDriveTalonB);
+            collector = new Collector(collectorTalon, ballDetectSwitch, mainJoystick);
+            shooter = new Shooter(shooterTalonLeft, shooterTalonRight, mainJoystick,
+                    assistantJoystick, launchPad);
+            timer = new Timer();
+
+            throttleRangeAdjuster = Constants.Robot.throttleRangeAdjuster;
         } catch(Exception e)
         {
-            DriverStation.reportError("Camera error: ", true);
-            camDead = true;
+            DriverStation.reportError(e.getMessage(), true);
         }
-        chassis = new Chassis(leftDriveTalonA, leftDriveTalonB,
-                rightDriveTalonA, rightDriveTalonB);
-        collector = new Collector(collectorTalon, ballDetectSwitch,
-                joystickOne);
-        shooter = new Shooter(shooterTalonLeft, shooterTalonRight,
-                joystickOne, joystickZero, launchPad);
-        timer = new Timer();
-
-        throttleRangeAdjuster = Constants.Robot.throttleRangeAdjuster;
     }
 
     public void autonomousInit()
@@ -91,14 +96,13 @@ public class Robot extends IterativeRobot
 
     public void teleopInit()
     {
-        camChanging = true;
+        
     }
 
     public void teleopPeriodic()
     {
         chassisCommands();
-        //cameraCommands();
-        camera.idle();
+        camera.stream();
         breacherCommands();
         collector.idle();
         shooter.idle();
@@ -107,24 +111,24 @@ public class Robot extends IterativeRobot
     // Drive system
     private void chassisCommands()
     {
-        chassis.setMotorInversion(joystickZero);
-        chassis.arcadeDrive(joystickOne);
+        chassis.setMotorInversion(assistantJoystick);
+        chassis.arcadeDrive(mainJoystick);
     }
 
     // breacher stuff
     private void breacherCommands()
     {
-        if(joystickZero.getRawButton(Constants.AssistantDriver.breacherUp))
+        if(assistantJoystick.getRawButton(Constants.AssistantDriver.breacherUp))
         {
             breacherArm.raiseArmWO(1.0);
-        } else if(joystickZero
+        } else if(assistantJoystick
                 .getRawButton(Constants.AssistantDriver.breacherDown))
         {
             breacherArm.lowerArmWO(1.0);
-        } else if(Math.abs((joystickZero.getY())) > 0.1){
-            breacherArm.raiseArmWO(joystickZero.getY());
-        }
-        else
+        } else if(Math.abs((assistantJoystick.getY())) > 0.1)
+        {
+            breacherArm.raiseArmWO(assistantJoystick.getY());
+        } else
         {
             breacherArm.standby();
         }
@@ -133,11 +137,12 @@ public class Robot extends IterativeRobot
 
     public void disabledPeriodic()
     {
-        camera.idle();
+        camera.stream();
     }
 
     public void testPeriodic()
     {
+
     }
 
 }
