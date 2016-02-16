@@ -14,8 +14,9 @@ public class Robot extends IterativeRobot
     Breacher breacherArm;
     Camera camera;
     Chassis chassis;
-    CollectAndShoot ballControl;
-    Joystick joystickZero, joystickOne;
+    Collector collector;
+    Shooter shooter;
+    Joystick joystickZero, joystickOne, launchPad;
     CANTalon leftDriveTalonA, leftDriveTalonB, rightDriveTalonA,
             rightDriveTalonB;
     CANTalon breacherTalon;
@@ -32,6 +33,7 @@ public class Robot extends IterativeRobot
     {
         joystickZero = new Joystick(Constants.Robot.joystickZeroPort);
         joystickOne = new Joystick(Constants.Robot.joystickOnePort);
+        launchPad = new Joystick(Constants.Robot.launchpadPort);
 
         armDetectTop = new DigitalInput(Constants.Breacher.armDetectTopPort);
         armDetectBot = new DigitalInput(Constants.Breacher.armDetectBotPort);
@@ -58,7 +60,7 @@ public class Robot extends IterativeRobot
             camera = new Camera(Constants.Camera.frontCamName,
                     Constants.Camera.rearCamName,
                     Constants.Camera.crosshairCenterX,
-                    Constants.Camera.crosshairCenterY);
+                    Constants.Camera.crosshairCenterY, joystickOne);
             camera.init(Constants.Camera.camQuality, Constants.Camera.camSize);
             camDead = false;
         } catch(Exception e)
@@ -68,8 +70,10 @@ public class Robot extends IterativeRobot
         }
         chassis = new Chassis(leftDriveTalonA, leftDriveTalonB,
                 rightDriveTalonA, rightDriveTalonB);
-        ballControl = new CollectAndShoot(collectorTalon, shooterTalonLeft,
-                shooterTalonRight, ballDetectSwitch, joystickOne);
+        collector = new Collector(collectorTalon, ballDetectSwitch,
+                joystickOne);
+        shooter = new Shooter(shooterTalonLeft, shooterTalonRight,
+                joystickOne, joystickZero, launchPad);
         timer = new Timer();
 
         throttleRangeAdjuster = Constants.Robot.throttleRangeAdjuster;
@@ -88,37 +92,16 @@ public class Robot extends IterativeRobot
     public void teleopInit()
     {
         camChanging = true;
-        ballControl.timerHE.reset();
-        ballControl.timerHE.start();
     }
 
     public void teleopPeriodic()
     {
         chassisCommands();
-        cameraCommands();
+        //cameraCommands();
+        camera.idle();
         breacherCommands();
-        ballControlCommands();
-    }
-
-    private void ballControlCommands()
-    {
-        ballControl.idle();
-        // ballControl.countRpm();
-        ballControl.getRpm();
-        SmartDashboard.putBoolean("HEONE", ballControl.hallEffectOne.get());
-        SmartDashboard.putBoolean("HETWO", ballControl.hallEffectTwo.get());
-        // ballControl.syncRPM(3.5);
-        SmartDashboard.putNumber("RPM Left", ballControl.rpm[0]);
-        // SmartDashboard.putNumber("RPM Left", ballControl.rpm);
-        // SmartDashboard.putNumber("RPM Right", ballControl.rpm);
-        // SmartDashboard.putNumber("RPM1", ballControl.rpmCount[1]);
-        // SmartDashboard.putNumber("RPM0", ballControl.rpmCount[0]);
-        // SmartDashboard.putNumber("Time", ballControl.timerHE.get());
-        // SmartDashboard.putNumber("TimeV", 1.0/ballControl.timerHE.get());
-        // SmartDashboard.putNumber("RPMShort", 1.0/ballControl.timerHE.get() *
-        // ballControl.rpmCount[0]);
-        // SmartDashboard.putNumber("RPMShort0", 1.0/ballControl.timerHE.get() *
-        // ballControl.rpmCount[1]);
+        collector.idle();
+        shooter.idle();
     }
 
     // Drive system
@@ -128,44 +111,20 @@ public class Robot extends IterativeRobot
         chassis.arcadeDrive(joystickOne);
     }
 
-    // Camera stuff
-    private void cameraCommands()
-    {
-        if(!camDead)
-        {
-            if(joystickZero.getRawButton(Constants.Joystick.camChangeButton)
-                    && camChanging)
-            {
-                camChanging = false;
-                camera.changeCam();
-            } else if(!joystickZero
-                    .getRawButton(Constants.Joystick.camChangeButton))
-            {
-                camChanging = true;
-            }
-        }
-        if(camDead)
-            camera.idle();
-
-        if(joystickZero.getRawButton(Constants.Joystick.camKillSwitch)
-                && camDead)
-            camDead = false;
-        else if(joystickZero.getRawButton(Constants.Joystick.camKillSwitch)
-                && !camDead)
-            camDead = true;
-    }
-
     // breacher stuff
     private void breacherCommands()
     {
-        if(joystickZero.getRawButton(Constants.Joystick.breacherUpButton))
+        if(joystickZero.getRawButton(Constants.AssistantDriver.breacherUp))
         {
             breacherArm.raiseArmWO(1.0);
         } else if(joystickZero
-                .getRawButton(Constants.Joystick.breacherDownButton))
+                .getRawButton(Constants.AssistantDriver.breacherDown))
         {
             breacherArm.lowerArmWO(1.0);
-        } else
+        } else if(Math.abs((joystickZero.getY())) > 0.1){
+            breacherArm.raiseArmWO(joystickZero.getY());
+        }
+        else
         {
             breacherArm.standby();
         }
@@ -175,9 +134,6 @@ public class Robot extends IterativeRobot
     public void disabledPeriodic()
     {
         camera.idle();
-        SmartDashboard.putBoolean("HEONE", ballControl.hallEffectOne.get());
-        SmartDashboard.putBoolean("HETWO", ballControl.hallEffectTwo.get());
-
     }
 
     public void testPeriodic()

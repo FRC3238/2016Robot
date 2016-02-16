@@ -68,7 +68,7 @@ public class Chassis
     }
     
     void setMotorInversion(Joystick joystickZero) {
-        if (joystickZero.getThrottle()>.5) {
+        if (joystickOne.getThrottle()>.5) {
             motorInversion = false;
             reverseDrive = 1;
         } else {
