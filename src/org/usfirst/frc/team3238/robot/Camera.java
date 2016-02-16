@@ -6,6 +6,7 @@ import com.ni.vision.NIVision.Point;
 import com.ni.vision.VisionException;
 import edu.wpi.first.wpilibj.CameraServer;
 import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.Joystick;
 
 /**
  * Controls the two cameras, sends them to the Driver Station, and switches
@@ -26,6 +27,8 @@ public class Camera
             startPointHThree, endPointHThree, startPointVThree, endPointVThree;
     private int newID;
 
+    Joystick stick;
+    
     /**
      * 
      * @param frontCameraName
@@ -38,15 +41,16 @@ public class Camera
      *            y value to the center point for the crosshairs
      */
     Camera(String frontCameraName, String backCameraName, int crosshairCenterX,
-            int crosshairCenterY)
+            int crosshairCenterY, Joystick stickOne)
     {
         frontCam = NIVision.IMAQdxOpenCamera(frontCameraName,
                 NIVision.IMAQdxCameraControlMode.CameraControlModeController);
         backCam = NIVision.IMAQdxOpenCamera(backCameraName,
                 NIVision.IMAQdxCameraControlMode.CameraControlModeController);
-        activeCam = backCam;
+        activeCam = frontCam;
         frame = NIVision.imaqCreateImage(NIVision.ImageType.IMAGE_RGB, 0);
         centerPoint = new Point(crosshairCenterX, crosshairCenterY);
+        stick = stickOne;
     }
 
     /**
@@ -60,33 +64,41 @@ public class Camera
      */
     public void init(int quality, int size)
     {
+        newID = frontCam;
+        addCams();
         CameraServer.getInstance().setQuality(quality);
         CameraServer.getInstance().setSize(size);
         setPoints(centerPoint, 20);
-        changeCam();
+        
     }
-
+    void addCams() {
+        NIVision.IMAQdxStopAcquisition(activeCam);
+        NIVision.IMAQdxConfigureGrab(newID);
+        NIVision.IMAQdxStartAcquisition(newID);
+        activeCam = newID;
+    }
     /**
      * Closes the feed for the currently active camera and opens the image for
      * the other camera
      */
     public void changeCam()
     {
-        if(activeCam == frontCam)
+        if(activeCam == frontCam && stick.getRawButton(Constants.MainDriver.backChangeCamButton))
         {
             newID = backCam;
-        } else if(activeCam == backCam)
+            addCams();
+        } else if(activeCam == backCam && stick.getRawButton(Constants.MainDriver.frontChangeCamButton))
         {
             newID = frontCam;
+            addCams();
+        } else if(activeCam == backCam || activeCam == frontCam) {
+            
         } else
         {
             DriverStation.reportError("No camera is active!", false);
             newID = frontCam;
         }
-        NIVision.IMAQdxStopAcquisition(activeCam);
-        NIVision.IMAQdxConfigureGrab(newID);
-        NIVision.IMAQdxStartAcquisition(newID);
-        activeCam = newID;
+        
     }
 
     /**
@@ -97,9 +109,16 @@ public class Camera
      */
     public void idle() throws VisionException
     {
-        NIVision.IMAQdxGrab(activeCam, frame, 1);
-        imposeCrosshairs();
-        CameraServer.getInstance().setImage(frame);
+        try
+        {
+                changeCam();
+                NIVision.IMAQdxGrab(activeCam, frame, 1);
+                imposeCrosshairs();
+                CameraServer.getInstance().setImage(frame);
+        } catch(Exception e)
+        {
+            DriverStation.reportError(e.getMessage(), false);
+        }
     }
 
     /**
