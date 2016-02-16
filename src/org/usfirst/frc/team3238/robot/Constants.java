@@ -55,11 +55,11 @@ public class Constants
         public static final String frontCamName = "cam1";
         public static final String rearCamName = "cam2";
 
-        public static final int camQuality = 30;
+        public static final int camQuality = 10;
         public static final int camSize = 1;
 
-        public static final int crosshairCenterX = 160;
-        public static final int crosshairCenterY = 120;
+        public static final int crosshairCenterX = 320;
+        public static final int crosshairCenterY = 240;
     }
 
     public class Chassis
