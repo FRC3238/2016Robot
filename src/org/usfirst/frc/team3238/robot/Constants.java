@@ -48,9 +48,6 @@ public class Constants
         public static final int breacherTalonPort = 5;
         public static final int armDetectTopPort = 1;
         public static final int armDetectBotPort = 3;
-
-        public static final int breacherUpButton = 4;
-        public static final int breacherDownButton = 6;
     }
 
     public class Camera
@@ -58,14 +55,11 @@ public class Constants
         public static final String frontCamName = "cam1";
         public static final String rearCamName = "cam2";
 
-        public static final int camQuality = 30;
-        public static final int camSize = 0;
+        public static final int camQuality = 10;
+        public static final int camSize = 1;
 
         public static final int crosshairCenterX = 320;
         public static final int crosshairCenterY = 240;
-
-        public static final int camChangeButton = 2;
-        public static final int camKillSwitch = 8;
     }
 
     public class Chassis
@@ -80,23 +74,16 @@ public class Constants
     {
         public static final double defaultPower = 1.0;
         public static final double centerPower = 0.8;
-    }
 
-    public class CollectAndShoot
-    {
         public static final int ballDetectChannel = 2;
-        public static final int centerDetectChannel = 3;
-        public static final int holdPosDetectChannel = 4;
-        public static final int shooterLeftTalonPort = 7;
-        public static final int shooterRightTalonPort = 8;
         public static final int collectorTalonPort = 6;
-
-        public static final int shooterButton = 1;
-        public static final int killSwitch = 11;
     }
 
     public class Shooter
     {
+        public static final int shooterLeftTalonPort = 7;
+        public static final int shooterRightTalonPort = 8;
+
         public static final double presetPowerOne = 0.6;
         public static final double presetPowerTwo = 0.69;
         public static final double presetPowerThree = 0.8;
@@ -108,7 +95,5 @@ public class Constants
         public static final int joystickZeroPort = 0;
         public static final int joystickOnePort = 1;
         public static final int launchpadPort = 2;
-
-        public static final double throttleRangeAdjuster = 0.5;
     }
 }

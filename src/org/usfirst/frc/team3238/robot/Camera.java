@@ -4,6 +4,7 @@ import com.ni.vision.NIVision;
 import com.ni.vision.NIVision.Image;
 import com.ni.vision.NIVision.Point;
 import com.ni.vision.VisionException;
+
 import edu.wpi.first.wpilibj.CameraServer;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Joystick;
@@ -28,7 +29,7 @@ public class Camera
     private int newID;
 
     Joystick stick;
-    
+
     /**
      * 
      * @param frontCameraName
@@ -64,41 +65,64 @@ public class Camera
      */
     public void init(int quality, int size)
     {
-        newID = frontCam;
-        addCams();
-        CameraServer.getInstance().setQuality(quality);
-        CameraServer.getInstance().setSize(size);
-        setPoints(centerPoint, 20);
-        
+        try
+        {
+            newID = frontCam;
+            addCams();
+            CameraServer.getInstance().setQuality(quality);
+            CameraServer.getInstance().setSize(size);
+            setPoints(centerPoint, 20);
+        } catch(Exception e)
+        {
+            DriverStation.reportError(e.getMessage(), true);
+        }
     }
-    void addCams() {
-        NIVision.IMAQdxStopAcquisition(activeCam);
-        NIVision.IMAQdxConfigureGrab(newID);
-        NIVision.IMAQdxStartAcquisition(newID);
-        activeCam = newID;
+
+    void addCams()
+    {
+        try
+        {
+            NIVision.IMAQdxStopAcquisition(activeCam);
+            NIVision.IMAQdxConfigureGrab(newID);
+            NIVision.IMAQdxStartAcquisition(newID);
+            activeCam = newID;
+        } catch(Exception e)
+        {
+            DriverStation.reportError(e.getMessage(), true);
+        }
     }
+
     /**
      * Closes the feed for the currently active camera and opens the image for
      * the other camera
      */
     public void changeCam()
     {
-        if(activeCam == frontCam && stick.getRawButton(Constants.MainDriver.backChangeCamButton))
+        try
         {
-            newID = backCam;
-            addCams();
-        } else if(activeCam == backCam && stick.getRawButton(Constants.MainDriver.frontChangeCamButton))
+            if(activeCam == frontCam
+                    && stick.getRawButton(Constants.MainDriver.backChangeCamButton))
+            {
+                newID = backCam;
+                addCams();
+            } else if(activeCam == backCam
+                    && stick.getRawButton(Constants.MainDriver.frontChangeCamButton))
+            {
+                newID = frontCam;
+                addCams();
+            } else if(activeCam == backCam || activeCam == frontCam)
+            {
+
+            } else
+            {
+                DriverStation.reportError("No camera is active!", false);
+                newID = frontCam;
+            }
+        } catch(Exception e)
         {
-            newID = frontCam;
-            addCams();
-        } else if(activeCam == backCam || activeCam == frontCam) {
-            
-        } else
-        {
-            DriverStation.reportError("No camera is active!", false);
-            newID = frontCam;
+            DriverStation.reportError(e.getMessage(), true);
         }
-        
+
     }
 
     /**
@@ -107,14 +131,14 @@ public class Camera
      * @throws VisionException
      *             If no camera can be found
      */
-    public void idle() throws VisionException
+    public void stream() throws VisionException
     {
         try
         {
-                changeCam();
-                NIVision.IMAQdxGrab(activeCam, frame, 1);
-                imposeCrosshairs();
-                CameraServer.getInstance().setImage(frame);
+            changeCam();
+            NIVision.IMAQdxGrab(activeCam, frame, 1);
+            imposeCrosshairs();
+            CameraServer.getInstance().setImage(frame);
         } catch(Exception e)
         {
             DriverStation.reportError(e.getMessage(), false);
@@ -129,7 +153,13 @@ public class Camera
      */
     public void stop() throws VisionException
     {
-        NIVision.IMAQdxStopAcquisition(activeCam);
+        try
+        {
+            NIVision.IMAQdxStopAcquisition(activeCam);
+        } catch(Exception e)
+        {
+            DriverStation.reportError(e.getMessage(), true);
+        }
     }
 
     /**
@@ -166,21 +196,27 @@ public class Camera
      */
     private void imposeCrosshairs() throws VisionException
     {
-        NIVision.imaqDrawLineOnImage(frame, frame,
-                NIVision.DrawMode.DRAW_INVERT, startPointH, endPointH, 0.0f);
-        NIVision.imaqDrawLineOnImage(frame, frame,
-                NIVision.DrawMode.DRAW_INVERT, startPointV, endPointV, 0.0f);
-        NIVision.imaqDrawLineOnImage(frame, frame,
-                NIVision.DrawMode.DRAW_INVERT, startPointHTwo, endPointHTwo,
-                0.0f);
-        NIVision.imaqDrawLineOnImage(frame, frame,
-                NIVision.DrawMode.DRAW_INVERT, startPointVTwo, endPointVTwo,
-                0.0f);
-        NIVision.imaqDrawLineOnImage(frame, frame,
-                NIVision.DrawMode.DRAW_INVERT, startPointHThree,
-                endPointHThree, 0.0f);
-        NIVision.imaqDrawLineOnImage(frame, frame,
-                NIVision.DrawMode.DRAW_INVERT, startPointVThree,
-                endPointVThree, 0.0f);
+        try
+        {
+            NIVision.imaqDrawLineOnImage(frame, frame,
+                    NIVision.DrawMode.DRAW_INVERT, startPointH, endPointH, 0.0f);
+            NIVision.imaqDrawLineOnImage(frame, frame,
+                    NIVision.DrawMode.DRAW_INVERT, startPointV, endPointV, 0.0f);
+            NIVision.imaqDrawLineOnImage(frame, frame,
+                    NIVision.DrawMode.DRAW_INVERT, startPointHTwo,
+                    endPointHTwo, 0.0f);
+            NIVision.imaqDrawLineOnImage(frame, frame,
+                    NIVision.DrawMode.DRAW_INVERT, startPointVTwo,
+                    endPointVTwo, 0.0f);
+            NIVision.imaqDrawLineOnImage(frame, frame,
+                    NIVision.DrawMode.DRAW_INVERT, startPointHThree,
+                    endPointHThree, 0.0f);
+            NIVision.imaqDrawLineOnImage(frame, frame,
+                    NIVision.DrawMode.DRAW_INVERT, startPointVThree,
+                    endPointVThree, 0.0f);
+        } catch(Exception e)
+        {
+            DriverStation.reportError(e.getMessage(), true);
+        }
     }
 }

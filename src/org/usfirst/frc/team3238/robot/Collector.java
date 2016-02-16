@@ -20,9 +20,9 @@ public class Collector
     DigitalInput ballDetect;
     Joystick stick;
     Timer timer;
-    
+
     private boolean loweringToSwitch;
-    
+
     Collector(CANTalon collectorTalon, DigitalInput ballDetect, Joystick stick)
     {
         try
@@ -64,7 +64,7 @@ public class Collector
         {
             case CENTERING:
                 setPowerOverride(Constants.Collector.centerPower);
-                if(timer.get() >= 0.1)
+                if(timer.get() >= 0.05)
                 {
                     timer.reset();
                     timer.start();
@@ -75,7 +75,8 @@ public class Collector
                 break;
             case COLLECTING:
                 setPowerOverride(Constants.Collector.defaultPower);
-                if(stick.getRawButton(Constants.MainDriver.motorOff)){
+                if(stick.getRawButton(Constants.MainDriver.motorOff))
+                {
                     state = CollectorState.DISABLED;
                 }
                 if(!ballDetect.get())
@@ -84,17 +85,20 @@ public class Collector
                     timer.start();
                     state = CollectorState.CENTERING;
                 }
-                if(stick.getRawButton(Constants.MainDriver.autoEject)){
+                if(stick.getRawButton(Constants.MainDriver.autoEject))
+                {
                     state = CollectorState.EJECTING;
                 }
                 SmartDashboard.putString("state", "collecting");
                 break;
             case DISABLED:
                 setPowerOverride(0.0);
-                if(stick.getRawButton(Constants.MainDriver.autoCollect)){
+                if(stick.getRawButton(Constants.MainDriver.autoCollect))
+                {
                     state = CollectorState.COLLECTING;
                 }
-                if(stick.getRawButton(Constants.MainDriver.autoEject)){
+                if(stick.getRawButton(Constants.MainDriver.autoEject))
+                {
                     state = CollectorState.EJECTING;
                 }
                 SmartDashboard.putString("state", "disabled");
@@ -125,6 +129,12 @@ public class Collector
                     loweringToSwitch = true;
                 if(ballDetect.get() && loweringToSwitch)
                     state = CollectorState.HOLDING;
+                if(timer.get() >= 0.15)
+                {
+                    timer.stop();
+                    timer.reset();
+                    state = CollectorState.HOLDING;
+                }
                 SmartDashboard.putString("state", "lowering");
                 break;
             case SHOOTING:
@@ -140,6 +150,6 @@ public class Collector
             default:
                 break;
         }
-        
+
     }
 }
