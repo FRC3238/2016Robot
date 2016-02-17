@@ -2,6 +2,7 @@ package org.usfirst.frc.team3238.robot;
 
 import edu.wpi.first.wpilibj.CANTalon;
 import edu.wpi.first.wpilibj.DigitalInput;
+import edu.wpi.first.wpilibj.Joystick;
 
 public class Breacher
 {
@@ -13,13 +14,13 @@ public class Breacher
     double m_assistantDriverThrottle;
     double talonPower;
     Breacher(CANTalon breacherTalon) {
-        this.m_breacherTalon = breacherTalon;
+        this.breacherTalon = breacherTalon;
     }
     Breacher(CANTalon breacherTalon, DigitalInput armDetectTop, DigitalInput armDetectBot)
     {
-        this.m_breacherTalon = breacherTalon;
-        this.m_armDetectTop = armDetectTop;
-        this.m_armDetectBot = armDetectBot;
+        this.breacherTalon = breacherTalon;
+        this.armDetectTop = armDetectTop;
+        this.armDetectBot = armDetectBot;
         
     }
 
