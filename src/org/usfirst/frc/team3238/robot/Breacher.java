@@ -13,39 +13,41 @@ public class Breacher
     double m_assistantDriverThrottle;
     double talonPower;
     Breacher(CANTalon breacherTalon) {
-        this.breacherTalon = breacherTalon;
+        this.m_breacherTalon = breacherTalon;
     }
     Breacher(CANTalon breacherTalon, DigitalInput armDetectTop, DigitalInput armDetectBot)
     {
-        this.breacherTalon = breacherTalon;
-        this.armDetectTop = armDetectTop;
-        this.armDetectBot = armDetectBot;
+        this.m_breacherTalon = breacherTalon;
+        this.m_armDetectTop = armDetectTop;
+        this.m_armDetectBot = armDetectBot;
         
     }
 
     void setData(boolean armDetectTop, boolean armDetectBot, double assistantDriverThrottle)
     {
-        m_armDetectTop = armDetectTop;
-        m_armDetectBot = armDetectBot;
-        m_assistantDriverThrottle = assistantDriverThrottle;
+        this.m_armDetectTop = armDetectTop;
+        this.m_armDetectBot = armDetectBot;
+        this.m_assistantDriverThrottle = assistantDriverThrottle;
 
     }
     
     void idle(Joystick assistantDriver) {
+    	double assignment = 0.0;
     	if(assistantDriver.getRawButton(Constants.AssistantDriver.breacherUp))
         {
-            raiseArmWO(1.0);
+            assignment = 1.0;
         } else if(assistantDriver
                 .getRawButton(Constants.AssistantDriver.breacherDown))
         {
-            lowerArmWO(1.0);
+            assignment = -1.0;
         } else if(Math.abs((assistantDriver.getY())) > 0.1)
         {
-            raiseArmWO(assistantDriver.getY());
+           assignment=assistantDriver.getY();
         } else
         {
-            standby();
+            assignment = 0.0;
         }
+    	moveArmWO(assignment);
     }
 
     void raiseArm()
@@ -55,7 +57,7 @@ public class Breacher
             talonPower = m_assistantDriverThrottle;
             execute();
         } else {
-        standby();
+        disable();
         }
     }
     
@@ -66,21 +68,17 @@ public class Breacher
             talonPower = -m_assistantDriverThrottle;
             execute();
         } else {
-        standby();
+        disable();
         }
     }
-    void lowerArmWO(double jsOneThrottle) {
-        
-        talonPower = -jsOneThrottle;
-        execute();
+    void moveArmWO(double throttle) {
+    	talonPower = throttle;
+    	execute();
     }
-    void raiseArmWO(double jsOneThrottle) {
-        talonPower = jsOneThrottle;
-        execute();
-    }
-    void standby()
+    
+    void disable()
     {
-    	breacherTalon.set(0);
+    	moveArmWO(0.0);
     }
 
     void execute()

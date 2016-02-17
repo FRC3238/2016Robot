@@ -99,6 +99,7 @@ public class Robot extends IterativeRobot
         breacherArm.idle(assistantDriver);
         collector.idle();
         shooter.idle();
+        SmartDashboard.putString("PowerZone", chassis.state);
     }
 
     public void disabledPeriodic()
