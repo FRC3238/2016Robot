@@ -151,8 +151,8 @@ public class Camera
     }
     public void drawRelevantInfo(Point b, Point c, boolean a) {
     	drawFilledRectangle(b, c);
-    	int r = (c1.y-b1.y)/2+b1.y;
-    	int q = (c1.x-b1.x)/2+b1.x;
+    	int r = (c.y-b.y)/2+b.y;
+    	int q = (c.x-b.x)/2+b.x;
     	if(a) {
     		drawFilledRectangle(new Point(q-(c.y-b.y), r-(c.x-b.x)), new Point(q+(c.y-b.y), r+(c.x-b.x)));
     	}
