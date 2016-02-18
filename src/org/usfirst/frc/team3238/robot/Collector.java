@@ -20,7 +20,6 @@ public class Collector
     DigitalInput ballDetect;
     Joystick stick;
     Timer timer;
-
     private boolean loweringToSwitch;
 
     Collector(CANTalon collectorTalon, DigitalInput ballDetect, Joystick stick)
@@ -48,7 +47,7 @@ public class Collector
         loweringToSwitch = false;
     }
 
-    private void setPowerOverride(double power)
+    private void setPower(double power)
     {
         if(stick.getPOV() == Constants.MainDriver.manualCollectIn)
             talon.set(-Constants.Collector.defaultPower);
@@ -58,98 +57,120 @@ public class Collector
             talon.set(power);
     }
 
-    public void idle()
+    public void run()
     {
         switch(state)
         {
             case CENTERING:
-                setPowerOverride(Constants.Collector.centerPower);
-                if(timer.get() >= 0.05)
-                {
-                    timer.reset();
-                    timer.start();
-                    loweringToSwitch = false;
-                    state = CollectorState.LOWERING;
-                }
-                SmartDashboard.putString("state", "centering");
+            	
+                setPower(Constants.Collector.centerPower);
+                loweringToSwitch = false;
+                
+                switchWithCondition(0.05, CollectorState.LOWERING);
+                
                 break;
+                
             case COLLECTING:
-                setPowerOverride(Constants.Collector.defaultPower);
-                if(stick.getRawButton(Constants.MainDriver.motorOff))
-                {
-                    state = CollectorState.DISABLED;
-                }
-                if(!ballDetect.get())
-                {
-                    timer.reset();
-                    timer.start();
-                    state = CollectorState.CENTERING;
-                }
-                if(stick.getRawButton(Constants.MainDriver.autoEject))
-                {
-                    state = CollectorState.EJECTING;
-                }
-                SmartDashboard.putString("state", "collecting");
+            	
+                setPower(Constants.Collector.defaultPower);
+                
+                switchWithCondition(Constants.MainDriver.motorOff, CollectorState.DISABLED);
+                switchWithCondition(!ballDetect.get(), CollectorState.CENTERING, true);
+                switchWithCondition(Constants.MainDriver.autoEject, CollectorState.EJECTING);
+                
                 break;
+                
             case DISABLED:
-                setPowerOverride(0.0);
-                if(stick.getRawButton(Constants.MainDriver.autoCollect))
-                {
-                    state = CollectorState.COLLECTING;
-                }
-                if(stick.getRawButton(Constants.MainDriver.autoEject))
-                {
-                    state = CollectorState.EJECTING;
-                }
-                SmartDashboard.putString("state", "disabled");
+            	
+                setPower(0.0);
+                
+                switchWithCondition(Constants.MainDriver.autoCollect, CollectorState.COLLECTING);
+                switchWithCondition(Constants.MainDriver.autoEject, CollectorState.EJECTING);
+               
                 break;
+                
             case EJECTING:
-                setPowerOverride(-Constants.Collector.defaultPower);
-                if(stick.getRawButton(Constants.MainDriver.autoCollect))
-                    state = CollectorState.COLLECTING;
-                if(stick.getRawButton(Constants.MainDriver.motorOff))
-                    state = CollectorState.DISABLED;
-                SmartDashboard.putString("state", "ejecting");
+            	
+                setPower(-Constants.Collector.defaultPower);
+                
+                switchWithCondition(Constants.MainDriver.autoCollect, CollectorState.COLLECTING);
+                switchWithCondition(Constants.MainDriver.motorOff, CollectorState.DISABLED);
+                
                 break;
+                
             case HOLDING:
-                setPowerOverride(0.0);
-                if(stick.getRawButton(Constants.MainDriver.shoot))
-                {
-                    timer.reset();
-                    timer.start();
-                    state = CollectorState.SHOOTING;
-                }
-                if(stick.getRawButton(Constants.MainDriver.autoEject))
-                    state = CollectorState.EJECTING;
-                SmartDashboard.putString("state", "holding");
+            	
+                setPower(0.0);
+                
+                switchWithCondition(Constants.MainDriver.shoot, CollectorState.SHOOTING, true);
+                switchWithCondition(Constants.MainDriver.autoEject, CollectorState.EJECTING);
+                
                 break;
+                
             case LOWERING:
-                setPowerOverride(-Constants.Collector.centerPower);
-                if(!ballDetect.get())
-                    loweringToSwitch = true;
-                if(ballDetect.get() && loweringToSwitch)
-                    state = CollectorState.HOLDING;
-                if(timer.get() >= 0.15)
-                {
-                    timer.stop();
-                    timer.reset();
-                    state = CollectorState.HOLDING;
+            	
+                setPower(-Constants.Collector.centerPower);
+                if(!ballDetect.get()) {
+                	loweringToSwitch = true;
                 }
-                SmartDashboard.putString("state", "lowering");
+                
+                switchWithCondition(ballDetect.get() && loweringToSwitch, CollectorState.HOLDING, false);    
+                switchWithCondition(0.15, CollectorState.HOLDING);
+                
                 break;
+                
             case SHOOTING:
-                setPowerOverride(Constants.Collector.defaultPower);
-                if(timer.get() >= 1.0)
-                {
-                    timer.stop();
-                    timer.reset();
-                    state = CollectorState.DISABLED;
-                }
-                SmartDashboard.putString("state", "shooting");
+            	
+                setPower(Constants.Collector.defaultPower);
+                
+                switchWithCondition(1.0, CollectorState.DISABLED);
+                
                 break;
+                
             default:
                 break;
         }
 
+    }
+    
+    
+    
+    
+    void refresh() {
+    	
+    	timer.reset();
+    	timer.start();
+    }
+    void refresh(boolean b) {
+    	if(b) {
+    		timer.reset();
+    		timer.start();
+    	}
+    }
+    void smartDashboardSet(String a, CollectorState s) {
+    	SmartDashboard.putString(a, s.toString());
+    }
+    void switchWithCondition(boolean isTrue, CollectorState s, boolean resetTime) {
+    	if(isTrue) {
+    		state = s;
+    		refresh(resetTime);
+    	}
+    	smartDashboardSet("state", s);
+    }
+    void switchWithCondition(double time, CollectorState s) {
+    	if(timer.get() >= time) {
+    		state = s;
+    	}
+    	smartDashboardSet("state", s);
+    }
+    void switchWithCondition(int stickNumber, CollectorState s) {
+    	switchWithCondition(stickNumber, s, false);
+    }
+    void switchWithCondition(int stickNumber, CollectorState s, boolean resetTime) {
+    	if(stick.getRawButton(stickNumber)) {
+    		state = s;
+    		refresh(resetTime);
+    	}
+    	smartDashboardSet("state", s);
     }
 }

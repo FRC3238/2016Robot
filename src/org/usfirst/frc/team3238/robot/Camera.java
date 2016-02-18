@@ -23,13 +23,10 @@ public class Camera
     private final int backCam;
     private int activeCam;
     private Image frame;
-    private Point centerPoint, startPointH, endPointH, startPointV, endPointV,
-            startPointHTwo, endPointHTwo, startPointVTwo, endPointVTwo,
-            startPointHThree, endPointHThree, startPointVThree, endPointVThree;
     private int newID;
-
-    Joystick stick;
-
+    public Point centerPoint;
+    private int xDisp = 20, yDisp = 4, leng = 20;
+    Joystick mainDriver;
     /**
      * 
      * @param frontCameraName
@@ -42,7 +39,7 @@ public class Camera
      *            y value to the center point for the crosshairs
      */
     Camera(String frontCameraName, String backCameraName, int crosshairCenterX,
-            int crosshairCenterY, Joystick stickOne)
+            int crosshairCenterY, Joystick mainDriveStick)
     {
         frontCam = NIVision.IMAQdxOpenCamera(frontCameraName,
                 NIVision.IMAQdxCameraControlMode.CameraControlModeController);
@@ -51,7 +48,7 @@ public class Camera
         activeCam = frontCam;
         frame = NIVision.imaqCreateImage(NIVision.ImageType.IMAGE_RGB, 0);
         centerPoint = new Point(crosshairCenterX, crosshairCenterY);
-        stick = stickOne;
+        mainDriver = mainDriveStick;
     }
 
     /**
@@ -71,7 +68,6 @@ public class Camera
             addCams();
             CameraServer.getInstance().setQuality(quality);
             CameraServer.getInstance().setSize(size);
-            setPoints(centerPoint, 20);
         } catch(Exception e)
         {
             DriverStation.reportError(e.getMessage(), true);
@@ -101,12 +97,12 @@ public class Camera
         try
         {
             if(activeCam == frontCam
-                    && stick.getRawButton(Constants.MainDriver.backChangeCamButton))
+                    && mainDriver.getRawButton(Constants.MainDriver.backChangeCamButton))
             {
                 newID = backCam;
                 addCams();
             } else if(activeCam == backCam
-                    && stick.getRawButton(Constants.MainDriver.frontChangeCamButton))
+                    && mainDriver.getRawButton(Constants.MainDriver.frontChangeCamButton))
             {
                 newID = frontCam;
                 addCams();
@@ -137,20 +133,58 @@ public class Camera
         {
             changeCam();
             NIVision.IMAQdxGrab(activeCam, frame, 1);
-            imposeCrosshairs();
+            //imposeCrosshairs(centerPoint, 20);
+            drawCrosshair(centerPoint, xDisp, yDisp, leng);
             CameraServer.getInstance().setImage(frame);
         } catch(Exception e)
         {
             DriverStation.reportError(e.getMessage(), false);
         }
     }
-
+    
+    
+    public void drawRelevantInfo(Point b, Point c, boolean a) {
+    	drawFilledRectangle(b, c);
+    	int r = (c.y-b.y)/2+b.y;
+    	int q = (c.x-b.x)/2+b.x;
+    	if(a) {
+    		drawFilledRectangle(new Point(q-(c.y-b.y), r-(c.x-b.x)), new Point(q+(c.y-b.y), r+(c.x-b.x)));
+    	}
+    }
+    void drawCrosshair(Point center, int xDisplace, int yDisplace, int length) {
+    	try {
+    	drawFilledRectangle(new Point((center.x + xDisplace), (center.y - yDisplace)), 
+    				new Point((center.x + xDisplace + length), (center.y + yDisplace)));
+    	drawFilledRectangle(new Point((center.x - yDisplace), (center.y + xDisplace)), 
+					new Point((center.x + yDisplace), (center.y + xDisplace + length)));
+    	drawFilledRectangle(new Point((center.x - yDisplace), (center.y - xDisplace)), 
+					new Point((center.x + yDisplace), (center.y - xDisplace - length)));
+    	drawFilledRectangle(new Point((center.x - xDisplace), (center.y - yDisplace)), 
+					new Point((center.x - xDisplace - length), (center.y + yDisplace)));
+    	} catch(Exception e) {
+    		
+    	}
+    }
+    void drawFilledRectangle(Point start, Point end) {
+    	try {
+    	NIVision.IMAQdxGrab(activeCam,  frame,  1);
+    	
+    	for(int i = 0; i < Math.abs(start.y - end.y); i++) {
+    		
+    		NIVision.imaqDrawLineOnImage(frame,  frame,  NIVision.DrawMode.DRAW_INVERT,  new Point(start.x, start.y + i*end.y/Math.abs(end.y)), 
+    				new Point(end.x, start.y + i*end.y/Math.abs(end.y)), 0.0f);
+    		}
+    	} catch(Exception e) {
+    		
+    	}
+    }
     /**
      * Stops the camera stream
      * 
      * @throws VisionException
      *             If something goes wrong
      */
+    
     public void stop() throws VisionException
     {
         try
@@ -170,20 +204,19 @@ public class Camera
      * @param length
      *            the length of each hair from the center
      */
-    private void setPoints(Point center, int length)
+    private void imposeCrosshairs(Point center, int length)
     {
-        startPointH = new Point(center.x - length, center.y);
-        endPointH = new Point(center.x + length, center.y);
-        startPointV = new Point(center.x, center.y - length);
-        endPointV = new Point(center.x, center.y + length);
-        startPointHTwo = new Point(center.x - length, center.y + 1);
-        endPointHTwo = new Point(center.x + length, center.y + 1);
-        startPointVTwo = new Point(center.x + 1, 220);
-        endPointVTwo = new Point(center.x + 1, 260);
-        startPointHThree = new Point(center.x - length, center.y - 1);
-        endPointHThree = new Point(center.x + length, center.y - 1);
-        startPointVThree = new Point(center.x - 1, center.y - length);
-        endPointVThree = new Point(center.x - 1, center.y + length);
+    	try {
+        drawLineOnImage(new Point(center.x - length, center.y), new Point(center.x + length, center.y));
+        drawLineOnImage(new Point(center.x, center.y - length), new Point(center.x, center.y + length));
+        drawLineOnImage(new Point(center.x - length, center.y + 1), new Point(center.x + length, center.y + 1));
+        drawLineOnImage(new Point(center.x + 1, 220), new Point(center.x + 1, 260));
+        drawLineOnImage(new Point(center.x - length, center.y - 1), new Point(center.x + length, center.y - 1));
+        drawLineOnImage(new Point(center.x - 1, center.y - length), new Point(center.x - 1, center.y + length));
+    
+    	} catch(Exception e) {
+    		
+    	}
     }
 
     /**
@@ -194,29 +227,14 @@ public class Camera
      *             If the camera feed is not available or the draw mode is
      *             invalid
      */
-    private void imposeCrosshairs() throws VisionException
-    {
-        try
-        {
-            NIVision.imaqDrawLineOnImage(frame, frame,
-                    NIVision.DrawMode.DRAW_INVERT, startPointH, endPointH, 0.0f);
-            NIVision.imaqDrawLineOnImage(frame, frame,
-                    NIVision.DrawMode.DRAW_INVERT, startPointV, endPointV, 0.0f);
-            NIVision.imaqDrawLineOnImage(frame, frame,
-                    NIVision.DrawMode.DRAW_INVERT, startPointHTwo,
-                    endPointHTwo, 0.0f);
-            NIVision.imaqDrawLineOnImage(frame, frame,
-                    NIVision.DrawMode.DRAW_INVERT, startPointVTwo,
-                    endPointVTwo, 0.0f);
-            NIVision.imaqDrawLineOnImage(frame, frame,
-                    NIVision.DrawMode.DRAW_INVERT, startPointHThree,
-                    endPointHThree, 0.0f);
-            NIVision.imaqDrawLineOnImage(frame, frame,
-                    NIVision.DrawMode.DRAW_INVERT, startPointVThree,
-                    endPointVThree, 0.0f);
-        } catch(Exception e)
-        {
-            DriverStation.reportError(e.getMessage(), true);
-        }
+
+
+    private void drawLineOnImage(Point sp, Point ep) throws VisionException{
+    	try {
+    		NIVision.imaqDrawLineOnImage(frame, frame, NIVision.DrawMode.DRAW_INVERT,
+    				sp, ep, 0.0f);
+    	}catch(Exception e) {
+    		DriverStation.reportError(e.getMessage(), true);
+    	}
     }
 }

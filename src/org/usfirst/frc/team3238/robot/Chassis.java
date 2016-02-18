@@ -9,8 +9,9 @@ public class Chassis
     RobotDrive driveTrain;
     
     double mainX, mainY, mainTwist;
-    
+    public String state = "disabled";
     double speedMult, turnMult;
+    public double[] powerZones = {0.04, 0.2, 0.4, 1.0};
     
     CANTalon leftMotorControllerA, rightMotorControllerA,
     				leftMotorControllerB, rightMotorControllerB;
@@ -39,11 +40,14 @@ public class Chassis
       
         setMotorInversion(mainDriver);
     }
-    void idle(Joystick mainDriver) {
+    
+    void run(Joystick mainDriver) {
     	setJoystickData(mainDriver);
     	setMotorInversion(mainDriver);
-    	arcadeDrive();
+    	//arcadeDrive();
+    	motorcadeDrive();
     }
+    
     void setMotorInversion(Joystick mainDriver) {
         if (mainDriver.getThrottle() > 0.5) {
             invertMotors(false);
@@ -51,9 +55,39 @@ public class Chassis
             invertMotors(true);
         }
     }
+    void motorcadeDrive() {
+    	double mappedY = -(mainY*speedMult);
+    	double mappedTwist = mainTwist * turnMult;
+    	if(Math.abs(mainTwist) < powerZones[0]) {
+    		mappedTwist = 0;
+    	}
+    	if(Math.abs(mainY) < powerZones[0]) {
+    		mappedY = 0;
+    	}
+    	for(int i = 1; i < powerZones.length - 1; i++) {
+    		if(mappedY != 0 && Math.abs(mappedY) > powerZones[i] && Math.abs(mappedY) < powerZones[i + 1]) {
+    			mappedY = mappedY * Math.pow(Math.abs(mappedY), powerZones.length - i);
+    			debugState(i);
+    		}
+    		if(mappedTwist != 0 && Math.abs(mainTwist) > powerZones[i] && Math.abs(mappedTwist) < powerZones[i + 1]) {
+    			mappedTwist = mappedTwist * Math.pow(Math.abs(mappedTwist), powerZones.length - i);
+    		}
+    	}
+    	setMotors(mappedY, mappedTwist);
+
+    }
+    void debugState(int i) {
+    	if(i == 1) {
+    		state = "cubed";
+    	} else if(i==2) {
+    		state = "squared";
+    	} else if(i==3) {
+    		state = "mono";
+    	}
+    }
     void arcadeDrive() {
-    	double mappedY = -(mainTwist*speedMult);
-    	double mappedTwist = mainY * turnMult;
+    	double mappedY = -(mainY*speedMult);
+    	double mappedTwist = mainTwist * turnMult;
     	driveTrain.arcadeDrive(mappedY, mappedTwist, true);
     }
     void arcadeDrive(Joystick mainDriver) {
@@ -61,7 +95,18 @@ public class Chassis
         double mappedTwist = mainDriver.getY() * turnMult;
         driveTrain.arcadeDrive(mappedY, mappedTwist, true);
     }
-    
+    void setMotors(double spd) {
+    	this.leftMotorControllerA.set(spd);
+    	this.leftMotorControllerB.set(spd);
+    	this.rightMotorControllerA.set(spd);
+    	this.rightMotorControllerB.set(spd);
+    }
+    void setMotors(double spd, double turn) {
+    	this.leftMotorControllerA.set(spd+turn);
+    	this.leftMotorControllerB.set(spd+turn);
+    	this.rightMotorControllerA.set(spd-turn);
+    	this.rightMotorControllerB.set(spd-turn);
+    }
     void invertMotors(boolean inv) {
     	this.leftMotorControllerA.setInverted(inv);
         this.leftMotorControllerB.setInverted(inv);
@@ -69,9 +114,6 @@ public class Chassis
         this.rightMotorControllerB.setInverted(inv);
     }
     public void disable() {
-    	this.leftMotorControllerA.set(0);
-    	this.leftMotorControllerB.set(0);
-    	this.rightMotorControllerA.set(0);
-    	this.rightMotorControllerB.set(0);
+    	setMotors(0.0);
     }
 }
