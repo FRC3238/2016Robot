@@ -24,10 +24,8 @@ public class Camera
     private final int backCam;
     private int activeCam;
     private Image frame;
-    private Point centerPoint, startPointH, endPointH, startPointV, endPointV,
-            startPointHTwo, endPointHTwo, startPointVTwo, endPointVTwo,
-            startPointHThree, endPointHThree, startPointVThree, endPointVThree;
     private int newID;
+    public Point centerPoint;
     private int xDisp = 20, yDisp = 4, leng = 20;
     Joystick mainDriver;
     /**
@@ -71,7 +69,6 @@ public class Camera
             addCams();
             CameraServer.getInstance().setQuality(quality);
             CameraServer.getInstance().setSize(size);
-            setPoints(centerPoint, 20);
         } catch(Exception e)
         {
             DriverStation.reportError(e.getMessage(), true);
@@ -137,7 +134,7 @@ public class Camera
         {
             changeCam();
             NIVision.IMAQdxGrab(activeCam, frame, 1);
-            //imposeCrosshairs();
+            //imposeCrosshairs(centerPoint, 20);
             drawCrosshair(centerPoint, xDisp, yDisp, leng);
             CameraServer.getInstance().setImage(frame);
         } catch(Exception e)
@@ -145,6 +142,8 @@ public class Camera
             DriverStation.reportError(e.getMessage(), false);
         }
     }
+    
+    
     public void drawRelevantInfo(Point b, Point c, boolean a) {
     	drawFilledRectangle(b, c);
     	int r = (c.y-b.y)/2+b.y;
@@ -206,20 +205,19 @@ public class Camera
      * @param length
      *            the length of each hair from the center
      */
-    private void setPoints(Point center, int length)
+    private void imposeCrosshairs(Point center, int length)
     {
-        startPointH = new Point(center.x - length, center.y);
-        endPointH = new Point(center.x + length, center.y);
-        startPointV = new Point(center.x, center.y - length);
-        endPointV = new Point(center.x, center.y + length);
-        startPointHTwo = new Point(center.x - length, center.y + 1);
-        endPointHTwo = new Point(center.x + length, center.y + 1);
-        startPointVTwo = new Point(center.x + 1, 220);
-        endPointVTwo = new Point(center.x + 1, 260);
-        startPointHThree = new Point(center.x - length, center.y - 1);
-        endPointHThree = new Point(center.x + length, center.y - 1);
-        startPointVThree = new Point(center.x - 1, center.y - length);
-        endPointVThree = new Point(center.x - 1, center.y + length);
+    	try {
+        drawLineOnImage(new Point(center.x - length, center.y), new Point(center.x + length, center.y));
+        drawLineOnImage(new Point(center.x, center.y - length), new Point(center.x, center.y + length));
+        drawLineOnImage(new Point(center.x - length, center.y + 1), new Point(center.x + length, center.y + 1));
+        drawLineOnImage(new Point(center.x + 1, 220), new Point(center.x + 1, 260));
+        drawLineOnImage(new Point(center.x - length, center.y - 1), new Point(center.x + length, center.y - 1));
+        drawLineOnImage(new Point(center.x - 1, center.y - length), new Point(center.x - 1, center.y + length));
+    
+    	} catch(Exception e) {
+    		
+    	}
     }
 
     /**
@@ -230,21 +228,7 @@ public class Camera
      *             If the camera feed is not available or the draw mode is
      *             invalid
      */
-    private void imposeCrosshairs() throws VisionException
-    {
-        try
-        {
-        	drawLineOnImage(startPointH, endPointH);
-            drawLineOnImage(startPointV, endPointV);
-            drawLineOnImage(startPointHTwo,endPointHTwo);
-            drawLineOnImage(startPointVTwo,endPointVTwo);
-            drawLineOnImage(startPointHThree,endPointHThree);
-            drawLineOnImage(startPointVThree,endPointVThree);
-        } catch(Exception e)
-        {
-            DriverStation.reportError(e.getMessage(), true);
-        }
-    }
+
 
     private void drawLineOnImage(Point sp, Point ep) throws VisionException{
     	try {
