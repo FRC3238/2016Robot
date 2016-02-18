@@ -41,7 +41,7 @@ public class Chassis
         setMotorInversion(mainDriver);
     }
     
-    void idle(Joystick mainDriver) {
+    void run(Joystick mainDriver) {
     	setJoystickData(mainDriver);
     	setMotorInversion(mainDriver);
     	//arcadeDrive();

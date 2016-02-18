@@ -8,7 +8,6 @@ import com.ni.vision.VisionException;
 import edu.wpi.first.wpilibj.CameraServer;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Joystick;
-import java.util.ArrayList;
 
 /**
  * Controls the two cameras, sends them to the Driver Station, and switches

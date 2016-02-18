@@ -92,7 +92,7 @@ public class Shooter
         shooterState = ShooterState.DISABLED;
     }
 
-    private void setPowerOverride(double shooterPower)
+    private void setPower(double shooterPower)
     {
         if(launchPad.getRawButton(Constants.LaunchPad.shooterUp))
         {
@@ -111,59 +111,43 @@ public class Shooter
 
     private void controlPower()
     {
-        SmartDashboard.putNumber("Adjust", powerAdjust);
-        SmartDashboard.putNumber("Power", power);
-        SmartDashboard.putBoolean("Adjusting", adjusting);
-        if(assistStick
-                .getRawButton(Constants.AssistantDriver.manualShooterPreset1)) {
-            powerAdjust = 0;
-            power = Constants.Shooter.presetPowerOne;
-        }
-        if(assistStick
-                .getRawButton(Constants.AssistantDriver.manualShooterPreset2)) {
-            powerAdjust = 0;
-            power = Constants.Shooter.presetPowerTwo;
-        }
-        if(assistStick
-                .getRawButton(Constants.AssistantDriver.manualShooterPreset3)) {
-            powerAdjust = 0;
-            power = Constants.Shooter.presetPowerThree;
-        }
-        if(assistStick
-                .getRawButton(Constants.AssistantDriver.manualShooterPreset4)) {
-            power = Constants.Shooter.presetPowerFour;
-            powerAdjust = 0;
-        }
-        if(assistStick.getRawButton(Constants.AssistantDriver.manualShooterAdd)
-                && !adjusting)
-        {
-            
-            adjusting = true;
-            powerAdjust = powerAdjust + 0.02;
-            
-        } else if(assistStick
-                .getRawButton(Constants.AssistantDriver.manualShooterSubtract) && !adjusting)
-        {
-
-            adjusting = true;
-            powerAdjust = powerAdjust - 0.02;
-            
-        } else if(!assistStick
-                .getRawButton(Constants.AssistantDriver.manualShooterAdd)
-                && !assistStick.getRawButton(
-                        Constants.AssistantDriver.manualShooterSubtract))
-        {
-            adjusting = false;
-        }
+        switchWithParam(Constants.AssistantDriver.manualShooterPreset1, Constants.Shooter.presetPowerOne);
+        switchWithParam(Constants.AssistantDriver.manualShooterPreset2, Constants.Shooter.presetPowerTwo);
+        switchWithParam(Constants.AssistantDriver.manualShooterPreset3, Constants.Shooter.presetPowerThree);
+        switchWithParam(Constants.AssistantDriver.manualShooterPreset4, Constants.Shooter.presetPowerFour);
+        adjustWithParam(assistStick.getRawButton(Constants.AssistantDriver.manualShooterAdd)
+                && !adjusting, 0.02);
+        adjustWithParam(assistStick.getRawButton(Constants.AssistantDriver.manualShooterSubtract)
+                && !adjusting, -0.02);
+        
+        adjusting = assistStick.getRawButton(Constants.AssistantDriver.manualShooterAdd) &&
+        		assistStick.getRawButton(Constants.AssistantDriver.manualShooterSubtract);
         
     }
 
-    public void idle()
+    
+    private void switchWithParam(int button, double preset) {
+    	if(assistStick.getRawButton(button)) {
+    		powerAdjust = 0;
+    		power = preset;
+    	}
+    }
+    private void adjustWithParam(boolean isTrue, double inc) {
+    	adjusting = true;
+    	if(isTrue) {
+    		powerAdjust+=inc;
+    	}
+    }
+    private void resetAdjust(boolean b) {
+    	adjusting = !b;
+    }
+    
+    public void run()
     {
         switch(shooterState)
         {
             case DISABLED:
-                setPowerOverride(0.0);
+                setPower(0.0);
                 controlPower();
                 if(assistStick
                         .getRawButton(Constants.AssistantDriver.prepShootOn)) {
@@ -172,7 +156,7 @@ public class Shooter
                 }
                 break;
             case RUNNING:
-                setPowerOverride(power);
+                setPower(power);
                 controlPower();
                 if(assistStick
                         .getRawButton(Constants.AssistantDriver.prepShootOff)) {
