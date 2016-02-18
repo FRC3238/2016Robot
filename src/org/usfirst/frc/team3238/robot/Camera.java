@@ -30,8 +30,6 @@ public class Camera
     private int newID;
     private int xDisp = 20, yDisp = 4, leng = 20;
     Joystick mainDriver;
-    private ArrayList<Integer> relevance = new ArrayList<Integer>();
-    private int infoDisplace = 100;
     /**
      * 
      * @param frontCameraName
@@ -140,8 +138,6 @@ public class Camera
             changeCam();
             NIVision.IMAQdxGrab(activeCam, frame, 1);
             //imposeCrosshairs();
-            drawRelevantInfo(new Point(30, 30), new Point(40, 40), true);
-            drawRelevantInfo(new Point(30, 60), new Point(30, 70), false);
             drawCrosshair(centerPoint, xDisp, yDisp, leng);
             CameraServer.getInstance().setImage(frame);
         } catch(Exception e)
@@ -249,9 +245,7 @@ public class Camera
             DriverStation.reportError(e.getMessage(), true);
         }
     }
-    private void drawSolidRectangle(Point sp, Point ep) {
-    	int dif = sp.x - ep.x;
-    }
+
     private void drawLineOnImage(Point sp, Point ep) throws VisionException{
     	try {
     		NIVision.imaqDrawLineOnImage(frame, frame, NIVision.DrawMode.DRAW_INVERT,
