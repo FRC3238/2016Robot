@@ -138,6 +138,9 @@ public class Camera
             changeCam();
             NIVision.IMAQdxGrab(activeCam, frame, 1);
             imposeCrosshairs();
+            if(activeCam == frontCam){
+                NIVision.imaqFlip(frame, frame, NIVision.FlipAxis.HORIZONTAL_AXIS);
+            }
             CameraServer.getInstance().setImage(frame);
         } catch(Exception e)
         {

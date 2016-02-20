@@ -2,92 +2,124 @@ package org.usfirst.frc.team3238.robot;
 
 import edu.wpi.first.wpilibj.CANTalon;
 import edu.wpi.first.wpilibj.DigitalInput;
+import edu.wpi.first.wpilibj.Encoder;
+import edu.wpi.first.wpilibj.Joystick;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 public class Breacher
 {
     CANTalon breacherTalon;
-    DigitalInput armDetectTop, armDetectBot;
+    DigitalInput armDetectTop;
+    Encoder armEncoder;
 
-    boolean m_armDetectTop;
-    boolean m_armDetectBot;
-    double m_assistantDriverThrottle;
+    double deadzone;
+
+    int userInput;
+    int motorEncoderPosition;
+    
     double talonPower;
-    Breacher(CANTalon breacherTalon) {
+    double assistantX, assistantY, assistantThrottle;
+
+    Breacher(CANTalon breacherTalon)
+    {
         this.breacherTalon = breacherTalon;
+        armDetectTop = new DigitalInput(Constants.Breacher.armDetectTopPort);
+        armEncoder = new Encoder(Constants.Breacher.armEncoderPortA,
+                Constants.Breacher.armEncoderPortB);
     }
-    Breacher(CANTalon breacherTalon, DigitalInput armDetectTop, DigitalInput armDetectBot)
+
+    Breacher(CANTalon breacherTalon, DigitalInput armDetectTop,
+            DigitalInput armDetectBot)
     {
         this.breacherTalon = breacherTalon;
         this.armDetectTop = armDetectTop;
-        this.armDetectBot = armDetectBot;
-        
     }
 
-    void setData(boolean armDetectTop, boolean armDetectBot, double assistantDriverThrottle)
+    void setData(boolean armDetectTop, boolean armDetectBot,
+            Joystick assistantDriver)
     {
-        m_armDetectTop = armDetectTop;
-        m_armDetectBot = armDetectBot;
-        m_assistantDriverThrottle = assistantDriverThrottle;
+        this.assistantThrottle = assistantDriver.getThrottle();
+        this.assistantX = assistantDriver.getX();
+        this.assistantY = assistantDriver.getY();
+    }
 
+    void run(Joystick assistantDriver)
+    {
+        talonPower = 0.0;
+        ifStick(assistantDriver, Constants.AssistantDriver.breacherDownButton);
+        ifStick(assistantDriver.getY(), Constants.Breacher.deadzone);
+        moveArm(talonPower);
+    }
+
+    void ifStick(double in, double out)
+    {
+        SmartDashboard.putBoolean("armDetectTop", armDetectTop.get());
+        if(Math.abs(in) > out)
+        {
+            if(!armDetectTop.get() && in < 0) {
+                talonPower = in;
+            }
+            if(armDetectTop.get()) {
+                talonPower = in;
+            }
+        }
     }
     
-    void idle(Joystick assistantDriver) {
-    	if(assistantDriver.getRawButton(Constants.AssistantDriver.breacherUp))
+    void ifStick(Joystick assistantDriver, int button)
+    {
+        if(assistantDriver.getRawButton(button))
         {
-            raiseArmWO(1.0);
-        } else if(assistantDriver
-                .getRawButton(Constants.AssistantDriver.breacherDown))
+            userInput = button;
+            getPosition();
+            setArmPosition(motorEncoderPosition);
+        }
+    }
+    
+    void moveArm(double talonPower)
+    {
+        breacherTalon.set(talonPower);
+    }
+    
+    void getPosition()
+    {
+        switch(userInput)
         {
-            lowerArmWO(1.0);
-        } else if(Math.abs((assistantDriver.getY())) > 0.1)
+            case 6:
+                motorEncoderPosition = Constants.Breacher.encoderValueMidTop;
+                break;
+            case 5:
+                motorEncoderPosition = Constants.Breacher.encoderValueMidTop;
+                break;
+            case 3:
+                motorEncoderPosition = Constants.Breacher.encoderValueMidBot;
+                break;
+            case 4:
+                motorEncoderPosition = Constants.Breacher.encoderValueBot;
+                break;
+            default:
+                break;
+        }
+    }
+    
+    void setArmPosition(int position)
+    {
+        if(armEncoder.get() < position)
         {
-            raiseArmWO(assistantDriver.getY());
+            moveArm(talonPower);
+        } else if(armEncoder.get() > position)
+        {
+            moveArm(-talonPower);
         } else
         {
-            standby();
         }
+        resetEncoder();
     }
 
-    void raiseArm()
+    private void resetEncoder()
     {
-        if(!m_armDetectTop)
+        if(armDetectTop.get())
         {
-            talonPower = m_assistantDriverThrottle;
-            execute();
-        } else {
-        standby();
+            armEncoder.reset();
         }
     }
-    
-    void lowerArm()
-    {
-        if(!m_armDetectBot)
-        {
-            talonPower = -m_assistantDriverThrottle;
-            execute();
-        } else {
-        standby();
-        }
-    }
-    void lowerArmWO(double jsOneThrottle) {
-        
-        talonPower = -jsOneThrottle;
-        execute();
-    }
-    void raiseArmWO(double jsOneThrottle) {
-        talonPower = jsOneThrottle;
-        execute();
-    }
-    void standby()
-    {
-    	breacherTalon.set(0);
-    }
-
-    void execute()
-    {
-
-        breacherTalon.set(talonPower);
-
-    }
-
 }

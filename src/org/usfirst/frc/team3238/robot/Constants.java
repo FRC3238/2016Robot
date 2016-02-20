@@ -12,7 +12,7 @@ public class Constants
         public static final int backChangeCamButton = 11;
 
         public static final int manualCollectIn = 0;
-        public static final int manualCollectOut = 4;
+        public static final int manualCollectOut = 180;
     }
 
     public class AssistantDriver
@@ -20,10 +20,10 @@ public class Constants
         public static final int prepShootOn = 1;
         public static final int prepShootOff = 2;
 
-        public static final int breacherUp = 6;
-        public static final int breacherMiddleUp = 5;
-        public static final int breacherMiddleDown = 3;
-        public static final int breacherDown = 4;
+        public static final int breacherUpButton = 6;
+        public static final int breacherMiddleUpButton = 5;
+        public static final int breacherMiddleDownButton = 3;
+        public static final int breacherDownButton = 4;
 
         public static final int manualShooterPreset1 = 7;
         public static final int manualShooterPreset2 = 8;
@@ -45,15 +45,26 @@ public class Constants
 
     public class Breacher
     {
-        public static final int breacherTalonPort = 5;
-        public static final int armDetectTopPort = 1;
-        public static final int armDetectBotPort = 3;
+        public static final int breacherTalonID = 5;
+        public static final int armDetectTopPort = 3;
+        public static final int armEncoderPortA = 6;
+        public static final int armEncoderPortB = 7;
+
+        public static final double speedDuringPreset = 1.0;
+        public static final double armPower = .5;
+        public static final double deadzone = .1;
+        
+        //to be determined
+        public static final int encoderValueTop = 1;
+        public static final int encoderValueMidTop = 2;
+        public static final int encoderValueMidBot = 3;
+        public static final int encoderValueBot = 4;
     }
 
     public class Camera
     {
-        public static final String frontCamName = "cam1";
-        public static final String rearCamName = "cam2";
+        public static final String frontCamName = "cam0";
+        public static final String rearCamName = "cam1";
 
         public static final int camQuality = 10;
         public static final int camSize = 1;
@@ -74,25 +85,30 @@ public class Constants
 
     public class Collector
     {
-        public static final double defaultPower = 1.0;
-        public static final double centerPower = 0.8;
+        public static final double defaultPower = 0.75;
+        public static final double centerPower = 0.7;
+        public static final double liftPower = 0.35;
 
-        public static final int ballDetectChannel = 2;
-        public static final int collectorTalonPort = 6;
+        public static final int ballDetectPort = 2;
+        public static final int collectorTalonID = 6;
     }
 
     public class Shooter
     {
-        public static final int shooterLeftTalonPort = 7;
-        public static final int shooterRightTalonPort = 8;
+        public static final int shooterLeftTalonID = 7;
+        public static final int shooterRightTalonID = 8;
+        
+        public static final int hallEffectLeftPort = 0;
+        public static final int hallEffectRightPort = 1;
 
-        public static final double presetPowerOne = 0.6;
-        public static final double presetPowerTwo = 0.69;
-        public static final double presetPowerThree = 0.8;
-        public static final double presetPowerFour = 0.9;
+        public static final double presetPowerOne = 2500;
+        public static final double presetPowerTwo = 3450;
+        public static final double presetPowerThree = 4000;
+        public static final double presetPowerFour = 5000;
+        public static final double suggestedRPM = 3450.0;
     }
 
-    public class Robot
+    public class Joysticks
     {
         public static final int joystickZeroPort = 0;
         public static final int joystickOnePort = 1;
