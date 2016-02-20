@@ -69,7 +69,7 @@ public class Collector
         {
             case CENTERING:
                 setPowerOverride(Constants.Collector.centerPower);
-                if(timer.get() >= 0.03)
+                if(timer.get() >= Constants.Collector.centerTime)
                 {
                     timer.reset();
                     timer.start();
@@ -106,6 +106,12 @@ public class Collector
                 {
                     state = CollectorState.EJECTING;
                 }
+                if(stick.getRawButton(Constants.MainDriver.shoot))
+                {
+                    timer.reset();
+                    timer.start();
+                    state = CollectorState.SHOOTING;
+                }
                 SmartDashboard.putString("state", "disabled");
                 break;
             case EJECTING:
@@ -130,23 +136,23 @@ public class Collector
                 break;
             case LOWERING:
                 setPowerOverride(-Constants.Collector.centerPower);
-                // if(!ballDetect.get())
-                // loweringToSwitch = true;
-                // if(ballDetect.get() && loweringToSwitch)
+                if(!ballDetect.get())
+                    loweringToSwitch = true;
+                if(ballDetect.get() && loweringToSwitch)
+                    state = CollectorState.RAISING;
+                // if(ballDetect.get() && timer.get() >= 0.15)
+                // {
+                // timer.stop();
+                // timer.reset();
                 // state = CollectorState.RAISING;
-                if(timer.get() >= 0.15)
-                {
-                    timer.stop();
-                    timer.reset();
-                    state = CollectorState.HOLDING;
-                }
+                // }
                 SmartDashboard.putString("state", "lowering");
                 break;
             case RAISING:
                 setPowerOverride(Constants.Collector.liftPower);
                 if(!ballDetect.get())
                 {
-                    state = CollectorState.HOLDING;
+                    state = CollectorState.DISABLED;
                 }
                 break;
             case SHOOTING:

@@ -65,8 +65,8 @@ public class Constants
 
     public class Camera
     {
-        public static final String frontCamName = "cam0";
-        public static final String rearCamName = "cam1";
+        public static final String frontCamName = "cam1";
+        public static final String rearCamName = "cam2";
 
         public static final int camQuality = 10;
         public static final int camSize = 1;
@@ -88,8 +88,9 @@ public class Constants
     public class Collector
     {
         public static final double defaultPower = 0.75;
-        public static final double centerPower = 0.62;
-        public static final double liftPower = 0.35;
+        public static final double centerPower = 0.35;
+        public static final double liftPower = 0.2;
+        public static final double centerTime = 0.15;
 
         public static final int ballDetectPort = 2;
         public static final int collectorTalonID = 6;
