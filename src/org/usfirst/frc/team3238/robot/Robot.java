@@ -108,7 +108,7 @@ public class Robot extends IterativeRobot
     private void chassisCommands()
     {
         chassis.setMotorInversion(mainJoystick);
-        chassis.arcadeDrive(mainJoystick);
+        chassis.arcadeDrive(mainJoystick, launchPad);
     }
 
     public void disabledPeriodic()

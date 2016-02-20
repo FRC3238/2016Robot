@@ -6,8 +6,8 @@ public class Constants
     {
         public static final int shoot = 1;
         public static final int autoCollect = 2;
-        public static final int autoEject = 3;
-        public static final int motorOff = 4;
+        public static final int autoEject = 5;
+        public static final int motorOff = 3;
         public static final int frontChangeCamButton = 12;
         public static final int backChangeCamButton = 11;
 
@@ -39,8 +39,10 @@ public class Constants
         public static final int cameraSwitch = 8;
         public static final int driveReverseSwitch = 9;
         public static final int parkingBrakeSwitch = 14;
-        public static final int shooterUp = 15;
-        public static final int shooterDown = 16;
+        public static final int shooterUp = 2;
+        public static final int shooterDown = 3;
+        
+        public static final int twistPower = 0;
     }
 
     public class Breacher
@@ -79,14 +81,14 @@ public class Constants
         public static final int leftMotorTwoID = 2;
         public static final int rightMotorOneID = 3;
         public static final int rightMotorTwoID = 4;
-        public static final double yMultiplier = 0.90;
-        public static final double twistMultiplier = 0.78;
+        public static final double yMultiplier = 0.95;
+        public static final double twistMultiplier = 0.88;
     }
 
     public class Collector
     {
         public static final double defaultPower = 0.75;
-        public static final double centerPower = 0.7;
+        public static final double centerPower = 0.62;
         public static final double liftPower = 0.35;
 
         public static final int ballDetectPort = 2;
