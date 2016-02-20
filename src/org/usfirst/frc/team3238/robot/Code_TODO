@@ -1,0 +1,80 @@
+NOW
+	Make it so it actually workz
+
+LATER
+
+MOUNT ENCODERS
+Mount them.
+
+Encoder functionality:
+	When going over the ramparts check encoder values and adjust speed,
+	bind this to a button to make going over ramparts smooth. (suggested by
+	drivers)
+	
+SENSORS
+Decide what we're going to do in autonomous and how
+	Vision Processing:
+		high goal
+	Gyro:
+		Common consensus is that this is better than compass,  
+	Accelerometer:
+		measures acceleration
+	Encoder:
+		Detects motor rotations, when used alone would require no moments
+		or minimal moments of air time in order to get an accurate encoder
+		reading, cannot be moved off course (ramps, other bots), 
+		absolute path only.
+	Compass:
+		Easily interfered with by magnetic fields of motors, electronics
+		and metal but provides direction if working
+	Rangefinder:
+		Detects distance from object to sensor
+	Hall Effect Sensor:
+		magnet in shooters with sensor to detect rpm, possible seperate class?
+	
+DRIVER CONTROL
+Decide whether to have 2 drivers or not
+Have safe-fire position button:
+	Uses sensors to determine if a shot at the current position will make it into the
+	high goal, if not may re-adjust, could also be incorporated with safe mode
+Have safe-mode:
+	Makes sure robot accelerates at a safe speed and doesn't get tipped
+	over when attempting turns and changing from full speed fwd to bkwd
+	toggled with button (driver may need to utilize acceleration fully
+	for certain situations)
+Decide which one of these to do: 
+	A: Have cubed, squared, mono, dead zones
+	B: Have toggled motor limits (e.g. hold button and reduce motor speed)
+	C: Have button that switches between these 2 modes
+Talk to Dylan/Peter (may change) to get better controls.
+	
+Autonomous Ideas
+It is an equal net result if you cross a defense in auto (+10) instead of tele-op (+5)
+net value +5, than if you score a goal in high goal in auto(+10) than in tele-op(+5)
+net value +5, you can also cross defenses much faster + with less error, +more than once.
+Final decision is CAN we score 8 balls in the goal AND penetrate all defenses giving us
+max RP, can we do it without screwing up? 
+
+ONLY 15seconds
+
+	Rangefinder & Encoder :: pref defense with minimal course displacement :: 
+		follows absolute path over
+		one defense [potential course displacement] and measures distance 
+		from opponent's castle (not tower) adjusts based on value, 
+		turns and goes up batter [PCD: could turn wheels] makes sure rangefinder
+		sees large number (looking through hole in tower) fires, 17pts if successful
+			CON: Minimal, low margin for error besides taking shot, but not efficient
+				in getting points
+	
+	Rangefinder, Encoder, ?? : Plot the 5 selected defenses (1 fixed) in the robot's 
+	pre-configured storage, robot makes decisions for which defenses to cross and in
+	which order based on algorithms(success rate, error amt, turn requirement, ease), 
+	minimizes error with encoders + rangefinder (longrange or detects when lateral axis
+	passes shield[shortrange, in almost all aspects better]) would expect efficient use
+	with cheval de frise, lowbar(definitely), ramparts(with encoder assistance), rough 
+	terrain (definitely), moat(maybe [dec risk]), rock wall(maybe [dec risk]), drawbridge(no, req 2 robots), 
+	sally(no, req 2 robots), portcullis(high chance), likely ~25pts (harder to do),
+	potentially 20-60pts (highest level will prob do this)
+		CON: DO NOT let robot tip over, DO NOT run into other robots, DO NOT get stuck
+			driving into other robots/portcullis/other obstacle forcing E-Stop
+			DO NOT miscalculate and run into shield, potentially damaging it (major foul)
