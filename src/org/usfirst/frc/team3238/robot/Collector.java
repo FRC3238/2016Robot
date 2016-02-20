@@ -69,7 +69,7 @@ public class Collector
         {
             case CENTERING:
                 setPowerOverride(Constants.Collector.centerPower);
-                if(timer.get() >= 0.05)
+                if(timer.get() >= 0.03)
                 {
                     timer.reset();
                     timer.start();
@@ -138,7 +138,7 @@ public class Collector
                 {
                     timer.stop();
                     timer.reset();
-                    state = CollectorState.RAISING;
+                    state = CollectorState.HOLDING;
                 }
                 SmartDashboard.putString("state", "lowering");
                 break;

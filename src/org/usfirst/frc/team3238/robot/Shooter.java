@@ -75,8 +75,8 @@ public class Shooter
     {
         if(launchPad.getRawButton(Constants.LaunchPad.shooterUp))
         {
-            leftTalon.set(power + powerAdjustLeft);
-            rightTalon.set(power + powerAdjustRight);
+            leftTalon.set(0.75);
+            rightTalon.set(0.75);
         } else if(launchPad.getRawButton(Constants.LaunchPad.shooterDown))
         {
             leftTalon.set(-power + powerAdjustLeft);

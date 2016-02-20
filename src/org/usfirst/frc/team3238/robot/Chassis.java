@@ -1,6 +1,7 @@
 package org.usfirst.frc.team3238.robot;
 
 import edu.wpi.first.wpilibj.RobotDrive;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.CANTalon;
 
@@ -53,12 +54,15 @@ public class Chassis
         }
     }
     void arcadeDrive() {
-        double mappedTwist = (mainTwist*speedMult);
-        double mappedY = mainY * turnMult;
+        double mappedTwist = (mainTwist*turnMult);
+        double mappedY = mainY * speedMult;
         driveTrain.arcadeDrive(mappedY, mappedTwist, true);
     }
-    void arcadeDrive(Joystick mainDriver) {
-        double mappedTwist = -mainDriver.getTwist()*speedMult;
+    void arcadeDrive(Joystick mainDriver, Joystick dial) {
+        double twistMult = (dial.getRawAxis(0) + 1.5) / 1.7;
+        SmartDashboard.putNumber("twist", dial.getRawAxis(0));
+        SmartDashboard.putNumber("twistMult", twistMult);
+        double mappedTwist = -mainDriver.getTwist()*twistMult;
         double mappedY = -mainDriver.getY() * turnMult;
         driveTrain.arcadeDrive(mappedY * flip, mappedTwist, true);
     }
