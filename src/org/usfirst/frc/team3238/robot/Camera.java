@@ -19,13 +19,14 @@ import edu.wpi.first.wpilibj.Joystick;
  */
 public class Camera
 {
-    private final int frontCam;
-    private final int backCam;
+    private int frontCam;
+    private int backCam;
     private int activeCam;
     private Image frame;
-    private Point centerPoint, startPointH, endPointH, startPointV, endPointV,
-            startPointHTwo, endPointHTwo, startPointVTwo, endPointVTwo,
-            startPointHThree, endPointHThree, startPointVThree, endPointVThree;
+    private Point centerPointTower, centerPointShooter, startPointH, endPointH,
+            startPointV, endPointV, startPointHTwo, endPointHTwo,
+            startPointVTwo, endPointVTwo, startPointHThree, endPointHThree,
+            startPointVThree, endPointVThree;
     private int newID;
 
     Joystick stick;
@@ -38,20 +39,30 @@ public class Camera
      *            name of the camera for the back of the robot
      * @param crosshairCenterX
      *            x value to the center point for the crosshairs
-     * @param crosshairCenterY
+     * @param crosshairCenterYTower
      *            y value to the center point for the crosshairs
      */
-    Camera(String frontCameraName, String backCameraName, int crosshairCenterX,
-            int crosshairCenterY, Joystick stickOne)
+    Camera(Joystick stickOne)
     {
-        frontCam = NIVision.IMAQdxOpenCamera(frontCameraName,
-                NIVision.IMAQdxCameraControlMode.CameraControlModeController);
-        backCam = NIVision.IMAQdxOpenCamera(backCameraName,
-                NIVision.IMAQdxCameraControlMode.CameraControlModeController);
-        activeCam = frontCam;
-        frame = NIVision.imaqCreateImage(NIVision.ImageType.IMAGE_RGB, 0);
-        centerPoint = new Point(crosshairCenterX, crosshairCenterY);
-        stick = stickOne;
+        try
+        {
+            frontCam = NIVision.IMAQdxOpenCamera(Constants.Camera.frontCamName,
+                    NIVision.IMAQdxCameraControlMode.CameraControlModeController);
+            backCam = NIVision.IMAQdxOpenCamera(Constants.Camera.rearCamName,
+                    NIVision.IMAQdxCameraControlMode.CameraControlModeController);
+            activeCam = frontCam;
+            frame = NIVision.imaqCreateImage(NIVision.ImageType.IMAGE_RGB, 0);
+            centerPointTower = new Point(Constants.Camera.crosshairCenterXTower,
+                    Constants.Camera.crosshairCenterYTower);
+            centerPointShooter = new Point(
+                    Constants.Camera.crosshairCenterXShooter,
+                    Constants.Camera.crosshairCenterYShooter);
+            stick = stickOne;
+            addCams();
+        } catch(Exception e)
+        {
+            DriverStation.reportError("Camera Error: " + e.getMessage(), true);
+        }
     }
 
     /**
@@ -67,11 +78,10 @@ public class Camera
     {
         try
         {
-            newID = frontCam;
-            addCams();
+            changeCam(stick.getThrottle());
             CameraServer.getInstance().setQuality(quality);
             CameraServer.getInstance().setSize(size);
-            setPoints(centerPoint, 20);
+            setPoints(centerPointTower, 20);
         } catch(Exception e)
         {
             DriverStation.reportError(e.getMessage(), true);
@@ -82,10 +92,22 @@ public class Camera
     {
         try
         {
-            NIVision.IMAQdxStopAcquisition(activeCam);
-            NIVision.IMAQdxConfigureGrab(newID);
-            NIVision.IMAQdxStartAcquisition(newID);
-            activeCam = newID;
+            if(newID != activeCam)
+            {
+                NIVision.IMAQdxStopAcquisition(activeCam);
+                NIVision.IMAQdxConfigureGrab(newID);
+                NIVision.IMAQdxStartAcquisition(newID);
+                if(newID == frontCam)
+                {
+                    setPoints(centerPointShooter,
+                            Constants.Camera.crosshairLength);
+                } else if(newID == backCam)
+                {
+                    setPoints(centerPointTower,
+                            Constants.Camera.crosshairLength);
+                }
+                activeCam = newID;
+            }
         } catch(Exception e)
         {
             DriverStation.reportError(e.getMessage(), true);
@@ -96,17 +118,15 @@ public class Camera
      * Closes the feed for the currently active camera and opens the image for
      * the other camera
      */
-    public void changeCam()
+    public void changeCam(double camSwitch)
     {
         try
         {
-            if(activeCam == frontCam
-                    && stick.getRawButton(Constants.MainDriver.backChangeCamButton))
+            if(camSwitch > 0)
             {
                 newID = backCam;
                 addCams();
-            } else if(activeCam == backCam
-                    && stick.getRawButton(Constants.MainDriver.frontChangeCamButton))
+            } else if(camSwitch < 0)
             {
                 newID = frontCam;
                 addCams();
@@ -122,7 +142,6 @@ public class Camera
         {
             DriverStation.reportError(e.getMessage(), true);
         }
-
     }
 
     /**
@@ -135,7 +154,7 @@ public class Camera
     {
         try
         {
-            changeCam();
+            changeCam(stick.getThrottle());
             NIVision.IMAQdxGrab(activeCam, frame, 1);
             imposeCrosshairs();
             CameraServer.getInstance().setImage(frame);
@@ -199,21 +218,23 @@ public class Camera
         try
         {
             NIVision.imaqDrawLineOnImage(frame, frame,
-                    NIVision.DrawMode.DRAW_INVERT, startPointH, endPointH, 0.0f);
+                    NIVision.DrawMode.DRAW_VALUE, startPointH, endPointH,
+                    255.0f);
             NIVision.imaqDrawLineOnImage(frame, frame,
-                    NIVision.DrawMode.DRAW_INVERT, startPointV, endPointV, 0.0f);
+                    NIVision.DrawMode.DRAW_VALUE, startPointV, endPointV,
+                    255.0f);
             NIVision.imaqDrawLineOnImage(frame, frame,
-                    NIVision.DrawMode.DRAW_INVERT, startPointHTwo,
-                    endPointHTwo, 0.0f);
+                    NIVision.DrawMode.DRAW_VALUE, startPointHTwo, endPointHTwo,
+                    255.0f);
             NIVision.imaqDrawLineOnImage(frame, frame,
-                    NIVision.DrawMode.DRAW_INVERT, startPointVTwo,
-                    endPointVTwo, 0.0f);
+                    NIVision.DrawMode.DRAW_VALUE, startPointVTwo, endPointVTwo,
+                    255.0f);
             NIVision.imaqDrawLineOnImage(frame, frame,
-                    NIVision.DrawMode.DRAW_INVERT, startPointHThree,
-                    endPointHThree, 0.0f);
+                    NIVision.DrawMode.DRAW_VALUE, startPointHThree,
+                    endPointHThree, 255.0f);
             NIVision.imaqDrawLineOnImage(frame, frame,
-                    NIVision.DrawMode.DRAW_INVERT, startPointVThree,
-                    endPointVThree, 0.0f);
+                    NIVision.DrawMode.DRAW_VALUE, startPointVThree,
+                    endPointVThree, 255.0f);
         } catch(Exception e)
         {
             DriverStation.reportError(e.getMessage(), true);
