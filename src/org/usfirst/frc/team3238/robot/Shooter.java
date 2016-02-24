@@ -25,7 +25,7 @@ public class Shooter
 
     private double wiggleRoom, errorLeft = 50.0, errorRight = 50.0;
     private double power;
-    private double rpm;
+    double rpm;
     private double powerAdjustLeft;
     private double powerAdjustRight;
     private boolean adjusting;
@@ -47,20 +47,20 @@ public class Shooter
             DriverStation.reportError(e.getMessage(), true);
         }
 
-        // try
-        // {
-        leftHE = new DigitalInput(Constants.Shooter.hallEffectLeftPort);
-        rightHE = new DigitalInput(Constants.Shooter.hallEffectRightPort);
-        leftCounter = new Counter(leftHE);
-        rightCounter = new Counter(rightHE);
-        leftCounter.setSemiPeriodMode(true);
-        rightCounter.setSemiPeriodMode(true);
-        timer = new Timer();
-        timer.reset();
-        // } catch(Exception e)
-        // {
-        // DriverStation.reportError(e.getMessage(), true);
-        // }
+        try
+        {
+            leftHE = new DigitalInput(Constants.Shooter.hallEffectLeftPort);
+            rightHE = new DigitalInput(Constants.Shooter.hallEffectRightPort);
+            leftCounter = new Counter(leftHE);
+            rightCounter = new Counter(rightHE);
+            leftCounter.setSemiPeriodMode(true);
+            rightCounter.setSemiPeriodMode(true);
+            timer = new Timer();
+            timer.reset();
+        } catch(Exception e)
+        {
+            DriverStation.reportError(e.getMessage(), true);
+        }
 
         power = 0.4;
         rpm = Constants.Shooter.presetPowerTwo;
@@ -73,14 +73,17 @@ public class Shooter
 
     private void setPowerOverride(double shooterPower)
     {
-        if(launchPad.getRawButton(Constants.LaunchPad.shooterUp))
+        if(launchPad.getRawButton(Constants.LaunchPad.shooterUp) || assistStick
+                .getPOV() == Constants.AssistantDriver.shooterManualUp)
         {
-            leftTalon.set(0.75);
-            rightTalon.set(0.75);
-        } else if(launchPad.getRawButton(Constants.LaunchPad.shooterDown))
+            leftTalon.set(0.5);
+            rightTalon.set(0.5);
+        } else if(launchPad.getRawButton(Constants.LaunchPad.shooterDown)
+                || assistStick
+                        .getPOV() == Constants.AssistantDriver.shooterManualDown)
         {
-            leftTalon.set(-power + powerAdjustLeft);
-            rightTalon.set(-power + powerAdjustRight);
+            leftTalon.set(-0.6);
+            rightTalon.set(-0.6);
         } else
         {
             leftTalon.set(shooterPower + powerAdjustLeft);
@@ -94,9 +97,13 @@ public class Shooter
 
     private void controlPower()
     {
-        SmartDashboard.putNumber("Adjust", powerAdjustRight);
-        SmartDashboard.putNumber("Power", power);
-        SmartDashboard.putBoolean("Adjusting", adjusting);
+        if(assistStick.getRawButton(Constants.AssistantDriver.prepShootOn))
+        {
+            powerAdjustLeft = 0;
+            powerAdjustRight = 0;
+            rpm = Constants.Shooter.presetPowerTwo;
+            wiggleRoom = 50;
+        }
         if(assistStick
                 .getRawButton(Constants.AssistantDriver.manualShooterPreset1))
         {
@@ -166,15 +173,20 @@ public class Shooter
         state = ShooterState.DISABLED;
     }
 
-    public void idle()
+    public void changeState(ShooterState st)
     {
+        state = st;
+    }
+
+    public void idle(boolean isCollecting)
+    {
+        SmartDashboard.putString("ALLAH", state.toString());
         switch(state)
         {
             case DISABLED:
                 setPowerOverride(0.0);
                 controlPower();
                 resetErrors();
-                // equalizeShooterSpeeds();
                 if(assistStick
                         .getRawButton(Constants.AssistantDriver.prepShootOn))
                 {
@@ -187,6 +199,12 @@ public class Shooter
                 setPowerOverride(power);
                 controlPower();
                 equalizeRPM(rpm);
+                if(isCollecting)
+                {
+                    state = ShooterState.DISABLED;
+                    powerAdjustLeft = 0;
+                    powerAdjustRight = 0;
+                }
                 if(assistStick
                         .getRawButton(Constants.AssistantDriver.prepShootOff))
                 {
@@ -194,6 +212,7 @@ public class Shooter
                     powerAdjustLeft = 0;
                     powerAdjustRight = 0;
                 }
+
                 break;
             default:
                 break;
@@ -261,21 +280,14 @@ public class Shooter
     {
         double leftRpm = rpm(leftCounter);
         double rightRpm = rpm(rightCounter);
-        // SmartDashboard.putNumber("leftRPM", leftRpm);
-        // SmartDashboard.putNumber("RightRPM", rightRpm);
-        // SmartDashboard.putNumber("Wiggle Room", wiggleRoom);
-        // SmartDashboard.putNumber("Right", power+powerAdjustRight);
-        // SmartDashboard.putNumber("left", power+powerAdjustLeft);
         if(Math.abs(leftRpm - rightRpm) > wiggleRoom)
         {
             if(leftRpm > rightRpm)
             {
                 powerAdjustRight += 0.01;
-                // powerAdjustLeft -= 0.01;
             } else
             {
                 powerAdjustRight -= 0.01;
-                // powerAdjustLeft += 0.01;
             }
             wiggleRoom += 5;
         }

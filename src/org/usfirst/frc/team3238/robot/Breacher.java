@@ -16,7 +16,7 @@ public class Breacher
 
     int userInput;
     int motorEncoderPosition;
-    
+
     double talonPower;
     double assistantX, assistantY, assistantThrottle;
 
@@ -56,15 +56,17 @@ public class Breacher
         SmartDashboard.putBoolean("armDetectTop", armDetectTop.get());
         if(Math.abs(in) > out)
         {
-            if(!armDetectTop.get() && in < 0) {
+            if(!armDetectTop.get() && in < 0)
+            {
                 talonPower = in;
             }
-            if(armDetectTop.get()) {
+            if(armDetectTop.get())
+            {
                 talonPower = in;
             }
         }
     }
-    
+
     void ifStick(Joystick assistantDriver, int button)
     {
         if(assistantDriver.getRawButton(button))
@@ -74,12 +76,25 @@ public class Breacher
             setArmPosition(motorEncoderPosition);
         }
     }
-    
+
+    void autoRaise(double power)
+    {
+        ifStick(power, 0.0);
+        moveArm(talonPower);
+    }
+
     void moveArm(double talonPower)
     {
+        SmartDashboard.putNumber("Variable_NAME", talonPower);
+        SmartDashboard.putBoolean("ArmDetectTop", armDetectTop.get());
         breacherTalon.set(talonPower);
     }
-    
+
+    public double getTalonSpeed()
+    {
+        return breacherTalon.get();
+    }
+
     void getPosition()
     {
         switch(userInput)
@@ -100,7 +115,7 @@ public class Breacher
                 break;
         }
     }
-    
+
     void setArmPosition(int position)
     {
         if(armEncoder.get() < position)

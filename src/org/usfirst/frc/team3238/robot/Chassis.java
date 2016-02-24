@@ -8,19 +8,18 @@ import edu.wpi.first.wpilibj.CANTalon;
 public class Chassis
 {
     RobotDrive driveTrain;
-    
+
     double mainX, mainY, mainTwist;
-    
-    double speedMult, turnMult;
-    
+
+    double speedMult, turnMult, twistMult;
+
     int flip;
-    
-    CANTalon leftMotorControllerA, rightMotorControllerA,
-                    leftMotorControllerB, rightMotorControllerB;
-    Chassis(CANTalon leftMotorControllerA,
-            CANTalon leftMotorControllerB, 
-            CANTalon rightMotorControllerA,
-            CANTalon rightMotorControllerB)
+
+    CANTalon leftMotorControllerA, rightMotorControllerA, leftMotorControllerB,
+            rightMotorControllerB;
+
+    Chassis(CANTalon leftMotorControllerA, CANTalon leftMotorControllerB,
+            CANTalon rightMotorControllerA, CANTalon rightMotorControllerB)
     {
         this.leftMotorControllerA = leftMotorControllerA;
         this.rightMotorControllerA = rightMotorControllerA;
@@ -32,8 +31,7 @@ public class Chassis
         speedMult = Constants.Chassis.yMultiplier;
         turnMult = Constants.Chassis.twistMultiplier;
     }
-    
-    
+
     void setJoystickData(Joystick mainDriver)
     {
         mainX = mainDriver.getX();
@@ -41,41 +39,72 @@ public class Chassis
         mainTwist = mainDriver.getTwist();
         setMotorInversion(mainDriver);
     }
-    void idle(Joystick mainDriver) {
+
+    void idle(Joystick mainDriver)
+    {
         setJoystickData(mainDriver);
         setMotorInversion(mainDriver);
         arcadeDrive();
     }
-    void setMotorInversion(Joystick mainDriver) {
-        if (mainDriver.getThrottle() > 0.0) {
+
+    void setPower(double a)
+    {
+        rightMotorControllerA.set(-a);
+        rightMotorControllerB.set(-a);
+        leftMotorControllerA.set(a);
+        leftMotorControllerB.set(a);
+
+    }
+
+    void setMotorInversion(Joystick mainDriver)
+    {
+        if(mainDriver.getThrottle() > 0.0)
+        {
             flip = 1;
-        } else {
+        } else
+        {
             flip = -1;
         }
     }
-    void arcadeDrive() {
-        double mappedTwist = (mainTwist*turnMult);
+
+    void arcadeDrive()
+    {
+        double mappedTwist = (mainTwist * turnMult);
         double mappedY = mainY * speedMult;
         driveTrain.arcadeDrive(mappedY, mappedTwist, true);
     }
-    void arcadeDrive(Joystick mainDriver, Joystick dial) {
-        double twistMult = (dial.getRawAxis(0) + 1.5) / 1.7;
+
+    void arcadeDrive(Joystick mainDriver, Joystick dial)
+    {
+        if(dial.getRawAxis(0) < 0.0)
+        {
+            twistMult = 0.88;
+        } else
+        {
+            twistMult = 0.7;
+        }
         SmartDashboard.putNumber("twist", dial.getRawAxis(0));
         SmartDashboard.putNumber("twistMult", twistMult);
-        double mappedTwist = -mainDriver.getTwist()*twistMult;
+        double mappedTwist = -mainDriver.getTwist() * twistMult;
         double mappedY = -mainDriver.getY() * turnMult;
         driveTrain.arcadeDrive(mappedY * flip, mappedTwist, true);
     }
-    void arcadeDriveAuto(double y, double twist) {
+
+    void arcadeDriveAuto(double y, double twist)
+    {
         driveTrain.arcadeDrive(y, twist);
     }
-    void invertMotors(boolean inv) {
+
+    void invertMotors(boolean inv)
+    {
         this.leftMotorControllerA.setInverted(inv);
         this.leftMotorControllerB.setInverted(inv);
         this.rightMotorControllerA.setInverted(inv);
         this.rightMotorControllerB.setInverted(inv);
     }
-    public void disable() {
+
+    public void disable()
+    {
         this.leftMotorControllerA.set(0);
         this.leftMotorControllerB.set(0);
         this.rightMotorControllerA.set(0);
