@@ -7,7 +7,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 enum AutoChoices
 {
-    LOWBAR, PORTCULLIS, CHEVALDEFRISE, ROCKWALL, ROUGHTERRAIN, MOAT, RAMPARTS, DISABLED
+    LOWBAR, PORTCULLIS, CHEVALDEFRISE,  ROCKWALL, ROUGHTERRAIN, MOAT, RAMPARTS, DISABLED, CHEVALDESHOOT
 }
 
 enum LowBarAuto
@@ -45,6 +45,11 @@ enum RampAuto
     FORWARD, BRAKING, REVSHOOT
 }
 
+enum ChevalDeShootAuto
+{
+    FORWARD, LOWERING, ONWARD, ONWARD2, REVSHOOT, SHOOT
+}
+
 public class Autonomous
 {
     Chassis chassis;
@@ -66,9 +71,9 @@ public class Autonomous
     // AutoChoices rampAuto = AutoChoices.RAMPARTS;
     // AutoChoices none = AutoChoices.DISABLED;
     int auto = 0;
-    int lowBar1 = 1;
-    int portcullis1 = 2;
-    int cheval1 = 3;
+//    int lowBar1 = 1;
+//    int portcullis1 = 2;
+//    int cheval1 = 3;
     LowBarAuto lowBar;
     PortcullisAuto portcullis;
     ChevalAuto cheval;
@@ -76,6 +81,8 @@ public class Autonomous
     RoughAuto rough;
     MoatAuto moat;
     RampAuto ramp;
+    
+    ChevalDeShootAuto chevalDeShoot;
 
     public Autonomous(Chassis chassis, Breacher breacher, Shooter shooter,
             Collector collector)
@@ -123,6 +130,9 @@ public class Autonomous
         rough = RoughAuto.FORWARD;
         moat = MoatAuto.FORWARD;
         ramp = RampAuto.FORWARD;
+        
+        chevalDeShoot = ChevalDeShootAuto.FORWARD;
+        
         shooter.rpm = Constants.Shooter.presetPowerThree;
         timer.reset();
         timer.start();
@@ -317,6 +327,49 @@ public class Autonomous
                         break;
                 }
                 break;
+            case 8:
+                switch(chevalDeShoot)
+                {
+                    case FORWARD:
+                        chevalDeShoot = (ChevalDeShootAuto) forward(chevalDeShoot,
+                                ChevalDeShootAuto.LOWERING, Constants.Auto.chevalTime,
+                                Constants.Auto.chevalSpeed);
+                        break;
+                    case LOWERING:
+                        chevalDeShoot = (ChevalDeShootAuto) lowerArm(chevalDeShoot,
+                                ChevalDeShootAuto.ONWARD,
+                                Constants.Auto.chevalArmPower,
+                                Constants.Auto.chevalArmTime);
+                        forward(0.05);
+                        break;
+                    case ONWARD:
+                        breacher.autoRaise(Constants.Auto.chevalArmRaisePower);
+                        // stopCBS(false, true, false);
+                        SmartDashboard.putNumber("The Breacher Power",
+                                breacher.getTalonSpeed());
+                        chevalDeShoot = (ChevalDeShootAuto) forward(chevalDeShoot,
+                                ChevalDeShootAuto.REVSHOOT,
+                                Constants.Auto.chevalBreachTime,
+                                Constants.Auto.chevalBreachSpeed);
+                        SmartDashboard.putNumber("The Breacher Power 2",
+                                breacher.getTalonSpeed());
+                        break;
+                    case REVSHOOT:
+                        stopCBS(false, true, false);
+                        revNoLower();
+                        chevalDeShoot = ChevalDeShootAuto.SHOOT;
+                        break;
+                    case SHOOT:
+                        shoot();
+                        break;
+                    default:
+                        DriverStation.reportError(
+                                "Auto default state! Auto is dysfunctional!",
+                                true);
+                        break;
+                }
+                break;
+                
             default:
                 DriverStation.reportError(
                         "Auto default state! Auto is disfunctional!", true);
@@ -426,5 +479,10 @@ public class Autonomous
     {
         shooter.state = ShooterState.DISABLED;
         collector.state = CollectorState.DISABLED;
+    }
+    
+    private void shoot() {
+        collector.StartShooting();
+        collector.idle();
     }
 }

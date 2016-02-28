@@ -243,6 +243,11 @@ public class Collector
 
     }
 
+    public void StartShooting()
+    {
+        state = CollectorState.SHOOTING;
+    }
+    
     public boolean isCollecting()
     {
         if(state == CollectorState.COLLECTING)
