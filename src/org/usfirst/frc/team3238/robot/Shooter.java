@@ -99,32 +99,32 @@ public class Shooter
     {
         if(assistStick.getRawButton(Constants.AssistantDriver.prepShootOn))
         {
-            powerAdjustLeft = 0;
-            powerAdjustRight = 0;
+//            powerAdjustLeft = 0;
+//            powerAdjustRight = 0;
             rpm = Constants.Shooter.presetPowerTwo;
             wiggleRoom = 50;
         }
         if(assistStick
                 .getRawButton(Constants.AssistantDriver.manualShooterPreset1))
         {
-            powerAdjustLeft = 0;
-            powerAdjustRight = 0;
+//            powerAdjustLeft = 0;
+//            powerAdjustRight = 0;
             rpm = Constants.Shooter.presetPowerOne;
             wiggleRoom = 50;
         }
         if(assistStick
                 .getRawButton(Constants.AssistantDriver.manualShooterPreset2))
         {
-            powerAdjustLeft = 0;
-            powerAdjustRight = 0;
+//            powerAdjustLeft = 0;
+//            powerAdjustRight = 0;
             rpm = Constants.Shooter.presetPowerTwo;
             resetErrors();
         }
         if(assistStick
                 .getRawButton(Constants.AssistantDriver.manualShooterPreset3))
         {
-            powerAdjustLeft = 0;
-            powerAdjustRight = 0;
+//            powerAdjustLeft = 0;
+//            powerAdjustRight = 0;
             rpm = Constants.Shooter.presetPowerThree;
             resetErrors();
         }
@@ -132,8 +132,8 @@ public class Shooter
                 .getRawButton(Constants.AssistantDriver.manualShooterPreset4))
         {
             rpm = Constants.Shooter.presetPowerFour;
-            powerAdjustLeft = 0;
-            powerAdjustRight = 0;
+//            powerAdjustLeft = 0;
+//            powerAdjustRight = 0;
             resetErrors();
         }
         powerAdjust();
@@ -147,16 +147,14 @@ public class Shooter
         {
 
             adjusting = true;
-            powerAdjustLeft = powerAdjustLeft + 0.02;
-            powerAdjustRight = powerAdjustRight + 0.02;
+            rpm += 50;
             resetErrors();
         } else if(assistStick.getRawButton(
                 Constants.AssistantDriver.manualShooterSubtract) && !adjusting)
         {
 
             adjusting = true;
-            powerAdjustLeft = powerAdjustLeft - 0.02;
-            powerAdjustRight = powerAdjustRight - 0.02;
+            rpm -= 50;
             resetErrors();
 
         } else if(!assistStick
@@ -181,6 +179,9 @@ public class Shooter
     public void idle(boolean isCollecting)
     {
         SmartDashboard.putString("ALLAH", state.toString());
+        SmartDashboard.putBoolean("LeftHE", leftHE.get());
+        SmartDashboard.putBoolean("rightHE", rightHE.get());
+        powerAdjust();
         switch(state)
         {
             case DISABLED:

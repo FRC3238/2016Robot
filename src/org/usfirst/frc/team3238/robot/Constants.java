@@ -161,7 +161,7 @@ public class Constants
         public static final double presetPowerOne = 2500;
         public static final double presetPowerTwo = 3450;
         public static final double presetPowerThree = 4000;
-        public static final double presetPowerFour = 120000;
+        public static final double presetPowerFour = 4230;
     }
 
     public class Joysticks

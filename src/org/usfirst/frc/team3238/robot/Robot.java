@@ -75,7 +75,7 @@ public class Robot extends IterativeRobot
             timer = new Timer();
         } catch(Exception e)
         {
-            DriverStation.reportError(e.getMessage(), true);
+            DriverStation.reportError(e.getMessage() + "Robot init error", true);
         }
     }
 
