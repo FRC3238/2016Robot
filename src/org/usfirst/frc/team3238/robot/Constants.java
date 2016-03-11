@@ -163,6 +163,18 @@ public class Constants
         public static final double presetPowerThree = 4000;
         public static final double presetPowerFour = 4230;
     }
+    
+    public class Vision
+    {
+        public static final double towerYLowerLimit = 112;
+        public static final double towerYUpperLimit = 128;
+        public static final double shooterSpeed = 3700;
+        
+        public static final double pValue;
+        public static final double iValue;
+        public static final double setPoint = 120;
+        public static final double error = 5;
+    }
 
     public class Joysticks
     {
