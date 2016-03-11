@@ -94,7 +94,7 @@ public class Constants
 
         // Ramparts
         public static final double rampBreachTime = 1.2;
-        public static final double rampSpeed = 0.8;
+        public static final double rampSpeed = 1.0;
     }
 
     public class Breacher
@@ -118,7 +118,7 @@ public class Constants
     public class Camera
     {
         public static final String frontCamName = "cam1";
-        public static final String rearCamName = "cam2";
+        public static final String rearCamName = "cam0";
 
         public static final int camQuality = 10;
         public static final int camSize = 1;

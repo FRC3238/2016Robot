@@ -17,6 +17,7 @@ public class Robot extends IterativeRobot
     Collector collector;
     Shooter shooter;
     Autonomous auto;
+    Vision autoAim;
     Joystick assistantJoystick, mainJoystick, launchPad;
     CANTalon leftDriveTalonA, leftDriveTalonB, rightDriveTalonA,
             rightDriveTalonB;
@@ -72,10 +73,12 @@ public class Robot extends IterativeRobot
             collector = new Collector(collectorTalon, ballDetectSwitch, shooter,
                     mainJoystick, assistantJoystick, launchPad);
             auto = new Autonomous(chassis, breacherArm, shooter, collector);
+            autoAim = new Vision(chassis, shooter, collector);
             timer = new Timer();
         } catch(Exception e)
         {
-            DriverStation.reportError(e.getMessage() + "Robot init error", true);
+            DriverStation.reportError(e.getMessage() + "Robot init error",
+                    true);
         }
     }
 
@@ -117,13 +120,20 @@ public class Robot extends IterativeRobot
     {
         camera.stream();
         auto.init();
+        autoAim.init();
         chassis.setPower(0.0);
         breacherArm.moveArm(0.0);
+        shooter.resetAdjust();
+    }
+
+    public void testInit()
+    {
+        autoAim.init();
     }
 
     public void testPeriodic()
     {
-
+        autoAim.run();
     }
 
 }

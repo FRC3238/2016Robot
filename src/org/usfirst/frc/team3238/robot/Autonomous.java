@@ -4,6 +4,7 @@ import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import edu.wpi.first.wpilibj.tables.TableKeyNotDefinedException;
 
 enum AutoChoices
 {
@@ -114,7 +115,13 @@ public class Autonomous
     public void init()
     {
         
-        auto = (int) SmartDashboard.getNumber("DB/Slider 0");
+        try
+        {
+            auto = (int) SmartDashboard.getNumber("DB/Slider 0");
+        } catch(TableKeyNotDefinedException e)
+        {
+            DriverStation.reportError(e.getMessage(), true);
+        }
         
         lowBar = LowBarAuto.LOWERING;
         portcullis = PortcullisAuto.LOWERING;

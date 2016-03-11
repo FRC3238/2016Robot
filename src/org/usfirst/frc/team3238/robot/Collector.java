@@ -242,6 +242,13 @@ public class Collector
         }
 
     }
+    
+    public void shoot(){
+        timer.stop();
+        timer.reset();
+        timer.start();
+        state = CollectorState.SHOOTING;
+    }
 
     public boolean isCollecting()
     {

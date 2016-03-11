@@ -26,6 +26,8 @@ public class Shooter
     private double wiggleRoom, errorLeft = 50.0, errorRight = 50.0;
     private double power;
     double rpm;
+    double leftRPM;
+    double rightRPM;
     private double powerAdjustLeft;
     private double powerAdjustRight;
     private boolean adjusting;
@@ -93,38 +95,41 @@ public class Shooter
                 shooterPower + powerAdjustLeft);
         SmartDashboard.putNumber("Right Motor Power",
                 shooterPower + powerAdjustRight);
+        SmartDashboard.putNumber("Shooter Power", shooterPower);
+        SmartDashboard.putNumber("Right Motor Adjust", powerAdjustRight);
+        SmartDashboard.putNumber("Right Motor Adjust", powerAdjustRight);
     }
 
     private void controlPower()
     {
         if(assistStick.getRawButton(Constants.AssistantDriver.prepShootOn))
         {
-//            powerAdjustLeft = 0;
-//            powerAdjustRight = 0;
+            // powerAdjustLeft = 0;
+            // powerAdjustRight = 0;
             rpm = Constants.Shooter.presetPowerTwo;
             wiggleRoom = 50;
         }
         if(assistStick
                 .getRawButton(Constants.AssistantDriver.manualShooterPreset1))
         {
-//            powerAdjustLeft = 0;
-//            powerAdjustRight = 0;
+            // powerAdjustLeft = 0;
+            // powerAdjustRight = 0;
             rpm = Constants.Shooter.presetPowerOne;
             wiggleRoom = 50;
         }
         if(assistStick
                 .getRawButton(Constants.AssistantDriver.manualShooterPreset2))
         {
-//            powerAdjustLeft = 0;
-//            powerAdjustRight = 0;
+            // powerAdjustLeft = 0;
+            // powerAdjustRight = 0;
             rpm = Constants.Shooter.presetPowerTwo;
             resetErrors();
         }
         if(assistStick
                 .getRawButton(Constants.AssistantDriver.manualShooterPreset3))
         {
-//            powerAdjustLeft = 0;
-//            powerAdjustRight = 0;
+            // powerAdjustLeft = 0;
+            // powerAdjustRight = 0;
             rpm = Constants.Shooter.presetPowerThree;
             resetErrors();
         }
@@ -132,8 +137,8 @@ public class Shooter
                 .getRawButton(Constants.AssistantDriver.manualShooterPreset4))
         {
             rpm = Constants.Shooter.presetPowerFour;
-//            powerAdjustLeft = 0;
-//            powerAdjustRight = 0;
+            // powerAdjustLeft = 0;
+            // powerAdjustRight = 0;
             resetErrors();
         }
         powerAdjust();
@@ -233,8 +238,8 @@ public class Shooter
 
     public void equalizeRPM(double rp)
     {
-        double leftRPM = rpm(leftCounter);
-        double rightRPM = rpm(rightCounter);
+        leftRPM = rpm(leftCounter);
+        rightRPM = rpm(rightCounter);
         SmartDashboard.putNumber("leftRPM", leftRPM);
         SmartDashboard.putNumber("RightRPM", rightRPM);
         SmartDashboard.putNumber("RightError", errorRight);
@@ -275,6 +280,12 @@ public class Shooter
         errorRight = 50;
         errorLeft = 50;
         wiggleRoom = 50;
+    }
+    
+    public void resetAdjust()
+    {
+        powerAdjustLeft = 0.0;
+        powerAdjustRight = 0.0;
     }
 
     public void equalizeShooterSpeeds()
