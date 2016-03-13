@@ -7,7 +7,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 enum AutoChoices
 {
-    LOWBAR, PORTCULLIS, CHEVALDEFRISE, ROCKWALL, ROUGHTERRAIN, MOAT, RAMPARTS, DISABLED
+    LOWBAR, PORTCULLIS, CHEVALDEFRISE, ROCKWALL, ROUGHTERRAIN, MOAT, RAMPARTS, HIGHGOAL, DISABLED
 }
 
 enum LowBarAuto
@@ -45,6 +45,11 @@ enum RampAuto
     FORWARD, BRAKING, REVSHOOT
 }
 
+enum HighGoalAuto
+{
+    LOWBAR, FORWARD, REVERSE, TURN, ALIGN, ROLL, SHOOT
+}
+
 public class Autonomous
 {
     Chassis chassis;
@@ -76,6 +81,7 @@ public class Autonomous
     RoughAuto rough;
     MoatAuto moat;
     RampAuto ramp;
+    HighGoalAuto goal;
 
     public Autonomous(Chassis chassis, Breacher breacher, Shooter shooter,
             Collector collector)
@@ -123,7 +129,8 @@ public class Autonomous
         rough = RoughAuto.FORWARD;
         moat = MoatAuto.FORWARD;
         ramp = RampAuto.FORWARD;
-        shooter.rpm = Constants.Shooter.presetPowerThree;
+        goal = HighGoalAuto.LOWBAR;
+        shooter.rpm = Constants.Shooter.presetPowerOne;
         timer.reset();
         timer.start();
         shootTime.reset();
@@ -312,6 +319,74 @@ public class Autonomous
                         break;
                     case REVSHOOT:
                         rev();
+                        break;
+                    default:
+                        break;
+                }
+                break;
+            case 8:
+                switch(goal)
+                {
+                    case ALIGN:
+                        goal = (HighGoalAuto) forward(goal, HighGoalAuto.ROLL, Constants.Auto.goalAlignTime, Constants.Auto.goalAlignPower);
+                        break;
+                    case FORWARD:
+                        goal = (HighGoalAuto) forward(goal, HighGoalAuto.REVERSE, Constants.Auto.goalForwardTime, Constants.Auto.goalForwardPower);
+                        break;
+                    case LOWBAR:
+                        switch(lowBar){
+                            case FORWARD:
+                                stopCBS(false, true, false);
+                                lowBar = (LowBarAuto) forward(lowBar,
+                                        LowBarAuto.REVSHOOT,
+                                        Constants.Auto.lowBarBreachTime,
+                                        Constants.Auto.lowBarPower);
+                                break;
+                            case LOWERING:
+                                lowBar = (LowBarAuto) lowerArm(lowBar,
+                                        LowBarAuto.FORWARD,
+                                        Constants.Auto.lowBarArmPower,
+                                        Constants.Auto.lowBarArmTime);
+                                break;
+                            case REVSHOOT:
+                                revNoLower();
+                                break;
+                            default:
+                                DriverStation.reportError(
+                                        "Auto default state! Auto is disfunctional!",
+                                        true);
+                                break;
+                        }
+                        
+                        if(lowBar == LowBarAuto.REVSHOOT){
+                            goal = HighGoalAuto.FORWARD;
+                        }
+                        break;
+                    case REVERSE:
+                        goal = (HighGoalAuto) forward(goal, HighGoalAuto.TURN, Constants.Auto.goalReverseTime, Constants.Auto.goalReversePower);
+                        break;
+                    case ROLL:
+                        disableAll();
+                        if(timer.get() >= Constants.Auto.goalRollTime){
+                            startTimer();
+                            goal = HighGoalAuto.SHOOT;
+                        }
+                        break;
+                    case SHOOT:
+                        shooter.state = ShooterState.RUNNING;
+                        if(timer.get() >= Constants.Auto.goalRevTime){
+                            collector.state = CollectorState.SHOOTING;
+                        }
+                        if(timer.get() >= Constants.Auto.goalStopTime){
+                            auto = 0;
+                        }
+                        break;
+                    case TURN:
+                        chassis.arcadeDriveAuto(0.0, Constants.Auto.goalTurnPower);
+                        if(timer.get() >= Constants.Auto.goalTurnTime){
+                            startTimer();
+                            goal = HighGoalAuto.ALIGN;
+                        }
                         break;
                     default:
                         break;

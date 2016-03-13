@@ -67,6 +67,19 @@ public class Constants
         public static final double chevalArmRaisePower = 1.0;
         public static final double chevalSpeed = 0.25;
         public static final double chevalBreachSpeed = 0.5;
+        
+        // High Goal
+        public static final double goalForwardPower = 0.4;
+        public static final double goalForwardTime = 1.5;
+        public static final double goalReversePower = -0.4;
+        public static final double goalReverseTime = 0.5;
+        public static final double goalTurnPower = 0.6;
+        public static final double goalTurnTime = 0.5;
+        public static final double goalAlignPower = 0.4;
+        public static final double goalAlignTime = 1.0;
+        public static final double goalRollTime = 2.0;
+        public static final double goalRevTime = 3.0;
+        public static final double goalStopTime = 5.0;
 
         // Low Bar
         public static final double lowBarArmTime = 1.4;
