@@ -26,9 +26,9 @@ public class Constants
         public static final int breacherMiddleDownButton = 3;
         public static final int breacherDownButton = 4;
 
-        public static final int manualShooterPreset1 = 7;
+        public static final int manualShooterPreset1 = 4;
         public static final int manualShooterPreset2 = 8;
-        public static final int manualShooterPreset3 = 9;
+        public static final int manualShooterPreset3 = 3;
         public static final int manualShooterPreset4 = 10;
 
         public static final int manualShooterSubtract = 11;
@@ -158,10 +158,10 @@ public class Constants
         public static final int hallEffectLeftPort = 0;
         public static final int hallEffectRightPort = 1;
 
-        public static final double presetPowerOne = 2500;
+        public static final double presetPowerOne = 3450;
         public static final double presetPowerTwo = 3450;
-        public static final double presetPowerThree = 4000;
-        public static final double presetPowerFour = 120000;
+        public static final double presetPowerThree = 4225;
+        public static final double presetPowerFour = 3450;
     }
 
     public class Joysticks

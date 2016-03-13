@@ -99,32 +99,24 @@ public class Shooter
     {
         if(assistStick.getRawButton(Constants.AssistantDriver.prepShootOn))
         {
-            powerAdjustLeft = 0;
-            powerAdjustRight = 0;
             rpm = Constants.Shooter.presetPowerTwo;
             wiggleRoom = 50;
         }
         if(assistStick
                 .getRawButton(Constants.AssistantDriver.manualShooterPreset1))
         {
-            powerAdjustLeft = 0;
-            powerAdjustRight = 0;
             rpm = Constants.Shooter.presetPowerOne;
             wiggleRoom = 50;
         }
         if(assistStick
                 .getRawButton(Constants.AssistantDriver.manualShooterPreset2))
         {
-            powerAdjustLeft = 0;
-            powerAdjustRight = 0;
             rpm = Constants.Shooter.presetPowerTwo;
             resetErrors();
         }
         if(assistStick
                 .getRawButton(Constants.AssistantDriver.manualShooterPreset3))
         {
-            powerAdjustLeft = 0;
-            powerAdjustRight = 0;
             rpm = Constants.Shooter.presetPowerThree;
             resetErrors();
         }
@@ -132,8 +124,6 @@ public class Shooter
                 .getRawButton(Constants.AssistantDriver.manualShooterPreset4))
         {
             rpm = Constants.Shooter.presetPowerFour;
-            powerAdjustLeft = 0;
-            powerAdjustRight = 0;
             resetErrors();
         }
         powerAdjust();
@@ -188,7 +178,7 @@ public class Shooter
                 controlPower();
                 resetErrors();
                 if(assistStick
-                        .getRawButton(Constants.AssistantDriver.prepShootOn))
+                        .getRawButton(Constants.AssistantDriver.prepShootOn) || assistStick.getRawButton(Constants.AssistantDriver.manualShooterPreset3))
                 {
                     state = ShooterState.RUNNING;
                     powerAdjustLeft = 0;
@@ -248,7 +238,7 @@ public class Shooter
             {
                 powerAdjustLeft += 0.01;
             }
-            if(errorLeft < 100)
+            if(errorLeft < 40)
             {
                 errorLeft += 2;
             }
@@ -262,7 +252,7 @@ public class Shooter
             {
                 powerAdjustRight += 0.01;
             }
-            if(errorRight < 100)
+            if(errorRight < 40)
             {
                 errorRight += 2;
             }
@@ -271,8 +261,8 @@ public class Shooter
 
     public void resetErrors()
     {
-        errorRight = 50;
-        errorLeft = 50;
+        errorRight = 20;
+        errorLeft = 20;
         wiggleRoom = 50;
     }
 
