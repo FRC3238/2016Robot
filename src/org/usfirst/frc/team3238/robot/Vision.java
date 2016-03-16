@@ -14,8 +14,8 @@ public class Vision
     Timer timer;
     PIController pid;
     NetworkTable netTab;
-    double defaultY[] = { 120 };
-    double y[];
+    double defaultX[] = { 120 };
+    double x[];
     boolean isAligned = false;
 
     public Vision(Chassis driveTrain, Shooter shooter, Collector collector)
@@ -29,7 +29,7 @@ public class Vision
         timer.reset();
         timer.start();
         pid = new PIController(Constants.Vision.pValue, Constants.Vision.iValue);
-        netTab = NetworkTable.getTable("GRIP/myContoursReport");
+        netTab = NetworkTable.getTable("GRIP/Contours");
     }
 
     public void init()
@@ -46,24 +46,24 @@ public class Vision
 
         try
         {
-            SmartDashboard.putNumber("Y Vision",
-                    netTab.getNumberArray("centerY", defaultY)[0]);
-            y = netTab.getNumberArray("centerY", defaultY);
+            SmartDashboard.putNumber("X Vision",
+                    netTab.getNumberArray("centerX", defaultX)[0]);
+            x = netTab.getNumberArray("centerX", defaultX);
         } catch(Exception e)
         {
             DriverStation.reportError("Target not found!", false);
         }
 
-        if(y.length > 1)
+        if(x.length > 1)
         {
             DriverStation.reportError("Two Vision Targets!", false);
-        } else if(y.length == 0)
+        } else if(x.length == 0)
         {
             DriverStation.reportError("No Vision Targets!", false);
-        } else if(!pid.isTargetAcquired(Constants.Vision.setPoint, y[0],
+        } else if(!pid.isTargetAcquired(Constants.Vision.setPoint, x[0],
                 Constants.Vision.error))
         {
-            pid.getMotorValue(Constants.Vision.setPoint, y[0]);
+            pid.getMotorValue(Constants.Vision.setPoint, x[0]);
             timer.reset();
             timer.start();
             shooter.state = ShooterState.RUNNING;

@@ -26,9 +26,9 @@ public class Constants
         public static final int breacherMiddleDownButton = 3;
         public static final int breacherDownButton = 4;
 
-        public static final int manualShooterPreset1 = 7;
+        public static final int manualShooterPreset1 = 4;
         public static final int manualShooterPreset2 = 8;
-        public static final int manualShooterPreset3 = 9;
+        public static final int manualShooterPreset3 = 3;
         public static final int manualShooterPreset4 = 10;
 
         public static final int manualShooterSubtract = 11;
@@ -62,11 +62,25 @@ public class Constants
         // Cheval De Frise
         public static final double chevalTime = 2.1;
         public static final double chevalArmTime = 2.5;
-        public static final double chevalBreachTime = 1.5;
+        public static final double chevalBreachTime = 2.1;
         public static final double chevalArmPower = -0.8;
         public static final double chevalArmRaisePower = 1.0;
         public static final double chevalSpeed = 0.25;
-        public static final double chevalBreachSpeed = 0.5;
+        public static final double chevalBreachSpeed = 0.6;
+        
+        // High Goal
+        public static final double goalForwardLeftPower = 0.55;
+        public static final double goalForwardRightPower = -0.3;
+        public static final double goalForwardTime = 3.0;
+        public static final double goalReversePower = -0.4;
+        public static final double goalReverseTime = 1.3;
+        public static final double goalTurnPower = 0.4;
+        public static final double goalTurnTime = 0.8;
+        public static final double goalAlignPower = 0.6;
+        public static final double goalAlignTime = 1.5;
+        public static final double goalRollTime = 2.0;
+        public static final double goalRevTime = 3.0;
+        public static final double goalStopTime = 5.0;
 
         // Low Bar
         public static final double lowBarArmTime = 1.4;
@@ -94,7 +108,7 @@ public class Constants
 
         // Ramparts
         public static final double rampBreachTime = 1.2;
-        public static final double rampSpeed = 1.0;
+        public static final double rampSpeed = 0.8;
     }
 
     public class Breacher
@@ -117,7 +131,7 @@ public class Constants
 
     public class Camera
     {
-        public static final String frontCamName = "cam1";
+        public static final String frontCamName = "cam3";
         public static final String rearCamName = "cam0";
 
         public static final int camQuality = 10;
@@ -158,22 +172,22 @@ public class Constants
         public static final int hallEffectLeftPort = 0;
         public static final int hallEffectRightPort = 1;
 
-        public static final double presetPowerOne = 2500;
-        public static final double presetPowerTwo = 3450;
-        public static final double presetPowerThree = 4000;
-        public static final double presetPowerFour = 4230;
+        public static final double presetPowerOne = 3450;
+        public static final double presetPowerTwo = 3800;
+        public static final double presetPowerThree = 4225;
+        public static final double presetPowerFour = 3450;
     }
-    
+
     public class Vision
     {
         public static final double towerYLowerLimit = 112;
         public static final double towerYUpperLimit = 128;
         public static final double shooterSpeed = 3700;
         
-        public static final double pValue;
-        public static final double iValue;
+        public static final double pValue = 16;
+        public static final double iValue = 0;
         public static final double setPoint = 120;
-        public static final double error = 5;
+        public static final double error = 1;
     }
 
     public class Joysticks
