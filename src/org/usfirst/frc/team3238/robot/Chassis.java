@@ -92,7 +92,7 @@ public class Chassis
 
     void arcadeDriveAuto(double y, double twist)
     {
-        driveTrain.arcadeDrive(y, twist);
+        driveTrain.arcadeDrive(y, twist, false);
     }
 
     void invertMotors(boolean inv)

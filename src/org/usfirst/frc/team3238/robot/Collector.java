@@ -9,7 +9,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 enum CollectorState
 {
-    DISABLED, COLLECTING, CENTERING, LOWERING, HOLDING, EJECTING, SHOOTING, RAISING, MANUAL
+    DISABLED, COLLECTING, CENTERING, LOWERING, HOLDING, EJECTING, SHOOTING, RAISING, MANUAL, AUTOSHOOT
 }
 
 public class Collector
@@ -74,6 +74,11 @@ public class Collector
     {
         switch(state)
         {
+            case AUTOSHOOT:
+                timer.reset();
+                timer.start();
+                state = CollectorState.SHOOTING;
+                break;
             case CENTERING:
                 shooter.leftTalon.set(0.0);
                 shooter.rightTalon.set(0.0);
@@ -241,6 +246,11 @@ public class Collector
                 break;
         }
 
+    }
+    
+    public void shoot()
+    {
+        state = CollectorState.AUTOSHOOT;
     }
 
     public boolean isCollecting()

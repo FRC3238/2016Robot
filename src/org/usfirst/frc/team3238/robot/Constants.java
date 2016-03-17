@@ -170,11 +170,34 @@ public class Constants
 
         public static final int hallEffectLeftPort = 0;
         public static final int hallEffectRightPort = 1;
+        
+        public static final double pValueLeft = 1;
+        public static final double iValueLeft = 0;
+        public static final double pValueRight = 1;
+        public static final double iValueRight = 0;
+        public static final double error = 50;
 
         public static final double presetPowerOne = 3450;
         public static final double presetPowerTwo = 3450;
         public static final double presetPowerThree = 4225;
         public static final double presetPowerFour = 3450;
+    }
+
+    public class Vision
+    {
+        public static final double towerYLowerLimit = 112;
+        public static final double towerYUpperLimit = 128;
+        public static final double shooterSpeed = 3700;
+        
+        public static final double pValueX = 16;
+        public static final double iValueX = 0;
+        public static final double throttleX = 0.5;
+        public static final double pValueY = 16;
+        public static final double iValueY = 0;
+        public static final double throttleY = 0.5;
+        public static final double setPointX = 120;
+        public static final double setPointY = 160;
+        public static final double error = 1;
     }
 
     public class Joysticks
