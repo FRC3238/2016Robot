@@ -25,8 +25,9 @@ public class Collector
     private boolean loweringToSwitch;
     private boolean manual;
 
-    Collector(CANTalon collectorTalon, DigitalInput ballDetect, Shooter shooter,
-            Joystick stick, Joystick assistantDriver, Joystick manualControl)
+    Collector(CANTalon collectorTalon, DigitalInput ballDetect,
+            Shooter shooter, Joystick stick, Joystick assistantDriver,
+            Joystick manualControl)
     {
         try
         {
@@ -136,8 +137,8 @@ public class Collector
                 if(ballDetect.get()
                         && manualControl
                                 .getRawButton(Constants.LaunchPad.shooterDown)
-                        || ballDetect.get() && assistStick
-                                .getPOV() == Constants.AssistantDriver.shooterManualDown)
+                        || ballDetect.get()
+                        && assistStick.getPOV() == Constants.AssistantDriver.shooterManualDown)
                 {
                     state = CollectorState.MANUAL;
                 }
@@ -192,16 +193,16 @@ public class Collector
                 if(!ballDetect.get()
                         && manualControl
                                 .getRawButton(Constants.LaunchPad.shooterDown)
-                        || !ballDetect.get() && assistStick
-                                .getPOV() == Constants.AssistantDriver.shooterManualDown)
+                        || !ballDetect.get()
+                        && assistStick.getPOV() == Constants.AssistantDriver.shooterManualDown)
                 {
                     manual = true;
                     state = CollectorState.LOWERING;
                 } else if(ballDetect.get()
                         && manualControl
                                 .getRawButton(Constants.LaunchPad.shooterDown)
-                        || ballDetect.get() && assistStick
-                                .getPOV() == Constants.AssistantDriver.shooterManualDown)
+                        || ballDetect.get()
+                        && assistStick.getPOV() == Constants.AssistantDriver.shooterManualDown)
                 {
                     state = CollectorState.MANUAL;
                 } else
@@ -247,7 +248,7 @@ public class Collector
         }
 
     }
-    
+
     public void shoot()
     {
         state = CollectorState.AUTOSHOOT;

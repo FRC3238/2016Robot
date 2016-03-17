@@ -67,19 +67,11 @@ public class Constants
         public static final double chevalArmRaisePower = 1.0;
         public static final double chevalSpeed = 0.25;
         public static final double chevalBreachSpeed = 0.5;
-        
+
         // High Goal
-        public static final double goalForwardPower = 0.4;
+        public static final double goalForwardPowerY = 0.4;
+        public static final double goalForwardPowerTwist = 0.1;
         public static final double goalForwardTime = 1.5;
-        public static final double goalReversePower = -0.4;
-        public static final double goalReverseTime = 0.5;
-        public static final double goalTurnPower = 0.6;
-        public static final double goalTurnTime = 0.5;
-        public static final double goalAlignPower = 0.4;
-        public static final double goalAlignTime = 1.0;
-        public static final double goalRollTime = 2.0;
-        public static final double goalRevTime = 3.0;
-        public static final double goalStopTime = 5.0;
 
         // Low Bar
         public static final double lowBarArmTime = 1.4;
@@ -170,7 +162,7 @@ public class Constants
 
         public static final int hallEffectLeftPort = 0;
         public static final int hallEffectRightPort = 1;
-        
+
         public static final double pValueLeft = 1;
         public static final double iValueLeft = 0;
         public static final double pValueRight = 1;
@@ -188,7 +180,7 @@ public class Constants
         public static final double towerYLowerLimit = 112;
         public static final double towerYUpperLimit = 128;
         public static final double shooterSpeed = 3700;
-        
+
         public static final double pValueX = 16;
         public static final double iValueX = 0;
         public static final double throttleX = 0.5;

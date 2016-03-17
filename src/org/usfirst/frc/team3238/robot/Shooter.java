@@ -78,7 +78,8 @@ public class Shooter
         wiggleRoom = 50;
     }
 
-    private void setPowerOverride(double shooterPowerLeft, double shooterPowerRight)
+    private void setPowerOverride(double shooterPowerLeft,
+            double shooterPowerRight)
     {
         if(launchPad.getRawButton(Constants.LaunchPad.shooterUp)
                 || assistStick.getPOV() == Constants.AssistantDriver.shooterManualUp)
@@ -228,13 +229,27 @@ public class Shooter
             return 0.0;
         }
     }
-    
+
     public void runShooters(double rpm)
     {
         double leftRPM = rpm(leftCounter);
         double rightRPM = rpm(rightCounter);
         powerLeft = pidLeft.getMotorValue(rpm, leftRPM);
         powerRight = pidRight.getMotorValue(rpm, rightRPM);
+    }
+
+    public boolean isRPMReached(double rpm)
+    {
+        double leftRPM = rpm(leftCounter);
+        double rightRPM = rpm(rightCounter);
+        if(pidLeft.isTargetReached(rpm, leftRPM)
+                && pidRight.isTargetReached(rpm, rightRPM))
+        {
+            return true;
+        } else
+        {
+            return false;
+        }
     }
 
     public void equalizeRPM(double rp)

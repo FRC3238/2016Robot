@@ -43,8 +43,7 @@ public class PIController
         if(m_oldTime == 0)
         {
             timeDifference = 0;
-        } 
-        else
+        } else
         {
             timeDifference = time - m_oldTime;
         }
@@ -53,19 +52,19 @@ public class PIController
         {
             returnPower = error * m_pConstant + m_cummulativeError
                     * m_iConstant * timeDifference;
-        }
-        else
+        } else
         {
             returnPower = 0;
         }
         // Set up the "old" values for the next loop
         m_oldTime = time;
-        return limitOutput(returnPower)*m_throttle;
+        return limitOutput(returnPower) * m_throttle;
     }
-    
+
     boolean isAligned(double setPoint, double sensorValue)
     {
-        if(Math.abs(setPoint - sensorValue) < m_error){
+        if(Math.abs(setPoint - sensorValue) < m_error)
+        {
             return true;
         } else
         {
@@ -81,30 +80,28 @@ public class PIController
         m_cummulativeError = 0;
         m_oldTime = 0;
     }
-    
+
     void inputConstants(double pConstant, double iConstant)
     {
         m_pConstant = pConstant;
         m_iConstant = iConstant;
     }
-    
+
     void setThrottle(double throttle)
     {
         m_throttle = throttle;
     }
-    
+
     double limitOutput(double motorPower)
     {
         double returnPower;
         if(motorPower > 1.0)
         {
             returnPower = 1.0;
-        }
-        else if(motorPower < -1.0)
+        } else if(motorPower < -1.0)
         {
             returnPower = -1.0;
-        }
-        else
+        } else
         {
             returnPower = motorPower;
         }

@@ -47,7 +47,7 @@ enum RampAuto
 
 enum HighGoalAuto
 {
-    LOWBAR, FORWARD, REVERSE, TURN, ALIGN, ROLL, SHOOT
+    LOWBAR, FORWARD, SHOOT
 }
 
 public class Autonomous
@@ -56,20 +56,12 @@ public class Autonomous
     Breacher breacher;
     Shooter shooter;
     Collector collector;
+    Vision autoAim;
     Timer timer;
     Timer shootTime;
     SendableChooser chooser;
     SendableChooser botPos;
 
-    // AutoChoices auto;
-    // AutoChoices lowBarAuto = AutoChoices.LOWBAR;
-    // AutoChoices portcullisAuto = AutoChoices.PORTCULLIS;
-    // AutoChoices chevalAuto = AutoChoices.CHEVALDEFRISE;
-    // AutoChoices rockAuto = AutoChoices.ROCKWALL;
-    // AutoChoices roughAuto = AutoChoices.ROUGHTERRAIN;
-    // AutoChoices moatAuto = AutoChoices.MOAT;
-    // AutoChoices rampAuto = AutoChoices.RAMPARTS;
-    // AutoChoices none = AutoChoices.DISABLED;
     int auto = 0;
     int lowBar1 = 1;
     int portcullis1 = 2;
@@ -84,7 +76,7 @@ public class Autonomous
     HighGoalAuto goal;
 
     public Autonomous(Chassis chassis, Breacher breacher, Shooter shooter,
-            Collector collector)
+            Collector collector, Vision autoAim)
     {
         try
         {
@@ -92,25 +84,9 @@ public class Autonomous
             this.breacher = breacher;
             this.shooter = shooter;
             this.collector = collector;
+            this.autoAim = autoAim;
             timer = new Timer();
             shootTime = new Timer();
-        } catch(Exception e)
-        {
-            DriverStation.reportError(e.getMessage(), true);
-        }
-
-        try
-        {
-            // chooser = new SendableChooser();
-            // chooser.addObject("Low Bar", lowBar1);
-            // chooser.addObject("Portcullis", portcullis1);
-            // chooser.addDefault("Cheval de Frise", cheval1);
-            // chooser.addObject("Rock Wall", rockAuto);
-            // chooser.addObject("Rough Terrain", roughAuto);
-            // chooser.addObject("Moat", moatAuto);
-            // chooser.addObject("Ramparts", rampAuto);
-            // chooser.addObject("No auto", none);
-            // SmartDashboard.putData("Autonomous Selection: ", chooser);
         } catch(Exception e)
         {
             DriverStation.reportError(e.getMessage(), true);
@@ -119,9 +95,9 @@ public class Autonomous
 
     public void init()
     {
-        
+
         auto = (int) SmartDashboard.getNumber("DB/Slider 0");
-        
+
         lowBar = LowBarAuto.LOWERING;
         portcullis = PortcullisAuto.LOWERING;
         cheval = ChevalAuto.FORWARD;
@@ -139,7 +115,7 @@ public class Autonomous
 
     public void autoRun()
     {
-        
+
         SmartDashboard.putNumber("Auto", auto);
         switch(auto)
         {
@@ -327,18 +303,21 @@ public class Autonomous
             case 8:
                 switch(goal)
                 {
-                    case ALIGN:
-                        goal = (HighGoalAuto) forward(goal, HighGoalAuto.ROLL, Constants.Auto.goalAlignTime, Constants.Auto.goalAlignPower);
-                        break;
+
                     case FORWARD:
-                        goal = (HighGoalAuto) forward(goal, HighGoalAuto.REVERSE, Constants.Auto.goalForwardTime, Constants.Auto.goalForwardPower);
+                        goal = (HighGoalAuto) forwardTank(goal,
+                                HighGoalAuto.SHOOT,
+                                Constants.Auto.goalForwardTime,
+                                Constants.Auto.goalForwardPowerY,
+                                Constants.Auto.goalForwardPowerTwist);
                         break;
                     case LOWBAR:
-                        switch(lowBar){
+                        switch(lowBar)
+                        {
                             case FORWARD:
                                 stopCBS(false, true, false);
-                                lowBar = (LowBarAuto) forward(lowBar,
-                                        LowBarAuto.REVSHOOT,
+                                goal = (HighGoalAuto) forward(goal,
+                                        HighGoalAuto.FORWARD,
                                         Constants.Auto.lowBarBreachTime,
                                         Constants.Auto.lowBarPower);
                                 break;
@@ -352,41 +331,20 @@ public class Autonomous
                                 revNoLower();
                                 break;
                             default:
-                                DriverStation.reportError(
-                                        "Auto default state! Auto is disfunctional!",
-                                        true);
+                                DriverStation
+                                        .reportError(
+                                                "Auto default state! Auto is disfunctional!",
+                                                true);
                                 break;
                         }
-                        
-                        if(lowBar == LowBarAuto.REVSHOOT){
+
+                        if(lowBar == LowBarAuto.REVSHOOT)
+                        {
                             goal = HighGoalAuto.FORWARD;
                         }
                         break;
-                    case REVERSE:
-                        goal = (HighGoalAuto) forward(goal, HighGoalAuto.TURN, Constants.Auto.goalReverseTime, Constants.Auto.goalReversePower);
-                        break;
-                    case ROLL:
-                        disableAll();
-                        if(timer.get() >= Constants.Auto.goalRollTime){
-                            startTimer();
-                            goal = HighGoalAuto.SHOOT;
-                        }
-                        break;
                     case SHOOT:
-                        shooter.state = ShooterState.RUNNING;
-                        if(timer.get() >= Constants.Auto.goalRevTime){
-                            collector.state = CollectorState.SHOOTING;
-                        }
-                        if(timer.get() >= Constants.Auto.goalStopTime){
-                            auto = 0;
-                        }
-                        break;
-                    case TURN:
-                        chassis.arcadeDriveAuto(0.0, Constants.Auto.goalTurnPower);
-                        if(timer.get() >= Constants.Auto.goalTurnTime){
-                            startTimer();
-                            goal = HighGoalAuto.ALIGN;
-                        }
+                        autoAim.idle();
                         break;
                     default:
                         break;
@@ -438,8 +396,8 @@ public class Autonomous
         st = nst;
     }
 
-    private Object lowerArm(Object stateControl, Object nextState, double power,
-            double time)
+    private Object lowerArm(Object stateControl, Object nextState,
+            double power, double time)
     {
         chassis.disable();
         stopShooting();
@@ -481,6 +439,20 @@ public class Autonomous
             double power)
     {
         chassis.setPower(power);
+        stopShooting();
+
+        if(timer.get() >= time)
+        {
+            startTimer();
+            return nextState;
+        }
+        return stateControl;
+    }
+
+    private Object forwardTank(Object stateControl, Object nextState,
+            double time, double powerY, double powerTwist)
+    {
+        chassis.arcadeDriveAuto(powerY, powerTwist);
         stopShooting();
 
         if(timer.get() >= time)

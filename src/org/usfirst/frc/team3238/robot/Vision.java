@@ -31,26 +31,34 @@ public class Vision
         timer = new Timer();
         timer.reset();
         timer.start();
-        pidX = new PIController(Constants.Vision.pValueX, Constants.Vision.iValueX, Constants.Vision.error);
+        pidX = new PIController(Constants.Vision.pValueX,
+                Constants.Vision.iValueX, Constants.Vision.error);
         pidX.setThrottle(Constants.Vision.throttleX);
-        pidY = new PIController(Constants.Vision.pValueY, Constants.Vision.iValueY, Constants.Vision.error);
+        pidY = new PIController(Constants.Vision.pValueY,
+                Constants.Vision.iValueY, Constants.Vision.error);
         pidY.setThrottle(Constants.Vision.throttleY);
         netTab = NetworkTable.getTable("GRIP/Contours");
         chassisY = 0.0;
         chassisTwist = 0.0;
         stop();
     }
-    
+
     void stop()
     {
         shooter.init();
         collector.init();
-        chassis.disable();
+        stopChassis();
         timer.reset();
         pidX.reinit();
         pidY.reinit();
     }
-    
+
+    void stopChassis()
+    {
+        chassisY = 0.0;
+        chassisTwist = 0.0;
+    }
+
     void run()
     {
         shooter.idle(collector.isCollecting());
@@ -59,7 +67,7 @@ public class Vision
         collector.idle();
         chassis.arcadeDriveAuto(chassisY, chassisTwist);
     }
-    
+
     boolean getTowerPos()
     {
         try
@@ -70,7 +78,7 @@ public class Vision
         {
             DriverStation.reportError("Target not found!", false);
         }
-        
+
         if(x.length > 1)
         {
             DriverStation.reportError("Two vision targets!", false);
@@ -80,22 +88,29 @@ public class Vision
             return true;
         }
     }
-    
+
     public void idle()
     {
-        if(getTowerPos() && (!pidX.isAligned(Constants.Vision.setPointX, x[0]) || !pidY.isAligned(Constants.Vision.setPointY, y[0])))
+        if(getTowerPos() && !pidX.isAligned(Constants.Vision.setPointX, x[0]))
         {
             chassisTwist = pidX.getMotorValue(Constants.Vision.setPointX, x[0]);
+            chassisY = 0.0;
+        } else if(getTowerPos()
+                && !pidY.isAligned(Constants.Vision.setPointY, y[0]))
+        {
             chassisY = pidY.getMotorValue(Constants.Vision.setPointY, y[0]);
-        } else if(pidX.isAligned(Constants.Vision.setPointX, x[0]) && pidY.isAligned(Constants.Vision.setPointY, y[0]))
+            chassisTwist = pidX.getMotorValue(Constants.Vision.setPointX, x[0]);
+        } else if(pidX.isAligned(Constants.Vision.setPointX, x[0])
+                && pidY.isAligned(Constants.Vision.setPointY, y[0])
+                && shooter.isRPMReached(Constants.Vision.shooterSpeed))
         {
             collector.shoot();
-            chassis.disable();
-        } else 
+            stopChassis();
+        } else
         {
-            chassis.disable();
+            stopChassis();
         }
-        
+
         run();
     }
 }

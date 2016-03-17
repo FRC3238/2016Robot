@@ -44,30 +44,30 @@ public class PIVelocityController
         if(m_oldTime == 0)
         {
             timeDifference = 0;
-        } 
-        else
+        } else
         {
             timeDifference = time - m_oldTime;
         }
         double returnPower;
         if(error != 0)
         {
-            returnPower = m_oldMotorVal + (error * m_pConstant + m_cummulativeError
-                    * m_iConstant * timeDifference);
-        }
-        else
+            returnPower = m_oldMotorVal
+                    + (error * m_pConstant + m_cummulativeError * m_iConstant
+                            * timeDifference);
+        } else
         {
             returnPower = 0;
         }
         // Set up the "old" values for the next loop
         m_oldTime = time;
         m_oldMotorVal = returnPower;
-        return limitOutput(returnPower)*m_throttle;
+        return limitOutput(returnPower) * m_throttle;
     }
-    
+
     boolean isTargetReached(double setPoint, double sensorValue)
     {
-        if(Math.abs(setPoint - sensorValue) < m_error){
+        if(Math.abs(setPoint - sensorValue) < m_error)
+        {
             return true;
         } else
         {
@@ -84,30 +84,28 @@ public class PIVelocityController
         m_oldTime = 0;
         m_oldMotorVal = 0;
     }
-    
+
     void inputConstants(double pConstant, double iConstant)
     {
         m_pConstant = pConstant;
         m_iConstant = iConstant;
     }
-    
+
     void setThrottle(double throttle)
     {
         m_throttle = throttle;
     }
-    
+
     double limitOutput(double motorPower)
     {
         double returnPower;
         if(motorPower > 1.0)
         {
             returnPower = 1.0;
-        }
-        else if(motorPower < -1.0)
+        } else if(motorPower < -1.0)
         {
             returnPower = -1.0;
-        }
-        else
+        } else
         {
             returnPower = motorPower;
         }
