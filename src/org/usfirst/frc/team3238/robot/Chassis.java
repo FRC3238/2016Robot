@@ -78,10 +78,10 @@ public class Chassis
     {
         if(dial.getRawAxis(0) < 0.0)
         {
-            twistMult = 0.88;
+            twistMult = Constants.Chassis.leftTwistMult;
         } else
         {
-            twistMult = 0.7;
+            twistMult = Constants.Chassis.rightTwistMult;
         }
         SmartDashboard.putNumber("twist", dial.getRawAxis(0));
         SmartDashboard.putNumber("twistMult", twistMult);

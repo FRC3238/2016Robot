@@ -70,8 +70,10 @@ public class Constants
 
         // High Goal
         public static final double goalForwardPowerY = 0.4;
-        public static final double goalForwardPowerTwist = 0.1;
-        public static final double goalForwardTime = 1.5;
+        public static final double goalForwardPowerTwist = -0.32;
+        public static final double goalForwardTime = 2.7;
+        public static final double goalBarForwardTime = 2.0;
+        public static final double goalBarForwardSpeed = 0.6;
 
         // Low Bar
         public static final double lowBarArmTime = 1.4;
@@ -128,8 +130,8 @@ public class Constants
         public static final int camQuality = 10;
         public static final int camSize = 1;
 
-        public static final int crosshairCenterXTower = 160;
-        public static final int crosshairCenterYTower = 240;
+        public static final int crosshairCenterXTower = 140;
+        public static final int crosshairCenterYTower = 262;
         public static final int crosshairCenterXShooter = 370;
         public static final int crosshairCenterYShooter = 200;
         public static final int crosshairLength = 20;
@@ -143,6 +145,8 @@ public class Constants
         public static final int rightMotorTwoID = 4;
         public static final double yMultiplier = 0.95;
         public static final double twistMultiplier = 0.88;
+        public static final double leftTwistMult = 0.88;
+        public static final double rightTwistMult = 1.0;
     }
 
     public class Collector
@@ -163,33 +167,32 @@ public class Constants
         public static final int hallEffectLeftPort = 0;
         public static final int hallEffectRightPort = 1;
 
-        public static final double pValueLeft = 1;
+        public static final double pValueLeft = 0.5;
         public static final double iValueLeft = 0;
-        public static final double pValueRight = 1;
+        public static final double pValueRight = 0.5;
         public static final double iValueRight = 0;
-        public static final double error = 50;
+        public static final double error = 100;
 
         public static final double presetPowerOne = 3450;
         public static final double presetPowerTwo = 3450;
         public static final double presetPowerThree = 4225;
-        public static final double presetPowerFour = 3450;
+        public static final double presetPowerFour = 3700;
     }
 
     public class Vision
     {
-        public static final double towerYLowerLimit = 112;
-        public static final double towerYUpperLimit = 128;
-        public static final double shooterSpeed = 3700;
-
-        public static final double pValueX = 16;
+        public static final double shooterSpeed = 3450;
+        public static final double pValueX = 0.12;
         public static final double iValueX = 0;
-        public static final double throttleX = 0.5;
-        public static final double pValueY = 16;
+        public static final double throttleX = 0.27;
+        public static final double pValueY = 0.05;
         public static final double iValueY = 0;
-        public static final double throttleY = 0.5;
-        public static final double setPointX = 120;
-        public static final double setPointY = 160;
-        public static final double error = 1;
+        public static final double throttleY = 0.25;
+        public static final double setPointX = 160;
+        public static final double setPointY = 38;
+        public static final double defaultX = 155;
+        public static final double defaultY = 25;
+        public static final double error = 13;
     }
 
     public class Joysticks

@@ -106,7 +106,8 @@ public class Autonomous
         moat = MoatAuto.FORWARD;
         ramp = RampAuto.FORWARD;
         goal = HighGoalAuto.LOWBAR;
-        shooter.rpm = Constants.Shooter.presetPowerOne;
+        shooter.rpm = Constants.Shooter.presetPowerFour;
+        shooter.changeState(ShooterState.DISABLED);
         timer.reset();
         timer.start();
         shootTime.reset();
@@ -318,8 +319,8 @@ public class Autonomous
                                 stopCBS(false, true, false);
                                 goal = (HighGoalAuto) forward(goal,
                                         HighGoalAuto.FORWARD,
-                                        Constants.Auto.lowBarBreachTime,
-                                        Constants.Auto.lowBarPower);
+                                        Constants.Auto.goalBarForwardTime,
+                                        Constants.Auto.goalBarForwardSpeed);
                                 break;
                             case LOWERING:
                                 lowBar = (LowBarAuto) lowerArm(lowBar,
@@ -344,7 +345,10 @@ public class Autonomous
                         }
                         break;
                     case SHOOT:
-                        autoAim.idle();
+                        if(timer.get()>1.0)
+                        {
+                            autoAim.idle();
+                        }
                         break;
                     default:
                         break;

@@ -56,7 +56,7 @@ public class PIVelocityController
                             * timeDifference);
         } else
         {
-            returnPower = 0;
+            returnPower = m_oldMotorVal;
         }
         // Set up the "old" values for the next loop
         m_oldTime = time;
