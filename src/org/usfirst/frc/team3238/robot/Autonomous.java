@@ -56,19 +56,8 @@ public class Autonomous
     SendableChooser chooser;
     SendableChooser botPos;
 
-    // AutoChoices auto;
-    // AutoChoices lowBarAuto = AutoChoices.LOWBAR;
-    // AutoChoices portcullisAuto = AutoChoices.PORTCULLIS;
-    // AutoChoices chevalAuto = AutoChoices.CHEVALDEFRISE;
-    // AutoChoices rockAuto = AutoChoices.ROCKWALL;
-    // AutoChoices roughAuto = AutoChoices.ROUGHTERRAIN;
-    // AutoChoices moatAuto = AutoChoices.MOAT;
-    // AutoChoices rampAuto = AutoChoices.RAMPARTS;
-    // AutoChoices none = AutoChoices.DISABLED;
     int auto = 0;
-    int lowBar1 = 1;
-    int portcullis1 = 2;
-    int cheval1 = 3;
+    
     LowBarAuto lowBar;
     PortcullisAuto portcullis;
     ChevalAuto cheval;
@@ -88,23 +77,6 @@ public class Autonomous
             this.collector = collector;
             timer = new Timer();
             shootTime = new Timer();
-        } catch(Exception e)
-        {
-            DriverStation.reportError(e.getMessage(), true);
-        }
-
-        try
-        {
-            // chooser = new SendableChooser();
-            // chooser.addObject("Low Bar", lowBar1);
-            // chooser.addObject("Portcullis", portcullis1);
-            // chooser.addDefault("Cheval de Frise", cheval1);
-            // chooser.addObject("Rock Wall", rockAuto);
-            // chooser.addObject("Rough Terrain", roughAuto);
-            // chooser.addObject("Moat", moatAuto);
-            // chooser.addObject("Ramparts", rampAuto);
-            // chooser.addObject("No auto", none);
-            // SmartDashboard.putData("Autonomous Selection: ", chooser);
         } catch(Exception e)
         {
             DriverStation.reportError(e.getMessage(), true);
@@ -154,7 +126,6 @@ public class Autonomous
                         break;
                     case ONWARD:
                         breacher.autoRaise(Constants.Auto.chevalArmRaisePower);
-                        // stopCBS(false, true, false);
                         SmartDashboard.putNumber("The Breacher Power",
                                 breacher.getTalonSpeed());
                         cheval = (ChevalAuto) forward(cheval,
