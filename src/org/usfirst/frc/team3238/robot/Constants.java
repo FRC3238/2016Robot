@@ -70,9 +70,10 @@ public class Constants
 
         // High Goal
         public static final double goalForwardPowerY = 0.4;
-        public static final double goalForwardPowerTwist = -0.32;
-        public static final double goalForwardTime = 2.7;
-        public static final double goalBarForwardTime = 2.0;
+        public static final double goalForwardPowerTwist = -0.22;
+        public static final double goalForwardTime = 2.0;
+        public static final double goalBarForwardTime = 1.8; //was 1.5 during Semis @ Mt. Vernon, but unable to change
+                                                             //it in between rounds. 1.8 would have corrected it. 
         public static final double goalBarForwardSpeed = 0.6;
 
         // Low Bar
@@ -184,7 +185,7 @@ public class Constants
         public static final double shooterSpeed = 3450;
         public static final double pValueX = 0.12;
         public static final double iValueX = 0;
-        public static final double throttleX = 0.27;
+        public static final double throttleX = 0.3;
         public static final double pValueY = 0.05;
         public static final double iValueY = 0;
         public static final double throttleY = 0.25;
