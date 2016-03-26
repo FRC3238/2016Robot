@@ -9,6 +9,7 @@ public class Constants
         public static final int autoCollect = 2;
         public static final int autoEject = 5;
         public static final int motorOff = 3;
+        public static final int visionRun = 8;
         public static final int frontChangeCamButton = 12;
         public static final int backChangeCamButton = 11;
 

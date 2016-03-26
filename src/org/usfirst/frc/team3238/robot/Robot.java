@@ -102,11 +102,18 @@ public class Robot extends IterativeRobot
 
     public void teleopPeriodic()
     {
-        chassisCommands();
-        camera.stream();
-        breacherArm.run(assistantJoystick);
-        collector.idle();
-        shooter.idle(collector.isCollecting());
+        if(mainJoystick.getRawButton(Constants.MainDriver.visionRun))
+        {
+            vision.idle();
+        }
+        else 
+        {
+            chassisCommands();
+            camera.stream();
+            breacherArm.run(assistantJoystick);
+            collector.idle();
+            shooter.idle(collector.isCollecting());
+        }
     }
 
     // Drive system
