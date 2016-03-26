@@ -20,11 +20,14 @@ public class Shooter
     CANTalon leftTalon, rightTalon;
     DigitalInput leftHE, rightHE;
     Joystick mainStick, assistStick, launchPad;
+    PIVelocityController pidLeft, pidRight;
     Timer timer;
     Counter leftCounter, rightCounter;
 
     private double wiggleRoom, errorLeft = 50.0, errorRight = 50.0;
     private double power;
+    private double powerLeft;
+    private double powerRight;
     double rpm;
     private double powerAdjustLeft;
     private double powerAdjustRight;
@@ -55,6 +58,10 @@ public class Shooter
             rightCounter = new Counter(rightHE);
             leftCounter.setSemiPeriodMode(true);
             rightCounter.setSemiPeriodMode(true);
+            pidLeft = new PIVelocityController(Constants.Shooter.pValueLeft,
+                    Constants.Shooter.iValueLeft, Constants.Shooter.error);
+            pidRight = new PIVelocityController(Constants.Shooter.pValueRight,
+                    Constants.Shooter.iValueRight, Constants.Shooter.error);
             timer = new Timer();
             timer.reset();
         } catch(Exception e)
@@ -71,60 +78,52 @@ public class Shooter
         wiggleRoom = 50;
     }
 
-    private void setPowerOverride(double shooterPower)
+    private void setPowerOverride(double shooterPowerLeft,
+            double shooterPowerRight)
     {
-        if(launchPad.getRawButton(Constants.LaunchPad.shooterUp) || assistStick
-                .getPOV() == Constants.AssistantDriver.shooterManualUp)
+        if(launchPad.getRawButton(Constants.LaunchPad.shooterUp)
+                || assistStick.getPOV() == Constants.AssistantDriver.shooterManualUp)
         {
             leftTalon.set(0.5);
             rightTalon.set(0.5);
         } else if(launchPad.getRawButton(Constants.LaunchPad.shooterDown)
-                || assistStick
-                        .getPOV() == Constants.AssistantDriver.shooterManualDown)
+                || assistStick.getPOV() == Constants.AssistantDriver.shooterManualDown)
         {
             leftTalon.set(-0.6);
             rightTalon.set(-0.6);
         } else
         {
-            leftTalon.set(shooterPower + powerAdjustLeft);
-            rightTalon.set(shooterPower + powerAdjustRight);
+            leftTalon.set(shooterPowerLeft + powerAdjustLeft);
+            rightTalon.set(shooterPowerRight + powerAdjustRight);
         }
-        SmartDashboard.putNumber("Left Motor Speed",
-                shooterPower + powerAdjustLeft);
-        SmartDashboard.putNumber("Right Motor Power",
-                shooterPower + powerAdjustRight);
+        SmartDashboard.putNumber("Left Motor Speed", shooterPowerLeft
+                + powerAdjustLeft);
+        SmartDashboard.putNumber("Right Motor Power", shooterPowerRight
+                + powerAdjustRight);
     }
 
     private void controlPower()
     {
         if(assistStick.getRawButton(Constants.AssistantDriver.prepShootOn))
         {
-            powerAdjustLeft = 0;
-            powerAdjustRight = 0;
             rpm = Constants.Shooter.presetPowerTwo;
             wiggleRoom = 50;
         }
         if(assistStick
                 .getRawButton(Constants.AssistantDriver.manualShooterPreset1))
         {
-            powerAdjustLeft = 0;
-            powerAdjustRight = 0;
             rpm = Constants.Shooter.presetPowerOne;
             wiggleRoom = 50;
         }
         if(assistStick
                 .getRawButton(Constants.AssistantDriver.manualShooterPreset2))
         {
-            powerAdjustLeft = 0;
-            powerAdjustRight = 0;
             rpm = Constants.Shooter.presetPowerTwo;
             resetErrors();
         }
         if(assistStick
                 .getRawButton(Constants.AssistantDriver.manualShooterPreset3))
         {
-            powerAdjustLeft = 0;
-            powerAdjustRight = 0;
             rpm = Constants.Shooter.presetPowerThree;
             resetErrors();
         }
@@ -132,8 +131,6 @@ public class Shooter
                 .getRawButton(Constants.AssistantDriver.manualShooterPreset4))
         {
             rpm = Constants.Shooter.presetPowerFour;
-            powerAdjustLeft = 0;
-            powerAdjustRight = 0;
             resetErrors();
         }
         powerAdjust();
@@ -150,8 +147,9 @@ public class Shooter
             powerAdjustLeft = powerAdjustLeft + 0.02;
             powerAdjustRight = powerAdjustRight + 0.02;
             resetErrors();
-        } else if(assistStick.getRawButton(
-                Constants.AssistantDriver.manualShooterSubtract) && !adjusting)
+        } else if(assistStick
+                .getRawButton(Constants.AssistantDriver.manualShooterSubtract)
+                && !adjusting)
         {
 
             adjusting = true;
@@ -161,8 +159,8 @@ public class Shooter
 
         } else if(!assistStick
                 .getRawButton(Constants.AssistantDriver.manualShooterAdd)
-                && !assistStick.getRawButton(
-                        Constants.AssistantDriver.manualShooterSubtract))
+                && !assistStick
+                        .getRawButton(Constants.AssistantDriver.manualShooterSubtract))
         {
             adjusting = false;
         }
@@ -184,11 +182,13 @@ public class Shooter
         switch(state)
         {
             case DISABLED:
-                setPowerOverride(0.0);
+                setPowerOverride(0.0, 0.0);
                 controlPower();
                 resetErrors();
                 if(assistStick
-                        .getRawButton(Constants.AssistantDriver.prepShootOn))
+                        .getRawButton(Constants.AssistantDriver.prepShootOn)
+                        || assistStick
+                                .getRawButton(Constants.AssistantDriver.manualShooterPreset3))
                 {
                     state = ShooterState.RUNNING;
                     powerAdjustLeft = 0;
@@ -196,9 +196,9 @@ public class Shooter
                 }
                 break;
             case RUNNING:
-                setPowerOverride(power);
+                setPowerOverride(powerLeft, powerRight);
                 controlPower();
-                equalizeRPM(rpm);
+                runShooters(rpm);
                 if(isCollecting)
                 {
                     state = ShooterState.DISABLED;
@@ -230,6 +230,28 @@ public class Shooter
         }
     }
 
+    public void runShooters(double rpm)
+    {
+        double leftRPM = rpm(leftCounter);
+        double rightRPM = rpm(rightCounter);
+        powerLeft = pidLeft.getMotorValue(rpm, leftRPM);
+        powerRight = pidRight.getMotorValue(rpm, rightRPM);
+    }
+
+    public boolean isRPMReached(double rpm)
+    {
+        double leftRPM = rpm(leftCounter);
+        double rightRPM = rpm(rightCounter);
+        if(pidLeft.isTargetReached(rpm, leftRPM)
+                && pidRight.isTargetReached(rpm, rightRPM))
+        {
+            return true;
+        } else
+        {
+            return false;
+        }
+    }
+
     public void equalizeRPM(double rp)
     {
         double leftRPM = rpm(leftCounter);
@@ -248,7 +270,7 @@ public class Shooter
             {
                 powerAdjustLeft += 0.01;
             }
-            if(errorLeft < 100)
+            if(errorLeft < 40)
             {
                 errorLeft += 2;
             }
@@ -262,7 +284,7 @@ public class Shooter
             {
                 powerAdjustRight += 0.01;
             }
-            if(errorRight < 100)
+            if(errorRight < 40)
             {
                 errorRight += 2;
             }
@@ -271,8 +293,8 @@ public class Shooter
 
     public void resetErrors()
     {
-        errorRight = 50;
-        errorLeft = 50;
+        errorRight = 20;
+        errorLeft = 20;
         wiggleRoom = 50;
     }
 

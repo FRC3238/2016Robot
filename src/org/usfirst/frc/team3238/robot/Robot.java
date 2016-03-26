@@ -16,6 +16,7 @@ public class Robot extends IterativeRobot
     Chassis chassis;
     Collector collector;
     Shooter shooter;
+    Vision vision;
     Autonomous auto;
     Joystick assistantJoystick, mainJoystick, launchPad;
     CANTalon leftDriveTalonA, leftDriveTalonB, rightDriveTalonA,
@@ -69,9 +70,11 @@ public class Robot extends IterativeRobot
                     rightDriveTalonA, rightDriveTalonB);
             shooter = new Shooter(shooterTalonLeft, shooterTalonRight,
                     mainJoystick, assistantJoystick, launchPad);
-            collector = new Collector(collectorTalon, ballDetectSwitch, shooter,
-                    mainJoystick, assistantJoystick, launchPad);
-            auto = new Autonomous(chassis, breacherArm, shooter, collector);
+            collector = new Collector(collectorTalon, ballDetectSwitch,
+                    shooter, mainJoystick, assistantJoystick, launchPad);
+            vision = new Vision(chassis, shooter, collector);
+            auto = new Autonomous(chassis, breacherArm, shooter, collector,
+                    vision);
             timer = new Timer();
         } catch(Exception e)
         {
