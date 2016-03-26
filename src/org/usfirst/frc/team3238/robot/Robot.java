@@ -8,6 +8,7 @@ import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj.CANTalon;
+import edu.wpi.first.wpilibj.networktables.NetworkTable;
 
 public class Robot extends IterativeRobot
 {
@@ -26,6 +27,7 @@ public class Robot extends IterativeRobot
     CANTalon shooterTalonLeft, shooterTalonRight;
     DigitalInput ballDetectSwitch;
     Timer timer, tim;
+    NetworkTable netTab;
     public static boolean camChanging;
     public static boolean camDead;
 
@@ -55,6 +57,8 @@ public class Robot extends IterativeRobot
                     Constants.Shooter.shooterRightTalonID);
 
             breacherArm = new Breacher(breacherTalon);
+            netTab = NetworkTable.getTable("GRIP");
+            netTab.putBoolean("run", true);
             try
             {
                 camera = new Camera(assistantJoystick);
@@ -85,19 +89,23 @@ public class Robot extends IterativeRobot
     public void autonomousInit()
     {
         auto.init();
-
+        shooter.reset();
+        netTab.putBoolean("run", true);
     }
 
     public void autonomousPeriodic()
     {
         // auto.switchingAuto();
         auto.autoRun();
+        netTab.putBoolean("run", true);
     }
 
     public void teleopInit()
     {
         collector.init();
+        shooter.reset();
         SmartDashboard.putNumber("DB/Slider 0", 0);
+        netTab.putBoolean("run", false);
     }
 
     public void teleopPeriodic()
@@ -107,6 +115,7 @@ public class Robot extends IterativeRobot
         breacherArm.run(assistantJoystick);
         collector.idle();
         shooter.idle(collector.isCollecting());
+        netTab.putBoolean("run", false);
     }
 
     // Drive system
@@ -122,11 +131,15 @@ public class Robot extends IterativeRobot
         auto.init();
         chassis.setPower(0.0);
         breacherArm.moveArm(0.0);
+        vision.stop();
+        shooter.reset();
+        netTab.putBoolean("run", false);
     }
 
     public void testPeriodic()
     {
-
+        vision.idle();
+        netTab.putBoolean("run", false);
     }
 
 }

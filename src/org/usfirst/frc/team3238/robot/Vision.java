@@ -2,6 +2,7 @@ package org.usfirst.frc.team3238.robot;
 
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.networktables.NetworkTable;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj.Timer;
 
 public class Vision
@@ -12,14 +13,15 @@ public class Vision
     Timer timer;
     PIController pidX, pidY;
     NetworkTable netTab;
-    double defaultX[] = { 120 };
+    double defaultX[] = { Constants.Vision.defaultX };
     double x[];
-    double defaultY[] = { 160 };
+    double defaultY[] = { Constants.Vision.defaultY };
     double y[];
     double chassisY;
     double chassisTwist;
     boolean enabled = true;
     boolean isAligned = false;
+    boolean targetFound = false;
 
     public Vision(Chassis driveTrain, Shooter shooter, Collector collector)
     {
@@ -76,10 +78,13 @@ public class Vision
             y = netTab.getNumberArray("centerY", defaultY);
         } catch(Exception e)
         {
+            x = defaultX;
+            y = defaultY;
             DriverStation.reportError("Target not found!", false);
+            return false;
         }
 
-        if(x.length > 1)
+        if(x.length > 1 && y.length > 1)
         {
             DriverStation.reportError("Two vision targets!", false);
             return false;
@@ -91,26 +96,65 @@ public class Vision
 
     public void idle()
     {
-        if(getTowerPos() && !pidX.isAligned(Constants.Vision.setPointX, x[0]))
+        try
         {
-            chassisTwist = pidX.getMotorValue(Constants.Vision.setPointX, x[0]);
-            chassisY = 0.0;
-        } else if(getTowerPos()
-                && !pidY.isAligned(Constants.Vision.setPointY, y[0]))
-        {
-            chassisY = pidY.getMotorValue(Constants.Vision.setPointY, y[0]);
-            chassisTwist = pidX.getMotorValue(Constants.Vision.setPointX, x[0]);
-        } else if(pidX.isAligned(Constants.Vision.setPointX, x[0])
-                && pidY.isAligned(Constants.Vision.setPointY, y[0])
-                && shooter.isRPMReached(Constants.Vision.shooterSpeed))
-        {
-            collector.shoot();
-            stopChassis();
-        } else
-        {
-            stopChassis();
-        }
+            if(!getTowerPos() && enabled)
+            {
+                stopChassis();
+            } else if(!pidX.isAligned(Constants.Vision.setPointX, x[0])
+                    && !targetFound)
+            {
+                chassisTwist = pidX.getMotorValue(Constants.Vision.setPointX,
+                        x[0]);
+                DriverStation
+                        .reportError(
+                                "X PID: " + -pidX.getMotorValue(
+                                        Constants.Vision.setPointX, x[0]),
+                        false);
+                chassisY = 0.0;
+                timer.reset();
+                timer.start();
+            } else if(!pidY.isAligned(Constants.Vision.setPointY, y[0])
+                    && !targetFound)
+            {
+                chassisY = -pidY.getMotorValue(Constants.Vision.setPointY,
+                        y[0]);
+                DriverStation
+                        .reportError(
+                                "Y PID: " + -pidY.getMotorValue(
+                                        Constants.Vision.setPointY, y[0]),
+                        false);
+                chassisTwist = 0.0;
+                timer.reset();
+                timer.start();
+            } else if(pidX.isAligned(Constants.Vision.setPointX, x[0])
+                    && pidY.isAligned(Constants.Vision.setPointY, y[0]))
+            {
+                targetFound = true;
+                stopChassis();
+            } else if(targetFound)
+            {
+                if((timer.get() > 0.5)
+                        && shooter.isRPMReached(Constants.Vision.shooterSpeed))
+                {
+                    collector.shoot();
+                    enabled = false;
+                }
+            } else
+            {
+                stopChassis();
+            }
 
-        run();
+            SmartDashboard.putNumber("PID X",
+                    pidX.getMotorValue(Constants.Vision.setPointX, x[0]));
+            SmartDashboard.putNumber("PID Y",
+                    pidY.getMotorValue(Constants.Vision.setPointY, y[0]));
+
+            run();
+        } catch(ArrayIndexOutOfBoundsException e)
+        {
+            targetFound = false;
+            DriverStation.reportError(e.getMessage(), true);
+        }
     }
 }
