@@ -198,7 +198,7 @@ public class Shooter
             case RUNNING:
                 setPowerOverride(powerLeft, powerRight);
                 controlPower();
-                runShooters(rpm);
+                equalizeRPM(rpm);
                 if(isCollecting)
                 {
                     state = ShooterState.DISABLED;
@@ -288,6 +288,81 @@ public class Shooter
             {
                 errorRight += 2;
             }
+        }
+    }
+    
+    public void equalizeRPMs(double rpL, double rpR)
+    {
+        double leftRPM = rpm(leftCounter);
+        double rightRPM = rpm(rightCounter);
+        SmartDashboard.putNumber("leftRPM", leftRPM);
+        SmartDashboard.putNumber("RightRPM", rightRPM);
+        SmartDashboard.putNumber("RightError", errorRight);
+        SmartDashboard.putNumber("LeftError", errorLeft);
+        if(Math.abs(leftRPM - rpL) > errorLeft)
+        {
+            if(leftRPM > rpL)
+            {
+                powerAdjustLeft -= 0.01;
+            } else
+            {
+                powerAdjustLeft += 0.01;
+            }
+            if(errorLeft < 40)
+            {
+                errorLeft += 2;
+            }
+        }
+        if(Math.abs(rightRPM - rpR) > errorRight)
+        {
+            if(rightRPM > rpR)
+            {
+                powerAdjustRight -= 0.01;
+            } else
+            {
+                powerAdjustRight += 0.01;
+            }
+            if(errorRight < 40)
+            {
+                errorRight += 2;
+            }
+        }
+    }
+    
+    public void idleRPMs()
+    {
+        SmartDashboard.putString("ALLAH", state.toString());
+        switch(state)
+        {
+            case DISABLED:
+                setPowerOverride(0.0, 0.0);
+                controlPower();
+                resetErrors();
+                if(assistStick
+                        .getRawButton(Constants.AssistantDriver.prepShootOn)
+                        || assistStick
+                                .getRawButton(Constants.AssistantDriver.manualShooterPreset3))
+                {
+                    state = ShooterState.RUNNING;
+                    powerAdjustLeft = 0;
+                    powerAdjustRight = 0;
+                }
+                break;
+            case RUNNING:
+                setPowerOverride(powerLeft, powerRight);
+                controlPower();
+                equalizeRPMs(((assistStick.getThrottle() + 1.0) / 2) * 5000, ((mainStick.getThrottle() + 1.0) / 2) * 5000);
+                if(assistStick
+                        .getRawButton(Constants.AssistantDriver.prepShootOff))
+                {
+                    state = ShooterState.DISABLED;
+                    powerAdjustLeft = 0;
+                    powerAdjustRight = 0;
+                }
+
+                break;
+            default:
+                break;
         }
     }
 
