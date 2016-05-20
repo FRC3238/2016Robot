@@ -5,6 +5,13 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.CANTalon;
 
+/**
+ * Constructs a chassis object to control the drivetrain and chassis movement
+ * 
+ * @author FRC Team 3238
+ * 
+ * @version 1.0
+ */ 
 public class Chassis
 {
     RobotDrive driveTrain;
@@ -18,6 +25,9 @@ public class Chassis
     CANTalon leftMotorControllerA, rightMotorControllerA, leftMotorControllerB,
             rightMotorControllerB;
 
+    /**
+     * Constructs a chassis object with all the drive motors that are required 
+     */
     Chassis(CANTalon leftMotorControllerA, CANTalon leftMotorControllerB,
             CANTalon rightMotorControllerA, CANTalon rightMotorControllerB)
     {
@@ -32,6 +42,11 @@ public class Chassis
         turnMult = Constants.Chassis.twistMultiplier;
     }
 
+    /**
+     * Sets the class values for easier access from the maindriver's joystick
+     * 
+     * @param mainDriver - the main joystick
+     */ 
     void setJoystickData(Joystick mainDriver)
     {
         mainX = mainDriver.getX();
@@ -39,7 +54,11 @@ public class Chassis
         mainTwist = mainDriver.getTwist();
         setMotorInversion(mainDriver);
     }
-
+    /**
+     * Moves the chassis based on joystick input in arcadedrive fashion
+     * 
+     * @param mainDriver - the main joystick
+     */ 
     void idle(Joystick mainDriver)
     {
         setJoystickData(mainDriver);
@@ -47,15 +66,25 @@ public class Chassis
         arcadeDrive();
     }
 
-    void setPower(double a)
+    /**
+     * Changes chassis motor speed
+     * 
+     * @param power : the power of the drive motors
+     */
+    void setPower(double power)
     {
-        rightMotorControllerA.set(-a);
-        rightMotorControllerB.set(-a);
-        leftMotorControllerA.set(a);
-        leftMotorControllerB.set(a);
+        rightMotorControllerA.set(-power);
+        rightMotorControllerB.set(-power);
+        leftMotorControllerA.set(power);
+        leftMotorControllerB.set(power);
 
     }
-
+    /**
+     * The main driver uses the y axis of the joystick to determine where he's moving, so this inverts the axis values incase the
+     * driver wants to move the back or front of the robot forward by pushing the joystick forward
+     * 
+     * @param mainDriver the main joystick, used for the throttle value
+     */ 
     void setMotorInversion(Joystick mainDriver)
     {
         if(mainDriver.getThrottle() > 0.0)
@@ -66,14 +95,21 @@ public class Chassis
             flip = -1;
         }
     }
-
+    /**
+     * A drive system where the robot can move based on one joystick, y axis for speed and x axis for rotating
+     */ 
     void arcadeDrive()
     {
-        double mappedTwist = (mainTwist * turnMult);
-        double mappedY = mainY * speedMult;
-        driveTrain.arcadeDrive(mappedY, mappedTwist, true);
+        double mappedTwist = (mainTwist * turnMult); //Don't want to overshoot on turns
+        double mappedY = mainY * speedMult; //Don't want to drive exceedingly fast
+        driveTrain.arcadeDrive(mappedY, mappedTwist, true); //the built in function provided by WPI for arcadeDrive
     }
-
+    /**
+     * Calles arcade drive except uses the arduino attached to our driver station in order to change the turn multiplier so that 
+     * the drivers can actively change how much they want to turn
+     * 
+     * @param mainDriver : the main joystick
+     */
     void arcadeDrive(Joystick mainDriver, Joystick dial)
     {
         if(dial.getRawAxis(0) < 0.0)
