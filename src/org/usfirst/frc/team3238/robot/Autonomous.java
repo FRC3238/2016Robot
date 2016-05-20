@@ -178,6 +178,9 @@ public class Autonomous
         shootTime.start();
     }
 
+    /**
+     * Called in autonomous iterative, decides which autonomous routine to run and what actions are performed under it
+     */
     public void autoRun()
     {
 
@@ -810,7 +813,10 @@ public class Autonomous
         chassis.disable();
         breacher.moveArm(0.0);
     }
-
+    /**
+     * Waits until 13 (or any other integer) seconds have passed out of the 15 seconds in the autonomous period before
+     * starting the shooter.
+     */
     private void revNoLower()
     {
         chassis.disable();
@@ -823,7 +829,17 @@ public class Autonomous
             shooter.state = ShooterState.RUNNING;
         }
     }
-
+    /**
+     * Returns a state object and moves the breacher arm until the time elapsed is enough to move to the next state
+     * 
+     * @param stateControl : the current enum state the autonomous routine is in, required because the function calling this is 
+     *          iterative and has to define the next state.
+     * @param nextState : If it is time to advance to the next enum in the autonomous routine the state becomes equal to this
+     * @param power : the power of the breacher arm
+     * @param time : the time that must elapse until the next state can be called
+     * 
+     * @return the next state if required time has elapsed or the current if not
+     */
     private Object lowerArm(Object stateControl, Object nextState,
             double power, double time)
     {
@@ -841,11 +857,22 @@ public class Autonomous
         return stateControl;
     }
 
+    /**
+     * Moves chassis forward
+     * 
+     * @param power Talon power
+     */
     private void forward(double power)
     {
         chassis.setPower(power);
     }
-
+    /**
+     * extended name: stop Chassis, Breacher, Shooter
+     * 
+     * @param chassi : if true locks the wheels
+     * @param ar : if true freezes the breacher arm
+     * @param shoote : if true stops the shooter
+     */ 
     private void stopCBS(boolean chassi, boolean ar, boolean shoote)
     {
         if(chassi)
@@ -862,7 +889,9 @@ public class Autonomous
         }
 
     }
-
+    /**
+     * Exactly the same as lowerArm in relation to functionality except this moves the chassis
+     */
     private Object forward(Object stateControl, Object nextState, double time,
             double power)
     {
@@ -876,7 +905,9 @@ public class Autonomous
         }
         return stateControl;
     }
-
+    /**
+     * Another version of the forward function except this is designed for the robot to turn like a tank drive
+     */ 
     private Object forwardTank(Object stateControl, Object nextState,
             double time, double powerY, double powerTwist)
     {
@@ -890,13 +921,17 @@ public class Autonomous
         }
         return stateControl;
     }
-
+    /**
+     * Refreshes the timer
+     */ 
     private void startTimer()
     {
         timer.reset();
         timer.start();
     }
-
+    /**
+     * Stops the shooter
+     */ 
     private void stopShooting()
     {
         shooter.state = ShooterState.DISABLED;
