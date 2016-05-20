@@ -110,12 +110,23 @@ public class Robot extends IterativeRobot
 
     public void teleopPeriodic()
     {
-        chassisCommands();
-        camera.stream();
-        breacherArm.run(assistantJoystick);
-        collector.idle();
-        shooter.idle(collector.isCollecting());
-        netTab.putBoolean("run", false);
+        if(mainJoystick.getRawButton(11))
+        {
+            vision.teleVision();
+            camera.stream();
+            breacherArm.run(assistantJoystick);
+            collector.idle();
+            shooter.idle(collector.isCollecting());
+        } else 
+        {
+            chassisCommands();
+            camera.stream();
+            breacherArm.run(assistantJoystick);
+            collector.idle();
+            shooter.idle(collector.isCollecting());
+            netTab.putBoolean("run", false);
+        }
+        SmartDashboard.putBoolean("DB/Button 0", vision.getTowerPos());
     }
 
     // Drive system
@@ -138,7 +149,7 @@ public class Robot extends IterativeRobot
 
     public void testPeriodic()
     {
-        vision.idle();
+        vision.teleVision();
         netTab.putBoolean("run", false);
     }
 

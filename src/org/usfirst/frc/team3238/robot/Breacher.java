@@ -46,7 +46,7 @@ public class Breacher
     void run(Joystick assistantDriver)
     {
         talonPower = 0.0;
-        ifStick(assistantDriver, Constants.AssistantDriver.breacherDownButton);
+//        ifStick(assistantDriver, Constants.AssistantDriver.breacherDownButton);
         ifStick(assistantDriver.getY(), Constants.Breacher.deadzone);
         moveArm(talonPower);
     }
@@ -67,15 +67,15 @@ public class Breacher
         }
     }
 
-    void ifStick(Joystick assistantDriver, int button)
-    {
-        if(assistantDriver.getRawButton(button))
-        {
-            userInput = button;
-            getPosition();
-            setArmPosition(motorEncoderPosition);
-        }
-    }
+//    void ifStick(Joystick assistantDriver, int button)
+//    {
+//        if(assistantDriver.getRawButton(button))
+//        {
+//            userInput = button;
+//            getPosition();
+//            setArmPosition(motorEncoderPosition);
+//        }
+//    }
 
     void autoRaise(double power)
     {
@@ -95,26 +95,26 @@ public class Breacher
         return breacherTalon.get();
     }
 
-    void getPosition()
-    {
-        switch(userInput)
-        {
-            case 6:
-                motorEncoderPosition = Constants.Breacher.encoderValueMidTop;
-                break;
-            case 5:
-                motorEncoderPosition = Constants.Breacher.encoderValueMidTop;
-                break;
-            case 3:
-                motorEncoderPosition = Constants.Breacher.encoderValueMidBot;
-                break;
-            case 4:
-                motorEncoderPosition = Constants.Breacher.encoderValueBot;
-                break;
-            default:
-                break;
-        }
-    }
+//    void getPosition()
+//    {
+//        switch(userInput)
+//        {
+//            case 6:
+//                motorEncoderPosition = Constants.Breacher.encoderValueMidTop;
+//                break;
+//            case 5:
+//                motorEncoderPosition = Constants.Breacher.encoderValueMidTop;
+//                break;
+//            case 3:
+//                motorEncoderPosition = Constants.Breacher.encoderValueMidBot;
+//                break;
+//            case 4:
+//                motorEncoderPosition = Constants.Breacher.encoderValueBot;
+//                break;
+//            default:
+//                break;
+//        }
+//    }
 
     void setArmPosition(int position)
     {
