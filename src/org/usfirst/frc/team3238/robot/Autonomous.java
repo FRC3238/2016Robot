@@ -5,6 +5,19 @@ import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
+/**
+ * Our autonomous class that interacts with user input before match start in order to run through various different defenses in 
+ * different ways, uses no sensing
+ * 
+ * @author FRC Team 3238
+ * 
+ * @version 1.0
+ */
+ 
+ /**
+  * Various enums to set the current state of autonomous routines, i.e., in LowBarAuto, we lower our arm in enum LOWERING, move forward
+  * under the low bar in enum FORWARD, and, upon crossing the low bar, start our shooter speed during enum REVSHOOT.
+  */
 enum LowBarAuto
 {
     LOWERING, FORWARD, REVSHOOT
@@ -102,7 +115,16 @@ public class Autonomous
     RoughGoal roughGoal;
     MoatGoal moatGoal;
     RampGoal rampGoal;
-
+    /**
+     * @param chassis : an object for the drive system, how the robot is able to move
+     * @param breacher : an object for our extended robot arm, able to manipulate its movement
+     * @param shooter : an object for our launching system that requires to reach a correct RPM before firing
+     * @param collector : an object for the collection unit that feeds into the shooter
+     * @param autoAim : an experimental object that implements vision processing in autonomous in order to shoot
+     * into the high goal with camera readings, currently not working
+     * 
+     * Constructs an 'Autonomous' object
+     */
     public Autonomous(Chassis chassis, Breacher breacher, Shooter shooter,
             Collector collector, Vision autoAim)
     {
@@ -121,12 +143,16 @@ public class Autonomous
         }
     }
 
+    /**
+     * Gets values from the SmartDashboard program featured as a default program for the FRC driver station. The sliders under
+     * the 'auto' tab are used to get the specific autonomous routine the drivers have chosen.
+     */
     public void init()
     {
 
-        auto = (int) SmartDashboard.getNumber("DB/Slider 0");
-        pos = (int) SmartDashboard.getNumber("DB/Slider 1");
-
+        auto = (int) SmartDashboard.getNumber("DB/Slider 0"); //getting an integer value from SD slider for what defense is ahead
+        pos = (int) SmartDashboard.getNumber("DB/Slider 1"); //gets an integer value representing the position of the defense from 1-5
+        //Sets all the above enums into their first state
         lowBar = LowBarAuto.LOWERING;
         portcullis = PortcullisAuto.LOWERING;
         cheval = ChevalAuto.FORWARD;
@@ -141,8 +167,11 @@ public class Autonomous
         roughGoal = RoughGoal.ROUGH;
         moatGoal = MoatGoal.MOAT;
         rampGoal = RampGoal.RAMPARTS;
+        //Sets the shooter speed to be able to go into the goal from the default distance
         shooter.rpm = Constants.Shooter.presetPowerFour;
+        //turns off the shooter
         shooter.changeState(ShooterState.DISABLED);
+        //timer is used for determining when to change enum states without sensors
         timer.reset();
         timer.start();
         shootTime.reset();
@@ -156,8 +185,11 @@ public class Autonomous
         switch(auto)
         {
             case 0:
+                //if the drivers forgot to put in an autonomous value then don't do autonomous
                 disableAll();
                 break;
+                
+                //if the drivers did put in an autonomous value the following integers in case x: correspond with the defenses
             case 7:
                 switch(lowBar)
                 {
@@ -769,7 +801,9 @@ public class Autonomous
                 break;
         }
     }
-
+    /**
+     * turns off the shooter, stops moving, and freezes the breacher in place
+     */
     private void disableAll()
     {
         stopShooting();
