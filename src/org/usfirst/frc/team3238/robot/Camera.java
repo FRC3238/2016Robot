@@ -87,21 +87,23 @@ public class Camera
             DriverStation.reportError(e.getMessage(), true);
         }
     }
-
+    /**
+     * Starts the camera feed and determines where the crosshair should be placed to best help the driver
+     */ 
     void addCams()
     {
         try
         {
             if(newID != activeCam)
-            {
-                NIVision.IMAQdxStopAcquisition(activeCam);
+            { 
+                NIVision.IMAQdxStopAcquisition(activeCam); //Stops current camera feed and starts other camera feed
                 NIVision.IMAQdxConfigureGrab(newID);
                 NIVision.IMAQdxStartAcquisition(newID);
-                if(newID == frontCam)
+                if(newID == frontCam) //if taking camera input from the camera looking at the tower then draw a crosshair aligned with the tower
                 {
                     setPoints(centerPointShooter,
                             Constants.Camera.crosshairLength);
-                } else if(newID == backCam)
+                } else if(newID == backCam) //if taking camera input from the collector camera draw a crosshair in the center of the screen
                 {
                     setPoints(centerPointTower,
                             Constants.Camera.crosshairLength);
@@ -117,6 +119,9 @@ public class Camera
     /**
      * Closes the feed for the currently active camera and opens the image for
      * the other camera
+     * 
+     * @param camSwitch usually called with the joystick throttle returning a value between -1.0 and 1.0, determines which camera 
+     *        to use
      */
     public void changeCam(double camSwitch)
     {
