@@ -109,10 +109,11 @@ public class Chassis
      * the drivers can actively change how much they want to turn
      * 
      * @param mainDriver : the main joystick
+     * @param dial : the arduino controller interpreted as a joystick
      */
     void arcadeDrive(Joystick mainDriver, Joystick dial)
     {
-        if(dial.getRawAxis(0) < 0.0)
+        if(dial.getRawAxis(0) < 0.0) //The 'dial' is a knob potentiometer interpreted by the arduino that changes turn speed
         {
             twistMult = Constants.Chassis.leftTwistMult;
         } else
@@ -125,12 +126,19 @@ public class Chassis
         double mappedY = -mainDriver.getY() * turnMult;
         driveTrain.arcadeDrive(mappedY * flip, mappedTwist, true);
     }
-
+    /**
+     * The functionality of arcadedrive but absolute instead of algorithmic input values in order to have effective autonomous
+     * @param y : speed of chassis 
+     * @param twist : turn speed
+     */ 
     void arcadeDriveAuto(double y, double twist)
     {
-        driveTrain.arcadeDrive(y, twist, false);
+        driveTrain.arcadeDrive(y, twist, false); //last param squares inputs if true
     }
-
+    /**
+     * changes motor inversion
+     * @param inv : chooses whether to invert motors or not
+     */ 
     void invertMotors(boolean inv)
     {
         this.leftMotorControllerA.setInverted(inv);
@@ -138,7 +146,9 @@ public class Chassis
         this.rightMotorControllerA.setInverted(inv);
         this.rightMotorControllerB.setInverted(inv);
     }
-
+    /**
+     * turns off drive motors
+     */ 
     public void disable()
     {
         this.leftMotorControllerA.set(0);
