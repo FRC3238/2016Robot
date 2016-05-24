@@ -8,22 +8,31 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Counter;
 
+//only two enum states, intuitive
 enum ShooterState
 {
     DISABLED, RUNNING
 }
 
+/**
+ * A class to control the management of the shooter subsystem which consists of two motors operating spinning grooved cyclinders fast
+ * enough to fire a foam ball out of it
+ * 
+ * @author FRC Team 3238
+ * 
+ * @version 1.0
+ */ 
 public class Shooter
 {
     ShooterState state;
 
     CANTalon leftTalon, rightTalon;
-    DigitalInput leftHE, rightHE;
+    DigitalInput leftHE, rightHE; //hall effect sensors, detect change in magnetic field (we have magnets on the shooter)
     Joystick mainStick, assistStick, launchPad;
     Timer timer;
-    Counter leftCounter, rightCounter;
+    Counter leftCounter, rightCounter; //used for fast counting of the hall effect sensors
 
-    private double wiggleRoom, errorLeft = 50.0, errorRight = 50.0;
+    private double wiggleRoom, errorLeft = 50.0, errorRight = 50.0; //wiggle
     private double power;
     double rpm;
     private double powerAdjustLeft;
