@@ -1,15 +1,18 @@
 package org.usfirst.frc.team3238.robot;
 
 /**
- * This is a generic proportional integral controller.
+ * This is a generic proportional integral controller, see PIController, only difference is this is designed for aligning with value and
+ * integrated with motor speeds (kind of).
  * 
- * @author Team 3238
+ * @author FRC Team 3238
+ * 
+ * @version 1.0
  */
 public class PIVelocityController
 {
     double m_cummulativeError = 0;
     double m_oldTime = 0;
-    double m_oldMotorVal = 0;
+    double m_oldMotorVal = 0; //new, just makes it easier to set the current motor power additive to the errors and the old
     double m_pConstant;
     double m_iConstant;
     double m_error;
