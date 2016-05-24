@@ -1,8 +1,15 @@
 package org.usfirst.frc.team3238.robot;
 
+/**
+ * A class that stores the values that are constantly referenced as constants by other classes, hence called Constant's constants
+ * 
+ * @author FRC Team 3238
+ * 
+ * @version 1.0
+ */ 
 public class Constants
 {
-
+    //Separates Constants by relevant types
     public class MainDriver
     {
         public static final int shoot = 1;
