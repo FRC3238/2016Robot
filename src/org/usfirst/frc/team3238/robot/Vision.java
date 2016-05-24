@@ -5,6 +5,14 @@ import edu.wpi.first.wpilibj.networktables.NetworkTable;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj.Timer;
 
+/**
+ * A class containing vision processing algorithms and operating parameters
+ * disclaimer: VP is not working on our robot due to camera returns
+ * 
+ * @author FRC Team 3238
+ * 
+ * @version 1.0
+ */ 
 public class Vision
 {
     Chassis chassis;
@@ -21,11 +29,20 @@ public class Vision
     double chassisY;
     double chassisTwist;
     int cyclesNotFound = 0;
-    boolean enabled = true;
+    boolean enabled = true; //try using vision processing?
     boolean isAligned = false;
     boolean targetFound = false;
     String control = "resetLeft";
 
+    /**
+     * Constructor for vision object
+     * 
+     * @param driveTrain the drive motors on the robot
+     * 
+     * @param shooter the shooter subsystem
+     * 
+     * @param collector the collector subsystem
+     */ 
     public Vision(Chassis driveTrain, Shooter shooter, Collector collector)
     {
         this.chassis = driveTrain;
