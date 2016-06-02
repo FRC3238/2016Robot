@@ -61,7 +61,7 @@ public class Robot extends IterativeRobot
             netTab.putBoolean("run", true);
             try
             {
-                camera = new Camera(assistantJoystick);
+                camera = new Camera(mainJoystick);
                 camera.init(Constants.Camera.camQuality,
                         Constants.Camera.camSize);
                 camDead = false;
@@ -110,19 +110,32 @@ public class Robot extends IterativeRobot
 
     public void teleopPeriodic()
     {
-        chassisCommands();
-        camera.stream();
-        breacherArm.run(assistantJoystick);
-        collector.idle();
-        shooter.idle(collector.isCollecting());
-        netTab.putBoolean("run", false);
+        if(assistantJoystick.getThrottle() < 0)
+        {
+            chassisCommands();
+            camera.stream();
+            breacherArm.run(mainJoystick);
+            collector.idle();
+            shooter.idle(collector.isCollecting());
+            netTab.putBoolean("run", false);
+        } else {
+            chassisCommandsOverride();
+            breacherArm.run(assistantJoystick);
+           shooter.stop();
+           collector.stop();
+           camera.stream();
+        }
+        SmartDashboard.putBoolean("DB/Button 0", vision.getTowerPos());
     }
 
     // Drive system
     private void chassisCommands()
     {
-        chassis.setMotorInversion(mainJoystick);
+        //chassis.setMotorInversion(mainJoystick);
         chassis.arcadeDrive(mainJoystick, launchPad);
+    }
+    private void chassisCommandsOverride() {
+        chassis.arcadeDrive(assistantJoystick, launchPad);
     }
 
     public void disabledPeriodic()
@@ -138,7 +151,7 @@ public class Robot extends IterativeRobot
 
     public void testPeriodic()
     {
-        vision.idle();
+        vision.teleVision();
         netTab.putBoolean("run", false);
     }
 

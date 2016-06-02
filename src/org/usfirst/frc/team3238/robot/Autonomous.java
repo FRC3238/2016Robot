@@ -5,11 +5,6 @@ import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
-enum AutoChoices
-{
-    LOWBAR, PORTCULLIS, CHEVALDEFRISE, ROCKWALL, ROUGHTERRAIN, MOAT, RAMPARTS, HIGHGOAL, DISABLED
-}
-
 enum LowBarAuto
 {
     LOWERING, FORWARD, REVSHOOT
@@ -45,9 +40,39 @@ enum RampAuto
     FORWARD, BRAKING, REVSHOOT
 }
 
-enum HighGoalAuto
+enum LowBarGoal
 {
     LOWBAR, FORWARD, SHOOT
+}
+
+enum ChevalGoal
+{
+    CHEVAL, FORWARD, SHOOT
+}
+
+enum PortGoal
+{
+    PORTCULLIS, FORWARD, SHOOT
+}
+
+enum RockGoal
+{
+    ROCKWALL, FORWARD, SHOOT
+}
+
+enum RoughGoal
+{
+    ROUGH, FORWARD, SHOOT
+}
+
+enum RampGoal
+{
+    RAMPARTS, FORWARD, SHOOT
+}
+
+enum MoatGoal
+{
+    MOAT, FORWARD, SHOOT
 }
 
 public class Autonomous
@@ -59,13 +84,10 @@ public class Autonomous
     Vision autoAim;
     Timer timer;
     Timer shootTime;
-    SendableChooser chooser;
-    SendableChooser botPos;
 
     int auto = 0;
-    int lowBar1 = 1;
-    int portcullis1 = 2;
-    int cheval1 = 3;
+    int pos = 0;
+
     LowBarAuto lowBar;
     PortcullisAuto portcullis;
     ChevalAuto cheval;
@@ -73,7 +95,13 @@ public class Autonomous
     RoughAuto rough;
     MoatAuto moat;
     RampAuto ramp;
-    HighGoalAuto goal;
+    LowBarGoal goal;
+    ChevalGoal chevalGoal;
+    PortGoal portGoal;
+    RockGoal rockGoal;
+    RoughGoal roughGoal;
+    MoatGoal moatGoal;
+    RampGoal rampGoal;
 
     public Autonomous(Chassis chassis, Breacher breacher, Shooter shooter,
             Collector collector, Vision autoAim)
@@ -97,6 +125,7 @@ public class Autonomous
     {
 
         auto = (int) SmartDashboard.getNumber("DB/Slider 0");
+        pos = (int) SmartDashboard.getNumber("DB/Slider 1");
 
         lowBar = LowBarAuto.LOWERING;
         portcullis = PortcullisAuto.LOWERING;
@@ -105,7 +134,13 @@ public class Autonomous
         rough = RoughAuto.FORWARD;
         moat = MoatAuto.FORWARD;
         ramp = RampAuto.FORWARD;
-        goal = HighGoalAuto.LOWBAR;
+        goal = LowBarGoal.LOWBAR;
+        chevalGoal = ChevalGoal.CHEVAL;
+        portGoal = PortGoal.PORTCULLIS;
+        rockGoal = RockGoal.ROCKWALL;
+        roughGoal = RoughGoal.ROUGH;
+        moatGoal = MoatGoal.MOAT;
+        rampGoal = RampGoal.RAMPARTS;
         shooter.rpm = Constants.Shooter.presetPowerFour;
         shooter.changeState(ShooterState.DISABLED);
         timer.reset();
@@ -120,45 +155,6 @@ public class Autonomous
         SmartDashboard.putNumber("Auto", auto);
         switch(auto)
         {
-
-            case 2:
-                switch(cheval)
-                {
-                    case FORWARD:
-                        cheval = (ChevalAuto) forward(cheval,
-                                ChevalAuto.LOWERING, Constants.Auto.chevalTime,
-                                Constants.Auto.chevalSpeed);
-                        break;
-                    case LOWERING:
-                        cheval = (ChevalAuto) lowerArm(cheval,
-                                ChevalAuto.ONWARD,
-                                Constants.Auto.chevalArmPower,
-                                Constants.Auto.chevalArmTime);
-                        forward(0.05);
-                        break;
-                    case ONWARD:
-                        breacher.autoRaise(Constants.Auto.chevalArmRaisePower);
-                        // stopCBS(false, true, false);
-                        SmartDashboard.putNumber("The Breacher Power",
-                                breacher.getTalonSpeed());
-                        cheval = (ChevalAuto) forward(cheval,
-                                ChevalAuto.REVSHOOT,
-                                Constants.Auto.chevalBreachTime,
-                                Constants.Auto.chevalBreachSpeed);
-                        SmartDashboard.putNumber("The Breacher Power 2",
-                                breacher.getTalonSpeed());
-                        break;
-                    case REVSHOOT:
-                        stopCBS(false, true, false);
-                        revNoLower();
-                        break;
-                    default:
-                        DriverStation.reportError(
-                                "Auto default state! Auto is dysfunctional!",
-                                true);
-                        break;
-                }
-                break;
             case 0:
                 disableAll();
                 break;
@@ -189,116 +185,432 @@ public class Autonomous
                 }
                 break;
             case 1:
-                switch(portcullis)
+                switch(portGoal)
                 {
                     case FORWARD:
-                        breacher.moveArm(0.0);
-                        portcullis = (PortcullisAuto) forward(portcullis,
-                                PortcullisAuto.REVSHOOT,
-                                Constants.Auto.portcullisBreachTime,
-                                Constants.Auto.portcullisSpeed);
+                        switch(pos)
+                        {
+                            case 0:
+                                stopCBS(false, true, false);
+                                revNoLower();
+                                break;
+                            case 1:
+                                stopCBS(false, true, false);
+                                revNoLower();
+                                break;
+                            case 2:
+                                stopCBS(false, true, false);
+                                portGoal = (PortGoal) forwardTank(
+                                        portGoal,
+                                        PortGoal.SHOOT,
+                                        Constants.Auto.goalPortTwoForwardTime,
+                                        Constants.Auto.goalPortTwoForwardPowerY,
+                                        Constants.Auto.goalPortTwoForwardPowerTwist);
+                                break;
+                            case 3:
+                                stopCBS(false, true, false);
+                                portGoal = (PortGoal) forwardTank(
+                                        portGoal,
+                                        PortGoal.SHOOT,
+                                        Constants.Auto.goalPortThreeForwardTime,
+                                        Constants.Auto.goalPortThreeForwardPowerY,
+                                        Constants.Auto.goalPortThreeForwardPowerTwist);
+                                break;
+                            case 4:
+                                stopCBS(false, true, false);
+                                portGoal = (PortGoal) forwardTank(
+                                        portGoal,
+                                        PortGoal.SHOOT,
+                                        Constants.Auto.goalPortFourForwardTime,
+                                        Constants.Auto.goalPortFourForwardPowerY,
+                                        Constants.Auto.goalPortFourForwardPowerTwist);
+                                break;
+                            case 5:
+                                stopCBS(false, true, false);
+                                portGoal = (PortGoal) forwardTank(
+                                        portGoal,
+                                        PortGoal.SHOOT,
+                                        Constants.Auto.goalPortFiveForwardTime,
+                                        Constants.Auto.goalPortFiveForwardPowerY,
+                                        Constants.Auto.goalPortFiveForwardPowerTwist);
+                                break;
+                        }
+
                         break;
-                    case LOWERING:
-                        portcullis = (PortcullisAuto) lowerArm(portcullis,
-                                PortcullisAuto.FORWARD,
-                                Constants.Auto.portcullisArmPower,
-                                Constants.Auto.portcullisArmTime);
+                    case PORTCULLIS:
+                        switch(portcullis)
+                        {
+                            case FORWARD:
+                                breacher.moveArm(0.0);
+                                portcullis = (PortcullisAuto) forward(
+                                        portcullis, PortcullisAuto.REVSHOOT,
+                                        Constants.Auto.portcullisBreachTime,
+                                        Constants.Auto.portcullisSpeed);
+                                break;
+                            case LOWERING:
+                                portcullis = (PortcullisAuto) lowerArm(
+                                        portcullis, PortcullisAuto.FORWARD,
+                                        Constants.Auto.portcullisArmPower,
+                                        Constants.Auto.portcullisArmTime);
+                                break;
+                            case REVSHOOT:
+                                portGoal = PortGoal.FORWARD;
+                                break;
+                            default:
+                                DriverStation
+                                        .reportError(
+                                                "Auto default state! Auto is disfunctional!",
+                                                true);
+                                break;
+                        }
                         break;
-                    case REVSHOOT:
-                        revNoLower();
+                    case SHOOT:
+                        if(timer.get() > 1.0)
+                        {
+                            autoAim.idle(pos);
+                        }
                         break;
                     default:
-                        DriverStation.reportError(
-                                "Auto default state! Auto is disfunctional!",
-                                true);
                         break;
                 }
                 break;
             case 5:
-                switch(rock)
+                switch(rockGoal)
                 {
                     case FORWARD:
-                        rock = (RockAuto) forward(rock, RockAuto.BRAKING,
-                                Constants.Auto.rockBreachTime,
-                                Constants.Auto.rockSpeed);
+                        switch(pos)
+                        {
+                            case 0:
+                                stopCBS(false, true, false);
+                                revNoLower();
+                                break;
+                            case 1:
+                                stopCBS(false, true, false);
+                                revNoLower();
+                                break;
+                            case 2:
+                                stopCBS(false, true, false);
+                                rockGoal = (RockGoal) forwardTank(
+                                        rockGoal,
+                                        RockGoal.SHOOT,
+                                        Constants.Auto.goalRockTwoForwardTime,
+                                        Constants.Auto.goalRockTwoForwardPowerY,
+                                        Constants.Auto.goalRockTwoForwardPowerTwist);
+                                break;
+                            case 3:
+                                stopCBS(false, true, false);
+                                rockGoal = (RockGoal) forwardTank(
+                                        rockGoal,
+                                        RockGoal.SHOOT,
+                                        Constants.Auto.goalRockThreeForwardTime,
+                                        Constants.Auto.goalRockThreeForwardPowerY,
+                                        Constants.Auto.goalRockThreeForwardPowerTwist);
+                                break;
+                            case 4:
+                                stopCBS(false, true, false);
+                                rockGoal = (RockGoal) forwardTank(
+                                        rockGoal,
+                                        RockGoal.SHOOT,
+                                        Constants.Auto.goalRockFourForwardTime,
+                                        Constants.Auto.goalRockFourForwardPowerY,
+                                        Constants.Auto.goalRockFourForwardPowerTwist);
+                                break;
+                            case 5:
+                                stopCBS(false, true, false);
+                                rockGoal = (RockGoal) forwardTank(
+                                        rockGoal,
+                                        RockGoal.SHOOT,
+                                        Constants.Auto.goalRockFiveForwardTime,
+                                        Constants.Auto.goalRockFiveForwardPowerY,
+                                        Constants.Auto.goalRockFiveForwardPowerTwist);
+                                break;
+                        }
                         break;
-                    case BRAKING:
-                        rock = (RockAuto) forward(rock, RockAuto.REVSHOOT,
-                                Constants.Auto.brakeTime,
-                                Constants.Auto.brakeSpeed);
+                    case ROCKWALL:
+                        switch(rock)
+                        {
+                            case FORWARD:
+                                rock = (RockAuto) forward(rock, RockAuto.BRAKING,
+                                        Constants.Auto.rockBreachTime,
+                                        Constants.Auto.rockSpeed);
+                                break;
+                            case BRAKING:
+                                rock = (RockAuto) forward(rock, RockAuto.REVSHOOT,
+                                        Constants.Auto.brakeTime,
+                                        Constants.Auto.brakeSpeed);
+                                break;
+                            case REVSHOOT:
+                                rockGoal = RockGoal.FORWARD;
+                                break;
+                            default:
+                                DriverStation.reportError(
+                                        "Auto default state! Auto is disfunctional!",
+                                        true);
+                                break;
+                        }
                         break;
-                    case REVSHOOT:
-                        rev();
+                    case SHOOT:
+                        if(timer.get() > 1.0)
+                        {
+                            autoAim.idle(pos);
+                        }
                         break;
                     default:
-                        DriverStation.reportError(
-                                "Auto default state! Auto is disfunctional!",
-                                true);
                         break;
+                    
                 }
                 break;
             case 6:
-                switch(rough)
+                switch(roughGoal)
                 {
                     case FORWARD:
-                        rough = (RoughAuto) forward(rough, RoughAuto.BRAKING,
-                                Constants.Auto.roughBreachTime,
-                                Constants.Auto.roughSpeed);
+                        switch(pos)
+                        {
+                            case 0:
+                                stopCBS(false, true, false);
+                                revNoLower();
+                                break;
+                            case 1:
+                                stopCBS(false, true, false);
+                                revNoLower();
+                                break;
+                            case 2:
+                                stopCBS(false, true, false);
+                                roughGoal = (RoughGoal) forwardTank(
+                                        roughGoal,
+                                        RoughGoal.SHOOT,
+                                        Constants.Auto.goalRoughTwoForwardTime,
+                                        Constants.Auto.goalRoughTwoForwardPowerY,
+                                        Constants.Auto.goalRoughTwoForwardPowerTwist);
+                                break;
+                            case 3:
+                                stopCBS(false, true, false);
+                                roughGoal = (RoughGoal) forwardTank(
+                                        roughGoal,
+                                        RoughGoal.SHOOT,
+                                        Constants.Auto.goalRoughThreeForwardTime,
+                                        Constants.Auto.goalRoughThreeForwardPowerY,
+                                        Constants.Auto.goalRoughThreeForwardPowerTwist);
+                                break;
+                            case 4:
+                                stopCBS(false, true, false);
+                                roughGoal = (RoughGoal) forwardTank(
+                                        roughGoal,
+                                        RoughGoal.SHOOT,
+                                        Constants.Auto.goalRoughFourForwardTime,
+                                        Constants.Auto.goalRoughFourForwardPowerY,
+                                        Constants.Auto.goalRoughFourForwardPowerTwist);
+                                break;
+                            case 5:
+                                stopCBS(false, true, false);
+                                roughGoal = (RoughGoal) forwardTank(
+                                        roughGoal,
+                                        RoughGoal.SHOOT,
+                                        Constants.Auto.goalRoughFiveForwardTime,
+                                        Constants.Auto.goalRoughFiveForwardPowerY,
+                                        Constants.Auto.goalRoughFiveForwardPowerTwist);
+                                break;
+                        }
                         break;
-                    case BRAKING:
-                        rough = (RoughAuto) forward(rough, RoughAuto.REVSHOOT,
-                                Constants.Auto.brakeTime,
-                                Constants.Auto.brakeSpeed);
+                    case ROUGH:
+                        switch(rough)
+                        {
+                            case FORWARD:
+                                rough = (RoughAuto) forward(rough, RoughAuto.BRAKING,
+                                        Constants.Auto.roughBreachTime,
+                                        Constants.Auto.roughSpeed);
+                                break;
+                            case BRAKING:
+                                rough = (RoughAuto) forward(rough, RoughAuto.REVSHOOT,
+                                        Constants.Auto.brakeTime,
+                                        Constants.Auto.brakeSpeed);
+                                break;
+                            case REVSHOOT:
+                                roughGoal = RoughGoal.FORWARD;
+                                break;
+                            default:
+                                DriverStation.reportError(
+                                        "Auto default state! Auto is disfunctional!",
+                                        true);
+                                break;
+                        }
                         break;
-                    case REVSHOOT:
-                        revNoLower();
+                    case SHOOT:
+                        if(timer.get() > 1.0)
+                        {
+                            autoAim.idle(pos);
+                        }
                         break;
                     default:
-                        DriverStation.reportError(
-                                "Auto default state! Auto is disfunctional!",
-                                true);
                         break;
+                    
                 }
                 break;
             case 3:
-                switch(moat)
+                switch(moatGoal)
                 {
-                    case BRAKING:
-                        moat = (MoatAuto) forward(moat, MoatAuto.REVSHOOT,
-                                Constants.Auto.brakeTime,
-                                Constants.Auto.brakeSpeed);
-                        break;
                     case FORWARD:
-                        moat = (MoatAuto) forward(moat, MoatAuto.REVSHOOT,
-                                Constants.Auto.moatBreachTime,
-                                Constants.Auto.moatSpeed);
-
+                        switch(pos)
+                        {
+                            case 0:
+                                stopCBS(false, true, false);
+                                revNoLower();
+                                break;
+                            case 1:
+                                stopCBS(false, true, false);
+                                revNoLower();
+                                break;
+                            case 2:
+                                stopCBS(false, true, false);
+                                moatGoal = (MoatGoal) forwardTank(
+                                        moatGoal,
+                                        MoatGoal.SHOOT,
+                                        Constants.Auto.goalMoatTwoForwardTime,
+                                        Constants.Auto.goalMoatTwoForwardPowerY,
+                                        Constants.Auto.goalMoatTwoForwardPowerTwist);
+                                break;
+                            case 3:
+                                stopCBS(false, true, false);
+                                moatGoal = (MoatGoal) forwardTank(
+                                        moatGoal,
+                                        MoatGoal.SHOOT,
+                                        Constants.Auto.goalMoatThreeForwardTime,
+                                        Constants.Auto.goalMoatThreeForwardPowerY,
+                                        Constants.Auto.goalMoatThreeForwardPowerTwist);
+                                break;
+                            case 4:
+                                stopCBS(false, true, false);
+                                moatGoal = (MoatGoal) forwardTank(
+                                        moatGoal,
+                                        MoatGoal.SHOOT,
+                                        Constants.Auto.goalMoatFourForwardTime,
+                                        Constants.Auto.goalMoatFourForwardPowerY,
+                                        Constants.Auto.goalMoatFourForwardPowerTwist);
+                                break;
+                            case 5:
+                                stopCBS(false, true, false);
+                                moatGoal = (MoatGoal) forwardTank(
+                                        moatGoal,
+                                        MoatGoal.SHOOT,
+                                        Constants.Auto.goalMoatFiveForwardTime,
+                                        Constants.Auto.goalMoatFiveForwardPowerY,
+                                        Constants.Auto.goalMoatFiveForwardPowerTwist);
+                                break;
+                        }
                         break;
-                    case REVSHOOT:
-                        revNoLower();
+                    case MOAT:
+                        switch(moat)
+                        {
+                            case BRAKING:
+                                moat = (MoatAuto) forward(moat, MoatAuto.REVSHOOT,
+                                        Constants.Auto.brakeTime,
+                                        Constants.Auto.brakeSpeed);
+                                break;
+                            case FORWARD:
+                                moat = (MoatAuto) forward(moat, MoatAuto.REVSHOOT,
+                                        Constants.Auto.moatBreachTime,
+                                        Constants.Auto.moatSpeed);
+
+                                break;
+                            case REVSHOOT:
+                                moatGoal = MoatGoal.FORWARD;
+                                break;
+                            default:
+                                break;
+                        }
+                        break;
+                    case SHOOT:
+                        if(timer.get() > 1.0)
+                        {
+                            autoAim.idle(pos);
+                        }
                         break;
                     default:
                         break;
+                    
                 }
                 break;
             case 4:
-                switch(ramp)
+                switch(rampGoal)
                 {
-                    case BRAKING:
-                        ramp = (RampAuto) forward(ramp, RampAuto.REVSHOOT,
-                                Constants.Auto.brakeTime,
-                                Constants.Auto.brakeSpeed);
-                        break;
                     case FORWARD:
-                        ramp = (RampAuto) forward(ramp, RampAuto.REVSHOOT,
-                                Constants.Auto.rampBreachTime,
-                                Constants.Auto.rampSpeed);
+                        switch(pos)
+                        {
+                            case 0:
+                                stopCBS(false, true, false);
+                                revNoLower();
+                                break;
+                            case 1:
+                                stopCBS(false, true, false);
+                                revNoLower();
+                                break;
+                            case 2:
+                                stopCBS(false, true, false);
+                                rampGoal = (RampGoal) forwardTank(
+                                        rampGoal,
+                                        RampGoal.SHOOT,
+                                        Constants.Auto.goalRampTwoForwardTime,
+                                        Constants.Auto.goalRampTwoForwardPowerY,
+                                        Constants.Auto.goalRampTwoForwardPowerTwist);
+                                break;
+                            case 3:
+                                stopCBS(false, true, false);
+                                rampGoal = (RampGoal) forwardTank(
+                                        rampGoal,
+                                        RampGoal.SHOOT,
+                                        Constants.Auto.goalRampThreeForwardTime,
+                                        Constants.Auto.goalRampThreeForwardPowerY,
+                                        Constants.Auto.goalRampThreeForwardPowerTwist);
+                                break;
+                            case 4:
+                                stopCBS(false, true, false);
+                                rampGoal = (RampGoal) forwardTank(
+                                        rampGoal,
+                                        RampGoal.SHOOT,
+                                        Constants.Auto.goalRampFourForwardTime,
+                                        Constants.Auto.goalRampFourForwardPowerY,
+                                        Constants.Auto.goalRampFourForwardPowerTwist);
+                                break;
+                            case 5:
+                                stopCBS(false, true, false);
+                                rampGoal = (RampGoal) forwardTank(
+                                        rampGoal,
+                                        RampGoal.SHOOT,
+                                        Constants.Auto.goalRampFiveForwardTime,
+                                        Constants.Auto.goalRampFiveForwardPowerY,
+                                        Constants.Auto.goalRampFiveForwardPowerTwist);
+                                break;
+                        }
                         break;
-                    case REVSHOOT:
-                        rev();
+                    case RAMPARTS:
+                        switch(ramp)
+                        {
+                            case BRAKING:
+                                ramp = (RampAuto) forward(ramp, RampAuto.REVSHOOT,
+                                        Constants.Auto.brakeTime,
+                                        Constants.Auto.brakeSpeed);
+                                break;
+                            case FORWARD:
+                                ramp = (RampAuto) forward(ramp, RampAuto.REVSHOOT,
+                                        Constants.Auto.rampBreachTime,
+                                        Constants.Auto.rampSpeed);
+                                break;
+                            case REVSHOOT:
+                                rampGoal = RampGoal.FORWARD;
+                                break;
+                            default:
+                                break;
+                        }
+                        break;
+                    case SHOOT:
+                        if(timer.get() > 1.0)
+                        {
+                            autoAim.idle(pos);
+                        }
                         break;
                     default:
                         break;
+                    
                 }
                 break;
             case 8:
@@ -306,8 +618,7 @@ public class Autonomous
                 {
 
                     case FORWARD:
-                        goal = (HighGoalAuto) forwardTank(goal,
-                                HighGoalAuto.SHOOT,
+                        goal = (LowBarGoal) forwardTank(goal, LowBarGoal.SHOOT,
                                 Constants.Auto.goalForwardTime,
                                 Constants.Auto.goalForwardPowerY,
                                 Constants.Auto.goalForwardPowerTwist);
@@ -317,8 +628,8 @@ public class Autonomous
                         {
                             case FORWARD:
                                 stopCBS(false, true, false);
-                                goal = (HighGoalAuto) forward(goal,
-                                        HighGoalAuto.FORWARD,
+                                goal = (LowBarGoal) forward(goal,
+                                        LowBarGoal.FORWARD,
                                         Constants.Auto.goalBarForwardTime,
                                         Constants.Auto.goalBarForwardSpeed);
                                 break;
@@ -329,7 +640,7 @@ public class Autonomous
                                         Constants.Auto.lowBarArmTime);
                                 break;
                             case REVSHOOT:
-                                revNoLower();
+                                goal = LowBarGoal.FORWARD;
                                 break;
                             default:
                                 DriverStation
@@ -338,16 +649,114 @@ public class Autonomous
                                                 true);
                                 break;
                         }
-
-                        if(lowBar == LowBarAuto.REVSHOOT)
+                        break;
+                    case SHOOT:
+                        if(timer.get() > 1.0)
                         {
-                            goal = HighGoalAuto.FORWARD;
+                            autoAim.idle(1);
+                        }
+                        break;
+                    default:
+                        break;
+                }
+                break;
+            case 2:
+                switch(chevalGoal)
+                {
+
+                    case FORWARD:
+                        switch(pos)
+                        {
+                            case 0:
+                                stopCBS(false, true, false);
+                                revNoLower();
+                                break;
+                            case 1:
+                                stopCBS(false, true, false);
+                                revNoLower();
+                                break;
+                            case 2:
+                                stopCBS(false, true, false);
+                                chevalGoal = (ChevalGoal) forwardTank(
+                                        chevalGoal,
+                                        ChevalGoal.SHOOT,
+                                        Constants.Auto.goalCDFTwoForwardTime,
+                                        Constants.Auto.goalCDFTwoForwardPowerY,
+                                        Constants.Auto.goalCDFTwoForwardPowerTwist);
+                                break;
+                            case 3:
+                                stopCBS(false, true, false);
+                                chevalGoal = (ChevalGoal) forwardTank(
+                                        chevalGoal,
+                                        ChevalGoal.SHOOT,
+                                        Constants.Auto.goalCDFThreeForwardTime,
+                                        Constants.Auto.goalCDFThreeForwardPowerY,
+                                        Constants.Auto.goalCDFThreeForwardPowerTwist);
+                                break;
+                            case 4:
+                                stopCBS(false, true, false);
+                                chevalGoal = (ChevalGoal) forwardTank(
+                                        chevalGoal,
+                                        ChevalGoal.SHOOT,
+                                        Constants.Auto.goalCDFFourForwardTime,
+                                        Constants.Auto.goalCDFFourForwardPowerY,
+                                        Constants.Auto.goalCDFFourForwardPowerTwist);
+                                break;
+                            case 5:
+                                stopCBS(false, true, false);
+                                chevalGoal = (ChevalGoal) forwardTank(
+                                        chevalGoal,
+                                        ChevalGoal.SHOOT,
+                                        Constants.Auto.goalCDFFiveForwardTime,
+                                        Constants.Auto.goalCDFFiveForwardPowerY,
+                                        Constants.Auto.goalCDFFiveForwardPowerTwist);
+                                break;
+                        }
+                        break;
+                    case CHEVAL:
+                        switch(cheval)
+                        {
+                            case FORWARD:
+                                cheval = (ChevalAuto) forward(cheval,
+                                        ChevalAuto.LOWERING,
+                                        Constants.Auto.chevalTime,
+                                        Constants.Auto.chevalSpeed);
+                                break;
+                            case LOWERING:
+                                cheval = (ChevalAuto) lowerArm(cheval,
+                                        ChevalAuto.ONWARD,
+                                        Constants.Auto.chevalArmPower,
+                                        Constants.Auto.chevalArmTime);
+                                forward(0.05);
+                                break;
+                            case ONWARD:
+                                breacher.autoRaise(Constants.Auto.chevalArmRaisePower);
+                                // stopCBS(false, true, false);
+                                SmartDashboard.putNumber("The Breacher Power",
+                                        breacher.getTalonSpeed());
+                                cheval = (ChevalAuto) forward(cheval,
+                                        ChevalAuto.REVSHOOT,
+                                        Constants.Auto.chevalBreachTime,
+                                        Constants.Auto.chevalBreachSpeed);
+                                SmartDashboard.putNumber(
+                                        "The Breacher Power 2",
+                                        breacher.getTalonSpeed());
+                                break;
+                            case REVSHOOT:
+                                chevalGoal = ChevalGoal.FORWARD;
+                                break;
+                            default:
+                                DriverStation
+                                        .reportError(
+                                                "Auto default state! Auto is dysfunctional!",
+                                                true);
+                                break;
                         }
                         break;
                     case SHOOT:
-                        if(timer.get()>1.0)
+                        if(timer.get() > 1.0)
                         {
-                            autoAim.idle();
+                            autoAim.idle(pos);
                         }
                         break;
                     default:
@@ -368,20 +777,6 @@ public class Autonomous
         breacher.moveArm(0.0);
     }
 
-    private void rev()
-    {
-        chassis.disable();
-        SmartDashboard.putNumber("SHT", shootTime.get());
-        SmartDashboard.putNumber("SHTA", Constants.Auto.shootRevTime);
-        collector.state = CollectorState.DISABLED;
-        shooter.idle(false);
-        if(shootTime.get() > Constants.Auto.shootRevTime)
-        {
-            breacher.moveArm(Constants.Auto.armLowerPower);
-            shooter.state = ShooterState.RUNNING;
-        }
-    }
-
     private void revNoLower()
     {
         chassis.disable();
@@ -393,11 +788,6 @@ public class Autonomous
         {
             shooter.state = ShooterState.RUNNING;
         }
-    }
-
-    private void startTimer(Object st, Object nst)
-    {
-        st = nst;
     }
 
     private Object lowerArm(Object stateControl, Object nextState,

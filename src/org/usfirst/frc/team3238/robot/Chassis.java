@@ -13,7 +13,7 @@ public class Chassis
 
     double speedMult, turnMult, twistMult;
 
-    int flip;
+    int flip = 1;
 
     CANTalon leftMotorControllerA, rightMotorControllerA, leftMotorControllerB,
             rightMotorControllerB;

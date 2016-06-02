@@ -84,6 +84,10 @@ public class Collector
                 shooter.leftTalon.set(0.0);
                 shooter.rightTalon.set(0.0);
                 setPowerOverride(Constants.Collector.centerPower);
+                if(stick.getRawButton(Constants.MainDriver.autoCollect))
+                {
+                    state = CollectorState.LOWERING;
+                }
                 if(timer.get() >= 0.15)
                 {
                     timer.reset();
@@ -175,6 +179,10 @@ public class Collector
                 setPowerOverride(-Constants.Collector.centerPower);
                 if(!ballDetect.get())
                     loweringToSwitch = true;
+                if(stick.getRawButton(Constants.MainDriver.autoCollect))
+                {
+                    state = CollectorState.COLLECTING;
+                }
                 if(ballDetect.get() && loweringToSwitch)
                     state = CollectorState.RAISING;
                 // if(timer.get() >= 0.15)
@@ -216,6 +224,10 @@ public class Collector
                 shooter.leftTalon.set(0.0);
                 shooter.rightTalon.set(0.0);
                 setPowerOverride(Constants.Collector.liftPower);
+                if(stick.getRawButton(Constants.MainDriver.autoCollect))
+                {
+                    state = CollectorState.LOWERING;
+                }
                 if(!ballDetect.get() && !manual)
                 {
                     state = CollectorState.DISABLED;
@@ -248,7 +260,9 @@ public class Collector
         }
 
     }
-
+    public void stop() {
+        talon.set(0);
+    }
     public void shoot()
     {
         state = CollectorState.AUTOSHOOT;

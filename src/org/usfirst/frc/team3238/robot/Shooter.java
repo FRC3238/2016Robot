@@ -70,7 +70,10 @@ public class Shooter
         state = ShooterState.DISABLED;
         wiggleRoom = 50;
     }
-
+    public void stop() {
+        leftTalon.set(0);
+        rightTalon.set(0);
+    }
     private void setPowerOverride(double shooterPower)
     {
         if(launchPad.getRawButton(Constants.LaunchPad.shooterUp) || assistStick
@@ -183,10 +186,9 @@ public class Shooter
                 setPowerOverride(0.0);
                 controlPower();
                 resetErrors();
-                if(assistStick
-                        .getRawButton(Constants.AssistantDriver.prepShootOn)
-                        || assistStick.getRawButton(
-                                Constants.AssistantDriver.manualShooterPreset3))
+                if(mainStick
+                        .getRawButton(12)
+                        )
                 {
                     state = ShooterState.RUNNING;
                     powerAdjustLeft = 0;
@@ -203,8 +205,8 @@ public class Shooter
                     powerAdjustLeft = 0;
                     powerAdjustRight = 0;
                 }
-                if(assistStick
-                        .getRawButton(Constants.AssistantDriver.prepShootOff))
+                if(mainStick
+                        .getRawButton(11))
                 {
                     state = ShooterState.DISABLED;
                     powerAdjustLeft = 0;

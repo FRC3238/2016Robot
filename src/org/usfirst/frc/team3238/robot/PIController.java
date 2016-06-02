@@ -101,7 +101,14 @@ public class PIController
         } else if(motorPower < -1.0)
         {
             returnPower = -1.0;
-        } else
+        } else if(motorPower < 0.5 && motorPower > 0.0)
+        {
+            returnPower = 0.5;
+        } else if(motorPower > -0.5 && motorPower < 0.0)
+        {
+            returnPower = -0.5;
+        }
+        else
         {
             returnPower = motorPower;
         }
