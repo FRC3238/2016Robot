@@ -1,6 +1,7 @@
 package org.usfirst.frc.team3238.robot;
 
-import edu.wpi.first.wpilibj.CANTalon;
+import com.ctre.CANTalon;
+
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.Encoder;
 import edu.wpi.first.wpilibj.Joystick;
@@ -17,7 +18,7 @@ public class Breacher
 {
     CANTalon breacherTalon;
     DigitalInput armDetectTop;
-    Encoder armEncoder
+    Encoder armEncoder;
     
     double deadzone;
 

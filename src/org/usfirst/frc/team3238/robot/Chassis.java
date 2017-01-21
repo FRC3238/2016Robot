@@ -3,7 +3,7 @@ package org.usfirst.frc.team3238.robot;
 import edu.wpi.first.wpilibj.RobotDrive;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj.Joystick;
-import edu.wpi.first.wpilibj.CANTalon;
+import com.ctre.CANTalon;
 
 /**
  * Constructs a chassis object to control the drivetrain and chassis movement
@@ -40,6 +40,7 @@ public class Chassis
                 rightMotorControllerA, rightMotorControllerB);
         speedMult = Constants.Chassis.yMultiplier;
         turnMult = Constants.Chassis.twistMultiplier;
+        driveTrain.setSafetyEnabled(false);
     }
 
     /**
@@ -130,7 +131,10 @@ public class Chassis
      * The functionality of arcadedrive but absolute instead of algorithmic input values in order to have effective autonomous
      * @param y : speed of chassis 
      * @param twist : turn speed
-     */ 
+     */
+    public void visionDrive(double rotationRate) {
+        driveTrain.arcadeDrive(0, rotationRate);
+    }
     void arcadeDriveAuto(double y, double twist)
     {
         driveTrain.arcadeDrive(y, twist, false); //last param squares inputs if true
